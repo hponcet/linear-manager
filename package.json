@@ -1,0 +1,31 @@
+{
+  "name": "linear-manager",
+  "displayName": "Linear Manager",
+  "description": "VSCode extension to manage linear issues with git",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": []
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "simple-git": "^3.30.0"
+  }
+}

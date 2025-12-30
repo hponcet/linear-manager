@@ -29,7 +29,7 @@
     },
     "viewsWelcome": [
       {
-        "view": "linear-manager-my-issues",
+        "view": "linear.views.myIssues",
         "contents": "In order to use Linear Manager plugin, connect your Linear account to get started.\n[Connect to Linear](command:linearManager.connect)",
         "when": "!linearManager:isLinearAuthenticated && linearManager:isLinearExtensionLoaded"
       }
@@ -37,7 +37,7 @@
     "views": {
       "linear-manager-issues": [
         {
-          "id": "linear-manager-my-issues",
+          "id": "linear.views.myIssues",
           "name": "My issues"
         }
       ]

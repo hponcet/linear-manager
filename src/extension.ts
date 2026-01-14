@@ -1,8 +1,8 @@
-import { ExtensionContext, window } from "vscode";
+import { ExtensionContext } from "vscode";
 import { registerCommands } from "./commands";
 import { initLinearClient } from "./linear/auth";
 import { CommandContext, setCommandContext } from "./commandsContext";
-import { LinearIssuesViewer } from "./views/MyIssuesView";
+import { Controller } from "./controller";
 
 export async function activate(context: ExtensionContext) {
   setCommandContext(
@@ -12,7 +12,7 @@ export async function activate(context: ExtensionContext) {
 
   registerCommands(context);
 
-  new LinearIssuesViewer(context);
+  await Controller.initialize(context);
 
   setCommandContext(CommandContext.linearExtensionLoaded, true);
 }

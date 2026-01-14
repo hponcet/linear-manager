@@ -1,0 +1,55 @@
+.issueCommentGroup {
+  border-radius: 5px;
+  border: 1px solid var(--rs-border-primary);
+  background-color: var(--rs-bg-overlay);
+  margin-bottom: 8px;
+  z-index: 10;
+  position: relative;
+  outline: 3px solid var(--bg-color);
+
+  & .issueCommentContent[is-children="true"] {
+    margin-left: 25px;
+  }
+
+  &[is-resolved-by-user="true"][is-expanded="false"] {
+    .issueCommentSeparator {
+      display: none;
+    }
+  }
+
+  & .issueCommentSeparator {
+    border-bottom: 1px solid var(--rs-border-primary);
+    width: 100%;
+
+    &[is-child="true"] {
+      width: calc(100% - 35px);
+      margin-left: 35px;
+    }
+  }
+
+  & [is-hidden="true"] {
+    height: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+  }
+}
+
+.issueCommentWrapper {
+  overflow: hidden;
+}
+
+.issueCommentReply {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  border-top: 1px solid var(--rs-border-primary);
+  padding-top: 8px;
+  padding: 15px 10px 10px 15px;
+
+  .issueCommentReplyEditor {
+    flex: 1 1 100%;
+  }
+}

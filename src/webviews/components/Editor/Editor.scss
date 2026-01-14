@@ -1,0 +1,99 @@
+::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tt-scrollbar-color) transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--tt-scrollbar-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tiptap.ProseMirror {
+  font-family: inherit;
+}
+
+.simple-editor-wrapper {
+  overflow: auto;
+}
+
+.simple-editor-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+}
+
+.tiptap.ProseMirror pre {
+  margin: 0;
+  overflow: auto;
+}
+
+.tiptap {
+  & > :first-child {
+    margin-top: 0;
+  }
+
+  & > :last-child {
+    margin-bottom: 0;
+  }
+
+  img {
+    display: block;
+    border-radius: 20px;
+    max-height: 600px;
+    margin: 1rem auto;
+  }
+
+  [data-resize-container] {
+    display: flex !important;
+    justify-content: center;
+  }
+
+  [data-resize-handle] {
+    min-height: 20px;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 10;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Edge handles */
+    &[data-resize-handle="left"],
+    &[data-resize-handle="right"] {
+      width: 6px;
+      top: 25% !important;
+      bottom: 25% !important;
+    }
+
+    &[data-resize-handle="left"] {
+      left: -10px;
+      cursor: ew-resize;
+    }
+
+    &[data-resize-handle="right"] {
+      right: -10px;
+      cursor: ew-resize;
+    }
+  }
+
+  [data-resize-state="true"] [data-resize-wrapper] {
+    outline: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 0.125rem;
+  }
+}

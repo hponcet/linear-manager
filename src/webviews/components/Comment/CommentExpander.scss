@@ -1,0 +1,21 @@
+.commentExpander {
+  cursor: pointer;
+  color: var(--rs-text-secondary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  & > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.commentExpanderResolver {
+  color: var(--rs-text-primary);
+}

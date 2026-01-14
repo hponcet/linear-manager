@@ -1,0 +1,72 @@
+.commentInputContainer {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--rs-border-primary);
+  background-color: var(--rs-bg-overlay);
+  margin-bottom: 8px;
+  z-index: 15;
+  position: relative;
+  outline: 3px solid var(--bg-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.commentActions {
+  display: flex;
+  flex-shrink: initial;
+  flex-basis: initial;
+  flex-direction: row-reverse;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-flex: 1;
+  flex-grow: 1;
+  gap: 12px;
+}
+
+.commentSendButton {
+  overflow: hidden;
+  padding: 0px;
+  border-width: 1px;
+  width: 1.5rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  position: relative;
+
+  display: inline-flex;
+  vertical-align: top;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0px;
+  font-weight: 500;
+  line-height: normal;
+  transition-property: border, background-color, color, opacity;
+  transition-duration: 0.15s;
+  user-select: none;
+  position: relative;
+  border: 1px solid lch(53.751 61.636 288.421);
+  box-shadow: lch(0 0 0 / 0.06) 0px 4px 4px -1px,
+    lch(0 0 0 / 0.12) 0px 1px 1px 0px;
+  background-color: lch(47.918 59.303 288.421);
+  color: lch(100 5 288.421);
+  min-width: 24px;
+  font-size: var(--font-size-mini);
+  border-radius: 50%;
+  fill: #ffffff;
+
+  &:disabled {
+    background-color: lch(34.961 20.787 288.421);
+    border-color: lch(34.961 20.787 288.421);
+    color: lch(78.065 5 288.421);
+    fill: lch(78.065 5 288.421);
+    box-shadow: none;
+    cursor: normal;
+  }
+
+  &:not(:disabled):hover {
+    background-color: lch(53.751 61.636 288.421);
+  }
+}

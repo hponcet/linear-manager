@@ -1,14 +1,9 @@
-import { ExtensionContext, commands, window } from "vscode";
+import { ExtensionContext, commands } from "vscode";
 import { linearConnect } from "./linear/auth";
-
-export enum Commands {
-  linearAuthentication = "linearManager.connect",
-}
+import { Commands } from "./constants";
 
 export function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
-    commands.registerCommand(Commands.linearAuthentication, () =>
-      linearConnect(context)
-    )
+    commands.registerCommand(Commands.connect, () => linearConnect(context))
   );
 }

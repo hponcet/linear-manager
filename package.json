@@ -11,25 +11,32 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack -c webpack.extension.js",
+    "watch": "npm-run-all --parallel watch:extension watch:react",
+    "watch:extension": "webpack --watch -c webpack.extension.js",
+    "watch:react": "webpack --watch -c webpack.react.js",
+    "package": "webpack -c webpack.extension.js --mode production --devtool hidden-source-map && webpack -c webpack.react.js --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
   "contributes": {
-    "commands": [
-      {
-        "command": "linearManager.connect",
-        "title": "Connect to Linear"
-      }
-    ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "linear-manager-issues",
           "title": "Linear issue manager",
-          "icon": "resources/linear.svg"
+          "icon": "resources/images/linear.svg"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "linear.views.myIssues",
+        "view": "linearManager.views.myIssues",
         "contents": "In order to use Linear Manager plugin, connect your Linear account to get started.\n[Connect to Linear](command:linearManager.connect)",
         "when": "!linearManager:isLinearAuthenticated && linearManager:isLinearExtensionLoaded"
       }
@@ -37,38 +44,101 @@
     "views": {
       "linear-manager-issues": [
         {
-          "id": "linear.views.myIssues",
+          "id": "linearManager.views.myIssues",
           "name": "My issues"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "linearManager.connect",
+        "title": "Connect to Linear"
+      },
+      {
+        "command": "linearManager.commands.openIssue",
+        "title": "Open Issue"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "linearManager.commands.openIssue",
+          "when": "viewItem == issueItem"
         }
       ]
     }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
   "devDependencies": {
+    "@types/lodash.throttle": "^4.1.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.107.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "autoprefixer": "^10.4.23",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.3.0",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.4",
     "eslint": "^9.39.1",
+    "fork-ts-checker-webpack-plugin": "^9.1.0",
+    "mini-css-extract-plugin": "^2.9.4",
+    "npm-run-all": "^4.1.5",
+    "path-browserify": "^1.0.1",
+    "postcss": "^8.5.6",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^8.2.0",
+    "postcss-preset-env": "^10.6.0",
+    "process": "^0.11.10",
+    "sass": "^1.97.2",
+    "sass-embedded": "^1.97.2",
+    "sass-loader": "^16.0.6",
+    "source-map-loader": "^5.0.0",
+    "stream-browserify": "^3.0.0",
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.16",
     "ts-loader": "^9.5.4",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
+    "vm-browserify": "^1.1.2",
     "webpack": "^5.103.0",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "@linear/sdk": "^68.1.0"
+    "@floating-ui/react": "^0.27.16",
+    "@linear/sdk": "^68.1.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@tiptap/core": "^3.15.3",
+    "@tiptap/extension-bubble-menu": "^3.15.3",
+    "@tiptap/extension-details": "^3.15.3",
+    "@tiptap/extension-highlight": "^3.15.3",
+    "@tiptap/extension-horizontal-rule": "^3.15.3",
+    "@tiptap/extension-image": "^3.15.3",
+    "@tiptap/extension-list": "^3.15.3",
+    "@tiptap/extension-mathematics": "^3.15.3",
+    "@tiptap/extension-mention": "^3.15.3",
+    "@tiptap/extension-subscript": "^3.15.3",
+    "@tiptap/extension-superscript": "^3.15.3",
+    "@tiptap/extension-table": "^3.15.3",
+    "@tiptap/extension-text-align": "^3.15.3",
+    "@tiptap/extension-typography": "^3.15.3",
+    "@tiptap/extensions": "^3.15.3",
+    "@tiptap/markdown": "^3.15.3",
+    "@tiptap/pm": "^3.15.3",
+    "@tiptap/react": "^3.15.3",
+    "@tiptap/starter-kit": "^3.15.3",
+    "axios": "^1.13.2",
+    "lodash.throttle": "^4.1.1",
+    "moment": "^2.30.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-hotkeys-hook": "^5.2.1",
+    "rsuite": "^6.1.1",
+    "serve": "^14.2.5"
   },
   "extensionDependencies": [
     "linear.linear-connect"

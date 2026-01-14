@@ -1,0 +1,33 @@
+.label {
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: transparent;
+  white-space: nowrap;
+
+  &[is-inline="false"] {
+    border-radius: 48px;
+    height: 27px;
+    z-index: 0;
+    min-width: auto;
+    border: 1px solid lch(19 3.54 272);
+    padding: 0px 10px;
+  }
+
+  &[is-inline="true"] {
+    padding: 0px 5px;
+  }
+}
+
+.labelColor {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+
+  &[is-inline="true"] {
+    margin-right: 5px;
+  }
+}

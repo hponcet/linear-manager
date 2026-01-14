@@ -1,0 +1,24 @@
+.issueHeader {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.issueHeaderTopRow {
+  padding-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-color);
+  z-index: 15;
+  border: 1px solid var(--rs-border-primary);
+  padding: 8px 10px 5px 10px;
+  border-radius: 6px;
+}
+
+.issueHeaderTopRowLeft {
+  display: flex;
+  flex-wrap: wrap;
+}

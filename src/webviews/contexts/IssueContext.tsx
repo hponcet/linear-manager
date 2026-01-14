@@ -1,0 +1,383 @@
+import {
+  Cycle,
+  Issue,
+  IssueLabel,
+  IssuePriorityValue,
+  LinearClient,
+  PaginationOrderBy,
+  Project,
+  User,
+} from "@linear/sdk";
+import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { useLinearClient } from "../hooks/useLinearClient";
+import { useAsyncEffect } from "../hooks/useAsyncEffect";
+import { Container } from "../components/Container/Container";
+import { useAsyncMemo } from "../hooks/useAsyncMemo";
+import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates";
+import { WorkflowStateWithStateProgress } from "src/types/Linear";
+import {
+  createEstimateDataItems,
+  EstimateDataItem,
+  issueEstimationByType,
+} from "../utils/issueEstimateByType";
+import { Comment, orderComments } from "../utils/comments";
+import { History, orderHistory } from "../utils/history";
+
+type IssueContextProviderProps = {
+  issueId: string;
+  linearAccessToken: string;
+  isLoading?: boolean;
+  children: ReactNode;
+};
+
+export type IssueContextValueData = {
+  me: User | null;
+  meLoading: boolean;
+  issue: Issue;
+  update: {
+    issue: (issue: Parameters<LinearClient["updateIssue"]>[1]) => Promise<void>;
+    addComment: (body: string) => Promise<void>;
+    updateComment: (commentId: string, body: string) => Promise<void>;
+    deleteComment: (commentId: string) => Promise<void>;
+    sendCommentReply: (commentId: string, body: string) => Promise<void>;
+    resolveComment: (
+      commentId: string,
+      parentCommentId?: string
+    ) => Promise<void>;
+    unresolveComment: (commentId: string) => Promise<void>;
+  };
+  priorities: IssuePriorityValue[];
+  prioritiesLoading: boolean;
+  issueLabels: IssueLabel[];
+  issueLabelsLoading: boolean;
+  projects: Project[];
+  projectsLoading: boolean;
+  cycles: Cycle[];
+  cyclesLoading: boolean;
+  workflowStates: WorkflowStateWithStateProgress[];
+  workflowStatesLoading: boolean;
+  users: User[];
+  usersLoading: boolean;
+  issueEstimations: EstimateDataItem[] | null;
+  issueEstimationsLoading: boolean;
+  comments: Comment[] | null;
+  commentsLoading: boolean;
+  history: History[] | null;
+  historyLoading: boolean;
+};
+
+const IssueContextValue = createContext<IssueContextValueData>({
+  me: null,
+  meLoading: false,
+  issue: {} as Issue,
+  update: {
+    issue: async () => {
+      console.warn("IssueContext: updater.issue not implemented");
+    },
+    addComment: async () => {
+      console.warn("IssueContext: updater.addComment not implemented");
+    },
+    deleteComment: async () => {
+      console.warn("IssueContext: updater.deleteComment not implemented");
+    },
+    updateComment: async () => {
+      console.warn("IssueContext: updater.updateComment not implemented");
+    },
+    sendCommentReply: async () => {
+      console.warn("IssueContext: updater.sendCommentReply not implemented");
+    },
+    resolveComment: async () => {
+      console.warn("IssueContext: updater.resolveComment not implemented");
+    },
+    unresolveComment: async () => {
+      console.warn("IssueContext: updater.unresolveComment not implemented");
+    },
+  },
+  priorities: [],
+  prioritiesLoading: false,
+  issueLabels: [],
+  issueLabelsLoading: false,
+  projects: [],
+  projectsLoading: false,
+  cycles: [],
+  cyclesLoading: false,
+  workflowStates: [],
+  workflowStatesLoading: false,
+  users: [],
+  usersLoading: false,
+  issueEstimations: null,
+  issueEstimationsLoading: false,
+  comments: null,
+  commentsLoading: false,
+  history: null,
+  historyLoading: false,
+});
+
+export function IssueContextProvider(props: IssueContextProviderProps) {
+  const {
+    children,
+    issueId,
+    linearAccessToken,
+    isLoading: externalLoading,
+  } = props;
+
+  const linearClient = useLinearClient(linearAccessToken);
+
+  const [issue, setIssue] = useState<Issue | null>(null);
+  const [commentRefetch, setCommentRefetch] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useAsyncEffect(async () => {
+    setIsLoading(true);
+    try {
+      if (linearClient && issueId) {
+        const issue = await linearClient?.issue(issueId || "");
+        setIssue(issue || null);
+      }
+    } catch (error) {
+      console.error("Failed to load issue:", error);
+      setIssue(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [issueId, !!linearClient]);
+
+  async function updateIssue(
+    updatedFields: Parameters<LinearClient["updateIssue"]>[1]
+  ) {
+    const result = await linearClient?.updateIssue(issueId, updatedFields);
+    const updatedIssue = await result?.issue;
+
+    if (result?.success) {
+      setIssue(updatedIssue || null);
+    }
+  }
+
+  async function addComment(body: string) {
+    await linearClient?.createComment({
+      issueId: issueId,
+      body,
+    });
+    setCommentRefetch((r) => r + 1);
+  }
+
+  async function updateComment(commentId: string, body: string) {
+    await linearClient?.updateComment(commentId, { body });
+    setCommentRefetch((r) => r + 1);
+  }
+
+  async function deleteComment(commentId: string) {
+    await linearClient?.deleteComment(commentId);
+    setCommentRefetch((r) => r + 1);
+  }
+
+  async function sendCommentReply(commentId: string, body: string) {
+    await linearClient?.createComment({
+      parentId: commentId,
+      issueId: issueId,
+      body,
+    });
+    setCommentRefetch((r) => r + 1);
+  }
+
+  async function resolveComment(
+    commentId: string,
+    resolvingCommentId?: string
+  ) {
+    await linearClient?.commentResolve(
+      commentId,
+      resolvingCommentId && commentId !== resolvingCommentId
+        ? { resolvingCommentId }
+        : undefined
+    );
+    setCommentRefetch((r) => r + 1);
+  }
+
+  async function unresolveComment(commentId: string) {
+    await linearClient?.commentUnresolve(commentId);
+    setCommentRefetch((r) => r + 1);
+  }
+
+  const [me, meLoading] = useAsyncMemo(async () => {
+    const me = await linearClient?.viewer;
+    return me || null;
+  }, [!!linearClient]);
+
+  const [priorities = [], prioritiesLoading] = useAsyncMemo(async () => {
+    const priorities = await linearClient?.issuePriorityValues;
+    return priorities || [];
+  }, [!!linearClient]);
+
+  const [issueLabels, issueLabelsLoading] = useAsyncMemo(async () => {
+    if (!issue?.teamId) return [];
+    const labels = await linearClient?.issueLabels({
+      last: 250,
+      filter: {
+        team: {
+          or: [{ id: { eq: issue?.teamId } }, { null: true }],
+        },
+      },
+    });
+    while (labels?.pageInfo.hasPreviousPage) {
+      await labels.fetchPrevious();
+    }
+    return labels?.nodes || [];
+  }, [!!linearClient, issue?.id]);
+
+  const [projects = [], projectsLoading] = useAsyncMemo(async () => {
+    if (!issue?.teamId) return [];
+    const projects = await linearClient?.projects({
+      last: 250,
+      filter: { accessibleTeams: { id: { eq: issue.teamId } } },
+    });
+    while (projects?.pageInfo.hasPreviousPage) {
+      await projects.fetchPrevious();
+    }
+    return projects?.nodes || [];
+  }, [!!linearClient, issue?.id]);
+
+  const [cycles = [], cyclesLoading] = useAsyncMemo(async () => {
+    if (!issue?.teamId) return [];
+    const cycles = await linearClient?.cycles({
+      last: 250,
+      filter: { team: { id: { eq: issue.teamId } } },
+    });
+    while (cycles?.pageInfo.hasPreviousPage) {
+      await cycles.fetchPrevious();
+    }
+    return cycles?.nodes || [];
+  }, [!!linearClient, issue?.id]);
+
+  const [issueEstimations, issueEstimationsLoading] =
+    useAsyncMemo(async (): Promise<EstimateDataItem[] | null> => {
+      if (!issue?.teamId) return null;
+      const team = await linearClient?.team(issue.teamId);
+      if (
+        !team?.issueEstimationType ||
+        team.issueEstimationType === "notUsed"
+      ) {
+        return null;
+      }
+      return createEstimateDataItems(
+        team?.issueEstimationType as keyof typeof issueEstimationByType
+      );
+    }, [!!linearClient, issue?.id]);
+
+  const [workflowStates = [], workflowStatesLoading] =
+    useAsyncMemo(async () => {
+      if (!issue?.teamId) return [];
+      const workflowStates = await linearClient?.workflowStates({
+        last: 250,
+        filter: { team: { id: { eq: issue.teamId } } },
+      });
+      while (workflowStates?.pageInfo.hasPreviousPage) {
+        await workflowStates.fetchPrevious();
+      }
+      return filterWorkflowStatesByType(workflowStates?.nodes || []);
+    }, [!!linearClient, issue?.id]);
+
+  const [users = [], usersLoading] = useAsyncMemo(async () => {
+    const users = await linearClient?.users({ last: 250 });
+    while (users?.pageInfo.hasPreviousPage) {
+      await users.fetchPrevious();
+    }
+    return users?.nodes || [];
+  }, [!!linearClient]);
+
+  const [comments, commentsLoading] = useAsyncMemo(async () => {
+    if (!issue) return [];
+    const comments = await linearClient?.comments({
+      last: 200,
+      filter: { issue: { id: { eq: issue.id } } },
+      orderBy: PaginationOrderBy.CreatedAt,
+    });
+    while (comments?.pageInfo.hasPreviousPage) {
+      await comments.fetchPrevious();
+    }
+    return orderComments(comments?.nodes || []);
+  }, [!!linearClient, issue?.id, commentRefetch]);
+
+  const [history, historyLoading] = useAsyncMemo(async () => {
+    if (!issue || !users) return [];
+    const history = await issue.history({
+      last: 100,
+      orderBy: PaginationOrderBy.CreatedAt,
+    });
+    while (history?.pageInfo.hasPreviousPage) {
+      await history.fetchPrevious();
+    }
+    return await orderHistory(history.nodes || [], users);
+  }, [!!linearClient, issue?.id, users]);
+
+  const context = useMemo(
+    (): IssueContextValueData => ({
+      me,
+      meLoading,
+      issue: issue!,
+      priorities: priorities || [],
+      prioritiesLoading,
+      issueLabels: issueLabels || [],
+      issueLabelsLoading,
+      projects: projects || [],
+      projectsLoading,
+      cycles: cycles || [],
+      cyclesLoading,
+      workflowStates: workflowStates || [],
+      workflowStatesLoading,
+      users: users || [],
+      usersLoading,
+      issueEstimations,
+      issueEstimationsLoading,
+      comments,
+      commentsLoading,
+      history,
+      historyLoading,
+      update: {
+        issue: updateIssue,
+        addComment,
+        updateComment,
+        deleteComment,
+        sendCommentReply,
+        resolveComment,
+        unresolveComment,
+      },
+    }),
+    [
+      me,
+      meLoading,
+      issue,
+      priorities,
+      prioritiesLoading,
+      issueLabels,
+      issueLabelsLoading,
+      projects,
+      projectsLoading,
+      cycles,
+      cyclesLoading,
+      workflowStates,
+      workflowStatesLoading,
+      users,
+      usersLoading,
+      issueEstimations,
+      issueEstimationsLoading,
+      comments,
+      commentsLoading,
+      history,
+      historyLoading,
+    ]
+  );
+
+  if (!issue || !linearClient || isLoading || externalLoading) {
+    return <Container loading={true} />;
+  }
+
+  return (
+    <IssueContextValue.Provider value={context}>
+      {children}
+    </IssueContextValue.Provider>
+  );
+}
+
+export function useIssueContext() {
+  return useContext(IssueContextValue);
+}

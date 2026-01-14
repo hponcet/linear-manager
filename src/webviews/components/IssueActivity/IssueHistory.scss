@@ -1,0 +1,55 @@
+:root {
+  --activity-text-color: #97979a;
+}
+
+.issueHistory {
+  display: flex;
+  flex-flow: row nowrap;
+  color: var(--activity-text-color);
+  position: relative;
+  font-size: 12px;
+}
+
+.historyActivityLine {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.issueHistoryIcon {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  svg {
+    background-color: var(--bg-color);
+    outline: 4px solid var(--bg-color);
+    fill: var(--activity-text-color);
+    stroke: var(--activity-text-color);
+  }
+}
+.issueHistoryContent {
+  display: inline-flex;
+  flex-flow: row wrap;
+  align-items: center;
+  align-content: center;
+
+  & > span {
+    margin-right: 2px;
+    display: inline-flex;
+    align-items: center;
+    align-content: center;
+
+    & > div {
+      margin: 0 4px;
+      display: inline-flex;
+      align-items: center;
+      align-content: center;
+    }
+  }
+}

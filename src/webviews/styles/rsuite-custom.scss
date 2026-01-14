@@ -1,0 +1,106 @@
+.rs-theme-dark {
+  /* all primary colors overridden to dark colors with base color white */
+  --rs-primary-50: #ffffff;
+  --rs-primary-100: #fafafa;
+  --rs-primary-200: #f5f5f5;
+  --rs-primary-300: #f0f0f0;
+  --rs-primary-400: #e8e8e8;
+  --rs-primary-500: #d9d9d9;
+  --rs-primary-600: #c4c4c4;
+  --rs-primary-700: #b0b0b0;
+  --rs-primary-800: #9c9c9c;
+  --rs-primary-900: #888888;
+
+  --rs-text-secondary: #9c9da1;
+
+  --rs-bg-overlay: #252525;
+  --rs-bg-backdrop: #1a1c20cc;
+
+  --rs-tooltip-bg: #1e1e1e;
+  --rs-tooltip-border: 1px solid var(--rs-border-primary);
+  --rs-tooltip-color: var(--rs-text-primary);
+
+  --rs-modal-body-padding: 1rem;
+}
+
+.rs-picker-toggle-indicator {
+  display: none;
+}
+
+[data-appearance="default"] .rs-picker-toggle {
+  border: none;
+  box-shadow: none;
+  background-color: transparent !important;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+[data-appearance="default"] .rs-picker-toggle:hover {
+  box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+[data-appearance="default"] .rs-picker-toggle:focus,
+[data-appearance="default"] .rs-picker-toggle:focus-visible,
+[data-appearance="default"] .rs-picker-toggle:active {
+  box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.rs-picker-popup {
+  border: 1px solid var(--rs-border-primary);
+  padding: 0;
+  z-index: 15;
+}
+
+.rs-picker-select-menu-items {
+  padding: 5px 5px;
+}
+
+.rs-picker-select-menu-item {
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-top: 2px;
+}
+
+.rs-btn {
+  max-width: 100%;
+  height: 25px;
+  background-color: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rs-search-box,
+.rs-search-box .rs-input-group,
+.rs-search-box .rs-input-group input {
+  padding: 0 !important;
+  height: 30px;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.rs-search-box {
+  padding: 2px 0 2px 10px !important;
+  border-bottom: 1px solid var(--rs-border-primary);
+  height: fit-content;
+}
+
+.rs-tooltip {
+  border: var(--rs-tooltip-border);
+  color: var(--rs-tooltip-color);
+}
+
+.rs-modal-dialog {
+  border: 1px solid var(--rs-border-primary) !important;
+}
+
+.rs-modal-title {
+  font-weight: 600 !important;
+  font-size: medium !important;
+}
+
+.rs-modal-body {
+  color: var(--rs-text-secondary) !important;
+}

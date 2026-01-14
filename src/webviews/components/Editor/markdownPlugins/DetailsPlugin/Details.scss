@@ -1,0 +1,83 @@
+.details-container {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-top: 1.345rem;
+
+  > button {
+    height: 25px;
+  }
+
+  summary {
+    margin-bottom: 1rem;
+
+    position: relative;
+    height: 25px;
+    line-height: 25px;
+    flex: 1;
+  }
+
+  & [data-type="detailsContent"] {
+    .is-empty[data-placeholder] {
+      $dataPlaceHolder: attr(data-placeholder);
+
+      @debug "dataPlaceHolder: #{$dataPlaceHolder}";
+
+      &:has(:only-child):before {
+        pointer-events: none;
+        height: 0;
+        position: absolute;
+        width: 100%;
+        text-align: inherit;
+        left: 0;
+        right: 0;
+      }
+
+      &:has(.ProseMirror-trailingBreak:only-child) {
+        & > p::before {
+          content: attr($dataPlaceHolder);
+        }
+      }
+    }
+  }
+
+  &.is-open > .details-toggle-button > svg {
+    transform: rotate(90deg);
+    transition: transform var(--speed-highlightFadeOut);
+    will-change: transform;
+  }
+}
+
+.details-toggle-button {
+  display: inline-flex;
+  vertical-align: top;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0px;
+  border-radius: 5px;
+  font-weight: 500;
+  line-height: normal;
+  transition-property: border, background-color, color, opacity;
+  transition-duration: 0.15s;
+  user-select: none;
+  border: 0.5px solid transparent;
+  background-color: transparent;
+  color: lch(90.65 1.35 272);
+  padding: 0px 2px;
+  box-shadow: none;
+  width: 28px;
+  height: 26px;
+  cursor: default;
+  position: relative;
+
+  svg {
+    fill: lch(90.65 1.35 272);
+  }
+}
+
+.details-content-container {
+  flex: 1;
+}

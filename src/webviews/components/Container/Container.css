@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.content {
+  padding: 20px 0;
+  flex: 1;
+  max-width: 850px;
+  width: 100%;
+}
+
+.loading {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  font-size: 16px;
+  color: #666;
+}

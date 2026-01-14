@@ -4,7 +4,7 @@ import { CommandContext, setCommandContext } from "../commandsContext";
 
 let linearClient: LinearClient | null = null;
 
-enum LinearSecretKeys {
+export enum LinearSecretKeys {
   accessToken = "linearAccessToken",
 }
 
@@ -13,8 +13,14 @@ export async function initLinearClient(
 ): Promise<boolean> {
   try {
     const accessToken = await context.secrets.get(LinearSecretKeys.accessToken);
+
     if (accessToken) {
-      linearClient = new LinearClient({ accessToken });
+      linearClient = new LinearClient({
+        accessToken,
+        headers: {
+          "public-file-urls-expire-in": "60",
+        },
+      });
       return true;
     }
   } catch (error) {
@@ -43,6 +49,9 @@ export async function linearConnect(context: ExtensionContext) {
 
     linearClient = new LinearClient({
       accessToken: session.accessToken,
+      headers: {
+        "public-file-urls-expire-in": "60",
+      },
     });
 
     setCommandContext(CommandContext.linearAccountConnected, true);

@@ -1,0 +1,28 @@
+type ReplyIconProps = {
+  style?: React.CSSProperties;
+  className?: string;
+  size?: number;
+};
+
+export function EditIcon(props: ReplyIconProps) {
+  const { style, className, size = 16 } = props;
+
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      style={style}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      role="img"
+      focusable="false"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M10.1805 3.34195L4.14166 9.416C5.32948 9.77021 6.29238 10.6629 6.74008 11.8184L12.6877 5.8425C11.6642 5.22123 10.8043 4.36352 10.1805 3.34195Z"></path>
+      <path d="M13.7391 4.71631C14.1575 4.02948 14.0727 3.11738 13.4846 2.5219C12.8908 1.92072 11.9784 1.83892 11.298 2.27649C11.8547 3.31132 12.7037 4.15999 13.7391 4.71631Z"></path>
+      <path d="M3.03104 10.7502C4.30296 10.7658 5.36645 11.7423 5.49783 13.0114C4.83268 13.426 3.40197 13.7922 2.53114 13.9886C2.2001 14.0632 1.92026 13.7602 2.02075 13.4373C2.25326 12.6902 2.64592 11.5136 3.03104 10.7502Z"></path>
+    </svg>
+  );
+}

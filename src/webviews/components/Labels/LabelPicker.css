@@ -1,0 +1,11 @@
+.labelPicker,
+.labelPicker > * {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  outline: none !important;
+}
+
+.pickerListOption {
+  display: flex;
+  align-items: center;
+}

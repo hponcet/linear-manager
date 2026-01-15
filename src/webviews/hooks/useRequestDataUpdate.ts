@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Action, ToWebviewActions } from "src/types/WebviewActionMessage";
 
 export type RequestDataUpdateActions =
-  | Action<"updateIssue", void>
-  | Action<"updateComments", void>;
+  | Action<"updateIssue", number | undefined>
+  | Action<"updateComments", number | undefined>;
 
 type RequestDataUpdateParams = {
   [K in RequestDataUpdateActions["type"]]: (

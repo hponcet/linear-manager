@@ -25,9 +25,9 @@ export type ContextMenuCommandData = {
 
 export interface ReactWebview<P extends Props[keyof Props]> extends Disposable {
   hide(): void;
-  createOrShow(): void;
+  open(...params: any[]): Promise<WebviewPanel>;
   onDidPanelDispose(): Event<void>;
-  refresh(): Promise<P>;
+  getProps(): Promise<P>;
   handleContextMenuCommand?({ action, data }: ContextMenuCommandData): void;
 }
 
@@ -41,9 +41,12 @@ export abstract class AbstractWebview<K extends keyof Props>
   protected _context: ExtensionContext;
   private _onDidPanelDispose = new EventEmitter<void>();
 
+  protected _propsSent: boolean = false;
+
   abstract get title(): string;
   abstract get viewId(): string;
-  abstract refresh(): Promise<Props[K]>;
+  abstract getProps(): Promise<Props[K]>;
+  abstract open(...params: any[]): Promise<WebviewPanel>;
 
   constructor(context: ExtensionContext) {
     this._context = context;
@@ -70,8 +73,8 @@ export abstract class AbstractWebview<K extends keyof Props>
     );
 
     this.getWebviewContent(this._panel);
-    this._panel.title =
-      this.title.length > 30 ? this.title.substring(0, 30) + "..." : this.title;
+
+    this._setTitle();
 
     this._disposablePanel = Disposable.from(
       this._panel,
@@ -86,6 +89,14 @@ export abstract class AbstractWebview<K extends keyof Props>
     );
 
     return this._panel;
+  }
+
+  protected _setTitle() {
+    if (!this._panel || !this.title) {
+      return;
+    }
+    this._panel.title =
+      this.title.length > 30 ? this.title.substring(0, 30) + "..." : this.title;
   }
 
   private getWebviewContent(panel: WebviewPanel) {
@@ -156,11 +167,7 @@ export abstract class AbstractWebview<K extends keyof Props>
     return this._onDidPanelDispose.event;
   }
 
-  private onWindowReceiveFocus(windowState: WindowState) {
-    if (windowState.focused && this.visible) {
-      this.refresh();
-    }
-  }
+  private onWindowReceiveFocus(windowState: WindowState) {}
 
   protected onPanelDisposed() {
     if (this._disposablePanel) {
@@ -202,8 +209,8 @@ export abstract class AbstractWebview<K extends keyof Props>
     if (isAction(a)) {
       switch (a.action) {
         case "get-props": {
-          const props = await this.refresh();
-          this.postMessage({ type: "props", props });
+          this.postMessage({ type: "props", props: await this.getProps() });
+          this._propsSent = true;
           return true;
         }
       }

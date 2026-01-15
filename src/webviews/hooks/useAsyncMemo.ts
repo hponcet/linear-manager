@@ -2,19 +2,18 @@ import { useState } from "react";
 import { useAsyncEffect } from "./useAsyncEffect";
 
 export function useAsyncMemo<T>(
-  asyncFunction: () => Promise<T>,
-  dependencies: React.DependencyList,
-  initialValue?: T
+  asyncFunction: (currentValue: T | null) => Promise<T>,
+  dependencies: React.DependencyList
 ): [T | null, boolean] {
-  const [value, setValue] = useState<T | null>(initialValue || null);
-  const [isLoading, setLoading] = useState<boolean>(!initialValue);
+  const [value, setValue] = useState<T | null>(null);
+  const [isLoading, setLoading] = useState<boolean>(true);
 
   useAsyncEffect(async () => {
     let isMounted = true;
 
     setLoading(true);
     try {
-      const result = await asyncFunction();
+      const result = await asyncFunction(value);
       if (isMounted) {
         setValue(result);
       }

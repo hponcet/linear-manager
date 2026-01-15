@@ -66,6 +66,8 @@ export type IssueContextValueData = {
   commentsLoading: boolean;
   history: History[] | null;
   historyLoading: boolean;
+  subIssues: Issue[] | null;
+  subIssuesLoading: boolean;
 };
 
 const IssueContextValue = createContext<IssueContextValueData>({
@@ -113,6 +115,8 @@ const IssueContextValue = createContext<IssueContextValueData>({
   commentsLoading: false,
   history: null,
   historyLoading: false,
+  subIssues: null,
+  subIssuesLoading: false,
 });
 
 export function IssueContextProvider(props: IssueContextProviderProps) {
@@ -129,7 +133,11 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [commentRefetch, setCommentRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function fetchIssue() {
+  async function fetchIssue(updatedAt?: number) {
+    if (updatedAt && issue && issue.updatedAt.getTime() >= updatedAt) {
+      return;
+    }
+
     if (linearClient && issueId) {
       const issue = await linearClient?.issue(issueId || "");
       setIssue(issue || null);
@@ -137,7 +145,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   }
 
   useRequestDataUpdate({
-    updateIssue: () => fetchIssue(),
+    updateIssue: fetchIssue,
     updateComments: () => setCommentRefetch((r) => r + 1),
   });
 
@@ -225,7 +233,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [issueLabels, issueLabelsLoading] = useAsyncMemo(async () => {
     if (!issue?.teamId) return [];
     const labels = await linearClient?.issueLabels({
-      last: 250,
       filter: {
         team: {
           or: [{ id: { eq: issue?.teamId } }, { null: true }],
@@ -241,7 +248,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [projects = [], projectsLoading] = useAsyncMemo(async () => {
     if (!issue?.teamId) return [];
     const projects = await linearClient?.projects({
-      last: 250,
       filter: { accessibleTeams: { id: { eq: issue.teamId } } },
     });
     while (projects?.pageInfo.hasPreviousPage) {
@@ -253,7 +259,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [cycles = [], cyclesLoading] = useAsyncMemo(async () => {
     if (!issue?.teamId) return [];
     const cycles = await linearClient?.cycles({
-      last: 250,
       filter: { team: { id: { eq: issue.teamId } } },
     });
     while (cycles?.pageInfo.hasPreviousPage) {
@@ -281,7 +286,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     useAsyncMemo(async () => {
       if (!issue?.teamId) return [];
       const workflowStates = await linearClient?.workflowStates({
-        last: 250,
         filter: { team: { id: { eq: issue.teamId } } },
       });
       while (workflowStates?.pageInfo.hasPreviousPage) {
@@ -291,7 +295,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     }, [!!linearClient, issue?.id]);
 
   const [users = [], usersLoading] = useAsyncMemo(async () => {
-    const users = await linearClient?.users({ last: 250 });
+    const users = await linearClient?.users({ last: 100 });
     while (users?.pageInfo.hasPreviousPage) {
       await users.fetchPrevious();
     }
@@ -301,7 +305,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [comments, commentsLoading] = useAsyncMemo(async () => {
     if (!issue) return [];
     const comments = await linearClient?.comments({
-      last: 200,
       filter: { issue: { id: { eq: issue.id } } },
       orderBy: PaginationOrderBy.CreatedAt,
     });
@@ -314,13 +317,23 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [history, historyLoading] = useAsyncMemo(async () => {
     if (!issue || !users) return [];
     const history = await issue.history({
-      last: 100,
       orderBy: PaginationOrderBy.CreatedAt,
     });
-    while (history?.pageInfo.hasPreviousPage) {
-      await history.fetchPrevious();
+    while (history?.pageInfo.hasNextPage) {
+      await history.fetchNext();
     }
     return await orderHistory(history.nodes || [], users);
+  }, [!!linearClient, issue, users]);
+
+  const [subIssues, subIssuesLoading] = useAsyncMemo(async () => {
+    if (!issue) return [];
+    const subIssues = await issue?.children({
+      orderBy: PaginationOrderBy.CreatedAt,
+    });
+    while (subIssues?.pageInfo.hasPreviousPage) {
+      await subIssues.fetchPrevious();
+    }
+    return subIssues?.nodes || [];
   }, [!!linearClient, issue, users]);
 
   const context = useMemo(
@@ -346,6 +359,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       commentsLoading,
       history,
       historyLoading,
+      subIssues,
+      subIssuesLoading,
       update: {
         issue: updateIssue,
         addComment,
@@ -378,6 +393,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       commentsLoading,
       history,
       historyLoading,
+      subIssues,
+      subIssuesLoading,
     ]
   );
 

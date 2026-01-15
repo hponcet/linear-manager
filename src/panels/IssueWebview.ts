@@ -5,27 +5,17 @@ import {
   FromWebviewActions,
   ToWebviewActions,
 } from "src/types/WebviewActionMessage";
-import { Issue, LinearClient } from "@linear/sdk";
-import { getLinearClient, LinearSecretKeys } from "src/linear/auth";
+import { Issue } from "@linear/sdk";
+import { LinearSecretKeys } from "src/linear/auth";
 import { Webviews } from "src/constants";
 import { Controller } from "src/controller";
 import { MyIssuesView } from "src/views/MyIssuesView";
 
 export class IssueWebview extends AbstractWebview<"issue"> {
-  private linearClient: LinearClient;
   _issue: Partial<Issue> | null = null;
   _issueActions: MyIssuesView["_issuesActions"];
 
   isLoading: boolean = false;
-
-  public get title(): string {
-    return this._issue
-      ? `${this._issue.identifier} - ${this._issue.title}` || "Untitled Issue"
-      : "Create new issue";
-  }
-  public get viewId(): string {
-    return Webviews.issueWebview;
-  }
 
   constructor(
     context: ExtensionContext,
@@ -33,22 +23,15 @@ export class IssueWebview extends AbstractWebview<"issue"> {
   ) {
     super(context);
     this._issueActions = issueActions;
-    this.linearClient = getLinearClient() as LinearClient;
   }
 
-  async create(issue: Issue, column?: ViewColumn) {
+  async open(issue: Issue, column?: ViewColumn) {
     this._issue = issue;
-    await this._initialize(issue);
     const panel = await super.createOrShow(column);
 
     panel.iconPath = Controller.resources.icons.get("issue");
 
     return panel;
-  }
-
-  private async _initialize(issue: Partial<Issue>) {
-    this._issue = issue;
-    await this.refresh();
   }
 
   protected override postMessage(
@@ -83,40 +66,35 @@ export class IssueWebview extends AbstractWebview<"issue"> {
     return false;
   }
 
-  public async updatePanel() {
-    if (!this._panel || !this.linearClient) {
-      this.dispose();
-      return { issue: null };
+  public updateWebview(issue: Partial<Issue>) {
+    if (issue) {
+      this._issue = issue;
+      this._setTitle();
     }
 
-    if (this.isLoading || !this._issue?.id) {
-      return { issue: this._issue };
+    if (this._propsSent) {
+      this.postMessage({
+        type: "updateIssue",
+        payload: issue.updatedAt?.getTime(),
+      });
     }
-
-    this.isLoading = true;
-
-    this.postMessage({ type: "updateIssue", payload: undefined });
-
-    this._issue = await this.linearClient.issue(this._issue!.id!);
-    this._panel.title = this.title;
-
-    this.isLoading = false;
-
-    return { issue: this._issue };
   }
 
-  public updateWebview() {
-    this.postMessage({ type: "updateIssue", payload: undefined });
-  }
-
-  public async refresh() {
-    const { issue } = await this.updatePanel();
-
+  public async getProps() {
     return {
-      issueId: issue?.id || null,
+      issueId: this._issue?.id || null,
       linearAccessToken: await this._context.secrets.get(
         LinearSecretKeys.accessToken
       ),
     };
+  }
+
+  public get title(): string {
+    return this._issue
+      ? `${this._issue.identifier} - ${this._issue.title}` || "Untitled Issue"
+      : "Create new issue";
+  }
+  public get viewId(): string {
+    return Webviews.issueWebview;
   }
 }

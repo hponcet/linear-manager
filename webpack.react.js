@@ -111,15 +111,41 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          isProduction ? MiniCssExtractPlugin.loader : "style-loader",
-          "css-loader",
+          isProduction
+            ? {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  publicPath: "../",
+                },
+              }
+            : "style-loader",
+          {
+            loader: require.resolve("css-loader"),
+            options: {
+              importLoaders: 1,
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
         test: /\.scss$/,
         use: [
-          isProduction ? MiniCssExtractPlugin.loader : "style-loader",
-          "css-loader",
+          isProduction
+            ? {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  publicPath: "../",
+                },
+              }
+            : "style-loader",
+          {
+            loader: require.resolve("css-loader"),
+            options: {
+              importLoaders: 1,
+              sourceMap: true,
+            },
+          },
           "sass-loader",
         ],
       },

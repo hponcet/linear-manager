@@ -99,7 +99,7 @@ export class MyIssuesView
       webview = new IssueWebview(this._context, this._issuesActions);
       this._issues.set(issue.id, webview);
     }
-    await webview.create(issue, ViewColumn.Active);
+    await webview.open(issue, ViewColumn.Active);
   }
 
   public getChildren(
@@ -159,16 +159,7 @@ export class MyIssuesView
       stateId: targetStateId,
     });
 
-    const issuePanel = this._issues.get(issue.id);
-    issuePanel?.updatePanel();
     await this._getIssues();
-
-    const treeItem = this._treeItems.get(targetStateId);
-
-    if (treeItem) {
-      treeItem.collapsibleState = TreeItemCollapsibleState.Expanded;
-      this._onDidChangeTreeData.fire();
-    }
   }
 
   public async handleDrag(
@@ -194,11 +185,6 @@ export class MyIssuesView
         const issue = await this._linearClient.issue(issueId);
         this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
         this._onDidChangeTreeData.fire();
-      }
-
-      if (this._issues.has(issueId)) {
-        const webview = this._issues.get(issueId)!;
-        await webview.refresh();
       }
     },
   };
@@ -282,13 +268,20 @@ export class MyIssuesView
     try {
       const viewer = await this._getMe();
       const issues = await viewer.assignedIssues({ first: 250 });
+
       issues.nodes.forEach((issue) => {
         const panel = this._issues.get(issue.id);
-        if (panel?._issue?.updatedAt !== issue.updatedAt) {
-          panel?.updatePanel();
+
+        if (
+          panel?._issue?.updatedAt &&
+          panel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
+        ) {
+          panel?.updateWebview(issue);
         }
+
         this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
       });
+
       this._onDidChangeTreeData.fire();
     } catch (error) {
       window.showErrorMessage(

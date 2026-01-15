@@ -22,6 +22,7 @@ export function Priority(props: PriorityProps) {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "start",
+        opacity: priority?.priority ? 1 : 0.3,
         ...style,
       }}
     >

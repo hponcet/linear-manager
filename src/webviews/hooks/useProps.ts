@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAPI } from "./useVSCodeAPI";
-import { Props } from "src/types/WebviewActionMessage";
-import { IssueMessage } from "src/ipc/issueMessaging";
+import { vscApi } from "../utils/vscMessaging";
+import { Props, ToWebviewActions } from "src/types/WebviewActionMessage";
 
 export function useProps<k extends keyof Props>(
   defaults?: Partial<Props[k]>
@@ -12,9 +11,7 @@ export function useProps<k extends keyof Props>(
     (defaults as Props[k]) || ({} as Props[k])
   );
 
-  const { vscApi } = useAPI();
-
-  function handleMessage(e: MessageEvent<IssueMessage>) {
+  function handleMessage(e: MessageEvent<ToWebviewActions<k>>) {
     if (e.data.type === "props") {
       setProps(e.data.props);
       setLoaded(true);
@@ -27,7 +24,7 @@ export function useProps<k extends keyof Props>(
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [vscApi]);
+  }, []);
 
   return [props, loaded];
 }

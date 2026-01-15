@@ -1,5 +1,5 @@
 import { ExtensionContext } from "vscode";
-import { LinearIssuesViewerProvider } from "./views/MyIssuesView";
+import { MyIssuesView } from "./views/MyIssuesView";
 import { Resources } from "./resources";
 
 export class Controller {
@@ -7,11 +7,11 @@ export class Controller {
 
   static async initialize(context: ExtensionContext) {
     this.resources = new Resources(context);
-    this._issueViewer = new LinearIssuesViewerProvider(context);
+    this._issueViewer = new MyIssuesView(context);
     await this._issueViewer.initialize(context);
   }
 
-  private static _issueViewer: LinearIssuesViewerProvider;
+  private static _issueViewer: MyIssuesView;
   public static get issueViewer() {
     return this._issueViewer;
   }

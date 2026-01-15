@@ -35,7 +35,7 @@ export function LabelPicker(props: LabelPickerProps) {
       data={cacheData}
       value={issue?.labelIds || []}
       onChange={(labelIds) => update.issue({ labelIds })}
-      placeholder="Select labels"
+      placeholder="Add a labels..."
       cleanable={false}
       renderOption={(_, item) => (
         <Label key={item.value} issueLabel={item.issueLabel} inline />

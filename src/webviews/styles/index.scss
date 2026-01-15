@@ -1,7 +1,7 @@
-@import "~rsuite/dist/rsuite.css";
-@import "./rsuite-custom.scss";
-@import "../components/Editor/styles/_keyframe-animations.scss";
-@import "../components/Editor/styles/_variables.scss";
+@forward "rsuite/dist/rsuite.css";
+@forward "./rsuite-custom.scss";
+@forward "../components/Editor/styles/_keyframe-animations.scss";
+@forward "../components/Editor/styles/_variables.scss";
 
 :root {
   --bg-color: rgb(31 31 31);

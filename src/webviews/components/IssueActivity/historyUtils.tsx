@@ -120,8 +120,6 @@ export function getActivity(
       activity[to]
     );
 
-    console.log();
-
     if (!content) {
       return;
     }

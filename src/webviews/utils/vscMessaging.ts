@@ -1,3 +1,4 @@
+import { Issue } from "@linear/sdk";
 import { VsCodeApi } from "src/types/WebviewActionMessage";
 
 // @ts-expect-error
@@ -10,8 +11,10 @@ const acquireVsCodeApi = (window.acquireVsCodeApi ||
 
 const vscApi = acquireVsCodeApi();
 
-function useAPI() {
-  return { vscApi };
+function updateIssue(issueId: Issue["id"]) {
+  vscApi.postMessage({ action: "updateIssue", issueId });
 }
 
-export { vscApi, useAPI };
+export const panelActions = { updateIssue };
+
+export { vscApi };

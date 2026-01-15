@@ -1,13 +1,6 @@
-import { Props } from "src/types/WebviewActionMessage";
-
 // From vscode to React
 export interface Message {
   type: string;
-}
-
-export interface PropsMessage<K extends keyof Props> extends Message {
-  type: "props";
-  props: Props[K];
 }
 
 // From React to vscode

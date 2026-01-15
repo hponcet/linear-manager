@@ -1,15 +1,20 @@
 import { isAction } from "src/ipc/messaging";
 import { AbstractWebview } from "./AbstractWebview";
 import { ExtensionContext, ViewColumn } from "vscode";
-import { IssueAction, IssueMessage } from "src/ipc/issueMessaging";
+import {
+  FromWebviewActions,
+  ToWebviewActions,
+} from "src/types/WebviewActionMessage";
 import { Issue, LinearClient } from "@linear/sdk";
 import { getLinearClient, LinearSecretKeys } from "src/linear/auth";
 import { Webviews } from "src/constants";
 import { Controller } from "src/controller";
+import { MyIssuesView } from "src/views/MyIssuesView";
 
 export class IssueWebview extends AbstractWebview<"issue"> {
   private linearClient: LinearClient;
   _issue: Partial<Issue> | null = null;
+  _issueActions: MyIssuesView["_issuesActions"];
 
   isLoading: boolean = false;
 
@@ -22,8 +27,12 @@ export class IssueWebview extends AbstractWebview<"issue"> {
     return Webviews.issueWebview;
   }
 
-  constructor(context: ExtensionContext) {
+  constructor(
+    context: ExtensionContext,
+    issueActions: MyIssuesView["_issuesActions"]
+  ) {
     super(context);
+    this._issueActions = issueActions;
     this.linearClient = getLinearClient() as LinearClient;
   }
 
@@ -42,28 +51,9 @@ export class IssueWebview extends AbstractWebview<"issue"> {
     await this.refresh();
   }
 
-  async updateFields() {
-    if (this.isLoading || !this._issue?.id) {
-      return {
-        issue: this._issue,
-      };
-    }
-
-    this.isLoading = true;
-    this._issue = await this.linearClient.issue(this._issue!.id!);
-    this.isLoading = false;
-
-    return {
-      issue: this._issue,
-    };
-  }
-
-  onIssueUpdate(issue: Partial<Issue>) {
-    this._issue = issue;
-    this.postMessage({ type: "updateIssue", payload: this._issue });
-  }
-
-  protected override postMessage(message: IssueMessage): Thenable<boolean> {
+  protected override postMessage(
+    message: ToWebviewActions<"issue">
+  ): Thenable<boolean> {
     if (this._panel === undefined) {
       return Promise.resolve(false);
     }
@@ -71,40 +61,21 @@ export class IssueWebview extends AbstractWebview<"issue"> {
   }
 
   protected override async onMessageReceived(
-    msg: IssueAction
+    msg: FromWebviewActions
   ): Promise<boolean> {
-    if (!super.onMessageReceived(msg)) {
-      if (isAction(msg)) {
-        if (!this._issue?.id) {
-          return false;
-        }
+    if (await super.onMessageReceived(msg)) {
+      return true;
+    }
 
-        switch (msg.action) {
-          case "updateIssue": {
-            const { title, description } = msg.fields;
-            this.onIssueUpdate(
-              await this.linearClient.updateIssue(this._issue.id, {
-                title,
-                description,
-              })
-            );
-            return true;
-          }
-          case "createIssue": {
-            this.onIssueUpdate(await this.linearClient.createIssue(msg.fields));
-            return true;
-          }
-          case "updateState": {
-            if (!msg.stateId) {
-              return false;
-            }
-            this.onIssueUpdate(
-              await this.linearClient.updateIssue(this._issue.id, {
-                stateId: msg.stateId,
-              })
-            );
-            return true;
-          }
+    if (isAction(msg)) {
+      if (!this._issue?.id) {
+        return false;
+      }
+
+      switch (msg.action) {
+        case "updateIssue": {
+          await this._issueActions.updateIssue(msg.issueId);
+          return true;
         }
       }
     }
@@ -112,8 +83,34 @@ export class IssueWebview extends AbstractWebview<"issue"> {
     return false;
   }
 
+  public async updatePanel() {
+    if (!this._panel || !this.linearClient) {
+      this.dispose();
+      return { issue: null };
+    }
+
+    if (this.isLoading || !this._issue?.id) {
+      return { issue: this._issue };
+    }
+
+    this.isLoading = true;
+
+    this.postMessage({ type: "updateIssue", payload: undefined });
+
+    this._issue = await this.linearClient.issue(this._issue!.id!);
+    this._panel.title = this.title;
+
+    this.isLoading = false;
+
+    return { issue: this._issue };
+  }
+
+  public updateWebview() {
+    this.postMessage({ type: "updateIssue", payload: undefined });
+  }
+
   public async refresh() {
-    const { issue } = await this.updateFields();
+    const { issue } = await this.updatePanel();
 
     return {
       issueId: issue?.id || null,

@@ -1,4 +1,4 @@
-import { Action, isAction, PropsAction, PropsMessage } from "src/ipc/messaging";
+import { Action, isAction, PropsAction } from "src/ipc/messaging";
 import {
   Disposable,
   Event,
@@ -11,9 +11,12 @@ import {
   WindowState,
 } from "vscode";
 
-import { IssueAction } from "src/ipc/issueMessaging";
-import { Props } from "src/types/WebviewActionMessage";
 import { makeid } from "src/utils/makeid";
+import {
+  ToWebviewActions,
+  Props,
+  PropsMessage,
+} from "src/types/WebviewActionMessage";
 
 export type ContextMenuCommandData = {
   action: string;
@@ -194,7 +197,7 @@ export abstract class AbstractWebview<K extends keyof Props>
   }
 
   protected async onMessageReceived(
-    a: PropsAction | Action | IssueAction
+    a: PropsAction | Action | ToWebviewActions<K>
   ): Promise<boolean> {
     if (isAction(a)) {
       switch (a.action) {

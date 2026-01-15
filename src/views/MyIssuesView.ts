@@ -41,7 +41,7 @@ type WorkflowState = ReturnType<
 >;
 type Issue = ReturnType<typeof addKeyOnItem<LIssue, "issue">>;
 
-export class LinearIssuesViewerProvider
+export class MyIssuesView
   implements
     TreeDataProvider<Team | WorkflowState | Issue>,
     TreeDragAndDropController<Issue | WorkflowState | Team>
@@ -58,7 +58,7 @@ export class LinearIssuesViewerProvider
   private _teams: Record<string, Team> = {};
   private _workflowStatesByTeam: Record<string, Record<string, WorkflowState>> =
     {};
-  private _myIssues: Issue[] = [];
+  private _myIssues: Map<string, Issue> = new Map();
 
   private _autoRefreshInterval: NodeJS.Timeout | null = null;
   private _issues: Map<string, IssueWebview> = new Map();
@@ -96,7 +96,7 @@ export class LinearIssuesViewerProvider
   public async openIssue(issue: Issue) {
     let webview = this._issues.get(issue.id);
     if (!webview) {
-      webview = new IssueWebview(this._context);
+      webview = new IssueWebview(this._context, this._issuesActions);
       this._issues.set(issue.id, webview);
     }
     await webview.create(issue, ViewColumn.Active);
@@ -159,6 +159,8 @@ export class LinearIssuesViewerProvider
       stateId: targetStateId,
     });
 
+    const issuePanel = this._issues.get(issue.id);
+    issuePanel?.updatePanel();
     await this._getIssues();
 
     const treeItem = this._treeItems.get(targetStateId);
@@ -183,6 +185,23 @@ export class LinearIssuesViewerProvider
   public refresh(): void {
     this.fetchDatas();
   }
+
+  _issuesActions = {
+    updateIssue: async (issueId: Issue["id"]) => {
+      if (!issueId) return;
+
+      if (this._myIssues.has(issueId)) {
+        const issue = await this._linearClient.issue(issueId);
+        this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
+        this._onDidChangeTreeData.fire();
+      }
+
+      if (this._issues.has(issueId)) {
+        const webview = this._issues.get(issueId)!;
+        await webview.refresh();
+      }
+    },
+  };
 
   public dispose() {
     if (this._autoRefreshInterval) {
@@ -263,9 +282,13 @@ export class LinearIssuesViewerProvider
     try {
       const viewer = await this._getMe();
       const issues = await viewer.assignedIssues({ first: 250 });
-      this._myIssues = issues.nodes.map((issue) =>
-        addKeyOnItem(issue, "issue")
-      );
+      issues.nodes.forEach((issue) => {
+        const panel = this._issues.get(issue.id);
+        if (panel?._issue?.updatedAt !== issue.updatedAt) {
+          panel?.updatePanel();
+        }
+        this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
+      });
       this._onDidChangeTreeData.fire();
     } catch (error) {
       window.showErrorMessage(
@@ -289,7 +312,7 @@ export class LinearIssuesViewerProvider
   }
 
   private _getWorkflowStateTreeItem(state: WorkflowStateWithStateProgress) {
-    const issuesCount = this._myIssues.filter(
+    const issuesCount = Array.from(this._myIssues.values()).filter(
       // @ts-expect-error
       (issue) => issue._state.id === state.id
     ).length;
@@ -340,8 +363,10 @@ export class LinearIssuesViewerProvider
   private _tree = {
     getTeam: (): Team[] | WorkflowState[] | null => {
       const teams = Object.values(this._teams).filter((team) =>
-        // @ts-expect-error
-        this._myIssues.some((issue) => issue._team.id === team.id)
+        Array.from(this._myIssues.values()).some(
+          // @ts-expect-error
+          (issue) => issue._team.id === team.id
+        )
       );
 
       if (teams.length === 0) {
@@ -359,8 +384,11 @@ export class LinearIssuesViewerProvider
       ) as unknown as WorkflowState[];
     },
     getIssue: (stateId: WorkflowState["id"]) => {
-      // @ts-expect-error
-      return this._myIssues.filter((issue) => issue._state.id === stateId);
+      const issue = Array.from(this._myIssues.values()).filter(
+        // @ts-expect-error
+        (issue) => issue._state.id === stateId
+      );
+      return issue;
     },
   };
 }

@@ -76,7 +76,7 @@ export function IssueActivity() {
       <div style={{ position: "relative" }}>
         <div className="activityBreadcrumbTrail" />
         {activity.length === 0 ? (
-          <div>No comments or activity yet.</div>
+          <div className="issueActivityEmpty">No comments or activity yet.</div>
         ) : (
           activity.map((item) => {
             if (Array.isArray(item)) {

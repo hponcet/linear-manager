@@ -22,6 +22,8 @@ import {
 } from "../utils/issueEstimateByType";
 import { Comment, orderComments } from "../utils/comments";
 import { History, orderHistory } from "../utils/history";
+import { panelActions } from "../utils/vscMessaging";
+import { useRequestDataUpdate } from "../hooks/useRequestDataUpdate";
 
 type IssueContextProviderProps = {
   issueId: string;
@@ -127,16 +129,24 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [commentRefetch, setCommentRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  async function fetchIssue() {
+    if (linearClient && issueId) {
+      const issue = await linearClient?.issue(issueId || "");
+      setIssue(issue || null);
+    }
+  }
+
+  useRequestDataUpdate({
+    updateIssue: () => fetchIssue(),
+    updateComments: () => setCommentRefetch((r) => r + 1),
+  });
+
   useAsyncEffect(async () => {
     setIsLoading(true);
     try {
-      if (linearClient && issueId) {
-        const issue = await linearClient?.issue(issueId || "");
-        setIssue(issue || null);
-      }
+      await fetchIssue();
     } catch (error) {
       console.error("Failed to load issue:", error);
-      setIssue(null);
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +160,10 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
     if (result?.success) {
       setIssue(updatedIssue || null);
+
+      if (updatedIssue?.id) {
+        panelActions.updateIssue(updatedIssue.id);
+      }
     }
   }
 
@@ -295,7 +309,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       await comments.fetchPrevious();
     }
     return orderComments(comments?.nodes || []);
-  }, [!!linearClient, issue?.id, commentRefetch]);
+  }, [!!linearClient, issue, commentRefetch]);
 
   const [history, historyLoading] = useAsyncMemo(async () => {
     if (!issue || !users) return [];
@@ -307,7 +321,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       await history.fetchPrevious();
     }
     return await orderHistory(history.nodes || [], users);
-  }, [!!linearClient, issue?.id, users]);
+  }, [!!linearClient, issue, users]);
 
   const context = useMemo(
     (): IssueContextValueData => ({

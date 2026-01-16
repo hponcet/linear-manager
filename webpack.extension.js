@@ -5,6 +5,7 @@
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const fs = require("fs");
 const path = require("path");
+const webpack = require("webpack");
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -12,6 +13,8 @@ const path = require("path");
 const appDirectory = fs.realpathSync(process.cwd());
 //@ts-ignore
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
+
+console.log(process.env.NODE_ENV);
 
 /** @type WebpackConfig */
 const extensionConfig = {
@@ -29,6 +32,13 @@ const extensionConfig = {
   externals: {
     vscode: "commonjs vscode",
   },
+
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+    }),
+  ],
+
   resolve: {
     extensions: [".ts", ".js"],
     plugins: [

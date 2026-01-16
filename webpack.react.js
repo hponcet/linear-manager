@@ -10,14 +10,12 @@ const TerserPlugin = require("terser-webpack-plugin");
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
 
-const isProduction = process.env.NODE_ENV === "production";
-
 module.exports = {
   mode: isProduction ? "production" : "development",
   entry: {
     main: resolveApp("./src/webviews/index.tsx"),
   },
-  devtool: isProduction ? undefined : "cheap-module-source-map",
+  devtool: isProduction ? undefined : "eval-source-map",
 
   output: {
     publicPath: "",
@@ -85,6 +83,9 @@ module.exports = {
     }),
     new webpack.WatchIgnorePlugin({
       paths: [/\.js$/, /\.d\.ts$/],
+    }),
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
     }),
     new ForkTsCheckerWebpackPlugin({
       typescript: {

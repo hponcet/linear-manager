@@ -17,6 +17,7 @@ import {
   Props,
   PropsMessage,
 } from "src/types/WebviewActionMessage";
+import { IS_PRODUCTION } from "src/constants";
 
 export type ContextMenuCommandData = {
   action: string;
@@ -131,7 +132,19 @@ export abstract class AbstractWebview<K extends keyof Props>
       <head>
         <meta
           http-equiv="Content-Security-Policy"
-          content="default-src 'self' ${panel.webview.cspSource}; img-src 'self' https: data:; script-src ${panel.webview.cspSource} 'nonce-${nonce}'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${panel.webview.cspSource} data: https:; style-src-elem 'self' 'unsafe-inline' ${panel.webview.cspSource}; connect-src ${panel.webview.cspSource} https://*.linear.app ws://*.linear.app https://storage.googleapis.com;"
+          content="default-src 'self' ${
+            panel.webview.cspSource
+          }; img-src 'self' https: data:; script-src ${
+      IS_PRODUCTION
+        ? `${panel.webview.cspSource} 'nonce-${nonce}'`
+        : `${panel.webview.cspSource} 'unsafe-eval'`
+    }; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${
+      panel.webview.cspSource
+    } data: https:; style-src-elem 'self' 'unsafe-inline' ${
+      panel.webview.cspSource
+    }; connect-src ${
+      panel.webview.cspSource
+    } https://*.linear.app ws://*.linear.app https://storage.googleapis.com;"
         />
        
         <meta id="webview" name="webview" content="${this.viewId}" />

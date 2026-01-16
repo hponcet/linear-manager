@@ -84,6 +84,15 @@ export class IssueWebview extends AbstractWebview<"issue"> {
     }
   }
 
+  override onVisibilityChange(visible: boolean): void {
+    if (visible) {
+      console.log(this._issue?.identifier, "visible");
+      this.postMessage({ type: "updateIssue", payload: undefined });
+    } else {
+      console.log(this._issue?.identifier, "not visible");
+    }
+  }
+
   public async getProps() {
     return {
       issueId: this._issue?.id || null,

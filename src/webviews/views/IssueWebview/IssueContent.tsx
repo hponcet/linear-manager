@@ -2,6 +2,7 @@ import { IssueTitleInput } from "src/webviews/components/Input/IssueTitleInput";
 import { Editor } from "src/webviews/components/Editor/Editor";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { EmojiPicker } from "src/webviews/components/EmojiPicker/EmojiPicker";
+import { IssueParent } from "src/webviews/components/IssueParent/IssueParent";
 
 export function IssueContent() {
   const { issue, update } = useIssueContext();
@@ -9,6 +10,7 @@ export function IssueContent() {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <IssueTitleInput defaultValue={issue?.title} />
+      <IssueParent />
       <Editor value={issue?.description || ""} />
       <div style={{ margin: "20px 0 16px" }}>
         <EmojiPicker

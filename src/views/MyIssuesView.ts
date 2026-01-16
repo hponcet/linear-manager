@@ -137,6 +137,8 @@ export class MyIssuesView
     target: Team | WorkflowState | Issue | undefined,
     sources: DataTransfer
   ): Promise<void> {
+    console.log(sources);
+
     const transferItem = sources.get("application/vnd.code.issueViewer.issue");
     if (!transferItem) {
       return;
@@ -286,6 +288,7 @@ export class MyIssuesView
         const panel = this._issues.get(issue.id);
 
         if (
+          panel?.visible &&
           panel?._issue?.updatedAt &&
           panel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
         ) {

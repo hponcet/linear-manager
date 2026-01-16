@@ -7,8 +7,8 @@ import {
   Uri,
   ViewColumn,
   WebviewPanel,
+  WebviewPanelOnDidChangeViewStateEvent,
   window,
-  WindowState,
 } from "vscode";
 
 import { makeid } from "src/utils/makeid";
@@ -37,6 +37,8 @@ export abstract class AbstractWebview<K extends keyof Props>
 {
   private static readonly viewType = "webview";
 
+  private _visible: boolean = false;
+
   private _disposablePanel: Disposable | undefined;
   protected _panel: WebviewPanel | undefined;
   protected _context: ExtensionContext;
@@ -48,6 +50,7 @@ export abstract class AbstractWebview<K extends keyof Props>
   abstract get viewId(): string;
   abstract getProps(): Promise<Props[K]>;
   abstract open(...params: any[]): Promise<WebviewPanel>;
+  abstract onVisibilityChange(visible: boolean): void;
 
   constructor(context: ExtensionContext) {
     this._context = context;
@@ -80,7 +83,7 @@ export abstract class AbstractWebview<K extends keyof Props>
     this._disposablePanel = Disposable.from(
       this._panel,
       this._panel.onDidDispose(this.onPanelDisposed, this),
-      window.onDidChangeWindowState(this.onWindowReceiveFocus, this)
+      this._panel.onDidChangeViewState(this.onViewStateChanged, this)
     );
 
     this._panel.webview.onDidReceiveMessage(
@@ -126,8 +129,6 @@ export abstract class AbstractWebview<K extends keyof Props>
     );
 
     const nonce = makeid(16);
-
-    console.log();
 
     panel.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -186,7 +187,14 @@ export abstract class AbstractWebview<K extends keyof Props>
     return this._onDidPanelDispose.event;
   }
 
-  private onWindowReceiveFocus(windowState: WindowState) {}
+  private onViewStateChanged(e: WebviewPanelOnDidChangeViewStateEvent) {
+    if (e.webviewPanel.visible) {
+      this._visible = true;
+    } else {
+      this._visible = false;
+    }
+    this.onVisibilityChange(this._visible);
+  }
 
   protected onPanelDisposed() {
     if (this._disposablePanel) {
@@ -197,7 +205,7 @@ export abstract class AbstractWebview<K extends keyof Props>
   }
 
   get visible() {
-    return this._panel === undefined ? false : this._panel.visible;
+    return this._panel === undefined ? false : this._visible;
   }
 
   hide() {

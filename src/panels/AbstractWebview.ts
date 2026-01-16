@@ -127,6 +127,8 @@ export abstract class AbstractWebview<K extends keyof Props>
 
     const nonce = makeid(16);
 
+    console.log();
+
     panel.webview.html = `<!DOCTYPE html>
     <html lang="en">
       <head>
@@ -144,7 +146,7 @@ export abstract class AbstractWebview<K extends keyof Props>
       panel.webview.cspSource
     }; connect-src ${
       panel.webview.cspSource
-    } https://*.linear.app ws://*.linear.app https://storage.googleapis.com;"
+    } https://*.linear.app ws://*.linear.app https://storage.googleapis.com https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/data.json https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/messages.json"
         />
        
         <meta id="webview" name="webview" content="${this.viewId}" />
@@ -166,6 +168,10 @@ export abstract class AbstractWebview<K extends keyof Props>
             font-display: swap;
           }
         </style>
+        <base href="${Uri.joinPath(
+          this._context.extensionUri,
+          "resources"
+        ).toString()}/" />
       </head>
       <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -51,6 +51,10 @@ export type IssueContextValueData = {
       parentCommentId?: string
     ) => Promise<void>;
     unresolveComment: (commentId: string) => Promise<void>;
+    addReaction: (
+      reaction: Parameters<LinearClient["createReaction"]>[0]
+    ) => Promise<void>;
+    removeReaction: (id: string) => Promise<void>;
   };
   priorities: IssuePriorityValue[];
   prioritiesLoading: boolean;
@@ -99,6 +103,12 @@ const IssueContextValue = createContext<IssueContextValueData>({
     },
     unresolveComment: async () => {
       console.warn("IssueContext: updater.unresolveComment not implemented");
+    },
+    addReaction: async () => {
+      console.warn("IssueContext: updater.addReaction not implemented");
+    },
+    removeReaction: async () => {
+      console.warn("IssueContext: updater.removeReaction not implemented");
     },
   },
   priorities: [],
@@ -218,6 +228,23 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     setCommentRefetch((r) => r + 1);
   }
 
+  async function addReaction(
+    reaction: Parameters<LinearClient["createReaction"]>[0]
+  ) {
+    await linearClient?.createReaction(reaction);
+
+    if (reaction.commentId) {
+      setCommentRefetch((r) => r + 1);
+    } else {
+      fetchIssue();
+    }
+  }
+
+  async function removeReaction(id: string) {
+    await linearClient?.deleteReaction(id);
+    fetchIssue();
+  }
+
   async function resolveComment(
     commentId: string,
     resolvingCommentId?: string
@@ -332,7 +359,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   const [history, historyLoading] = useIssueHistory({
     issue,
-    linearClient,
     users,
   });
 
@@ -343,7 +369,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       await subIssues.fetchPrevious();
     }
     return subIssues?.nodes || [];
-  }, [!!linearClient, issue?.updatedAt.getTime(), subIssuesRefetch]);
+  }, [issue?.updatedAt.getTime(), subIssuesRefetch]);
 
   const context = useMemo(
     (): IssueContextValueData => ({
@@ -378,6 +404,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
         sendCommentReply,
         resolveComment,
         unresolveComment,
+        addReaction,
+        removeReaction,
       },
     }),
     [

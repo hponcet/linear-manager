@@ -2,7 +2,6 @@ import {
   Issue,
   IssueHistory,
   IssueHistoryConnection,
-  LinearClient,
   PaginationOrderBy,
   User,
 } from "@linear/sdk";
@@ -12,12 +11,11 @@ import { orderHistory } from "../utils/history";
 
 type UseIssueHistoryParams = {
   issue: Issue | null;
-  linearClient: LinearClient | null;
   users: User[] | null;
 };
 
 export function useIssueHistory(params: UseIssueHistoryParams) {
-  const { issue, linearClient, users } = params;
+  const { issue, users } = params;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<Record<string, IssueHistory>>({});
@@ -35,7 +33,7 @@ export function useIssueHistory(params: UseIssueHistoryParams) {
   }
 
   useAsyncEffect(async () => {
-    if (!issue || !linearClient) return;
+    if (!issue) return;
 
     const res = await issue.history({
       first: 50,
@@ -56,7 +54,7 @@ export function useIssueHistory(params: UseIssueHistoryParams) {
     }
 
     setIsLoading(false);
-  }, [issue, linearClient]);
+  }, [issue]);
 
   const orderedHistory = useMemo(() => {
     if (!users) return [];

@@ -13,7 +13,7 @@ export function IssueWebviewContent() {
       <IssueHeader />
       <div className="issueBody">
         <IssueContent />
-        <SubIssues style={{ marginTop: "3rem" }} />
+        <SubIssues />
         <IssueActivity />
         <CommentInput />
       </div>

@@ -1,10 +1,10 @@
-type ReplyIconProps = {
+type ExpandIconProps = {
   style?: React.CSSProperties;
   className?: string;
   size?: number;
 };
 
-export function ExpandIcon(props: ReplyIconProps) {
+export function ExpandIcon(props: ExpandIconProps) {
   const { style, className, size = 16 } = props;
 
   return (

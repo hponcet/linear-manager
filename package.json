@@ -134,7 +134,7 @@
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
     "cross-env": "^10.1.0",
-    "frimousse": "^0.3.0",
+    "emoji-picker-react": "^4.16.1",
     "lodash.throttle": "^4.1.1",
     "moment": "^2.30.1",
     "react": "^19.2.3",

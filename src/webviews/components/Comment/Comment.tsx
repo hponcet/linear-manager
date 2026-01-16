@@ -10,13 +10,15 @@ import { Button } from "../Button/Button";
 import { ReplyIcon } from "../Icons/ReplyIcon";
 import { Comment as CommentType } from "src/webviews/utils/comments";
 
-import "./Comment.scss";
 import { EditIcon } from "../Icons/EditIcon";
 import { DeleteIcon } from "../Icons/DeleteIcon";
 import { ResolveIcon } from "../Icons/ResolveIcon";
 import moment from "moment";
 import { Editor as EditorType } from "@tiptap/core";
 import { useDialog } from "rsuite";
+import { EmojiPicker } from "../EmojiPicker/EmojiPicker";
+
+import "./Comment.scss";
 
 type CommentProps = {
   comment: CommentType;
@@ -120,6 +122,11 @@ export function Comment(props: CommentProps) {
               <ResolveIcon />
             </Button>
           )}
+          <EmojiPicker
+            onSelect={async (emoji) => {
+              await update.addReaction({ emoji, commentId: comment.id });
+            }}
+          />
           {me?.id === comment.userId && (
             <>
               <Button
@@ -155,7 +162,7 @@ export function Comment(props: CommentProps) {
             getEditor={(editor) => (commentEditorRef.current = editor)}
           />
         </div>
-        {typeof updateValue === "string" && (
+        {typeof updateValue === "string" ? (
           <div className="issueCommentUpdateActions">
             <Button
               onClick={() => setUpdateValue(null)}
@@ -173,7 +180,15 @@ export function Comment(props: CommentProps) {
               Save
             </Button>
           </div>
-        )}
+        ) : comment.reactions?.length ? (
+          <EmojiPicker
+            reactions={comment.reactions}
+            onSelect={async (emoji) => {
+              await update.addReaction({ emoji, commentId: comment.id });
+            }}
+            onUnselect={(id) => update.removeReaction(id)}
+          />
+        ) : null}
       </div>
     </div>
   );

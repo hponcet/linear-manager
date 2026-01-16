@@ -1,0 +1,16 @@
+.subIssuesButton,
+.subIssuesContainer {
+  font-size: var(--font-size-xsmall) !important;
+  color: var(--rs-text-secondary);
+  margin-bottom: 8px;
+}
+
+.subIssuesList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subIssuesButton {
+  padding: 0 10px 0 4px;
+}

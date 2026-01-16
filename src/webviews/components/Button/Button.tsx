@@ -1,7 +1,8 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
+import { Tooltip } from "../Tooltip/Tooltip";
+
 import "./Button.scss";
-import { Whisper, Tooltip } from "rsuite";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: ReactNode;
@@ -26,14 +27,7 @@ export function Button(props: ButtonProps) {
   } = props;
 
   return (
-    <Whisper
-      placement="top"
-      controlId="control-id-hover"
-      trigger="hover"
-      speaker={<Tooltip arrow={false}>{tooltip}</Tooltip>}
-      disabled={!tooltip}
-      delayOpen={1000}
-    >
+    <Tooltip tooltip={tooltip || ""}>
       <button
         className={`button ${className || ""}`}
         style={{
@@ -48,6 +42,6 @@ export function Button(props: ButtonProps) {
       >
         {children}
       </button>
-    </Whisper>
+    </Tooltip>
   );
 }

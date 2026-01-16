@@ -9,7 +9,7 @@ export type ProjectCycleProps = {
   style?: React.CSSProperties;
   className?: string;
   showDate?: boolean;
-  inline?: boolean;
+  inline?: "text" | "icon";
 };
 
 export function ProjectCycle(props: ProjectCycleProps) {
@@ -32,8 +32,16 @@ export function ProjectCycle(props: ProjectCycleProps) {
     return null;
   }
 
-  if (inline) {
+  if (inline === "text") {
     return getLabel();
+  } else if (inline === "icon") {
+    return (
+      <ProjectCycleIcon
+        cycle={projectCycle}
+        style={style}
+        className={className}
+      />
+    );
   }
 
   return (

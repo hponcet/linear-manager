@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Editor } from "../../Editor/Editor";
+import { Editor } from "../Editor/Editor";
 
-import { SendIcon } from "../../Icons/SendIcon";
+import { SendIcon } from "../Icons/SendIcon";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Button } from "../../Button/Button";
+import { Button } from "../Button/Button";
 
 import "./CommentInput.scss";
 

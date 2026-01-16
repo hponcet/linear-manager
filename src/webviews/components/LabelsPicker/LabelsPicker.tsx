@@ -1,18 +1,22 @@
 import { useMemo } from "react";
 import { TagPicker } from "rsuite";
+import { Issue } from "@linear/sdk";
 
-import "./LabelPicker.css";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { Label } from "./Label";
 
-type LabelPickerProps = {
+import "./LabelsPicker.css";
+
+type LabelsPickerProps = {
   style?: React.CSSProperties;
   className?: string;
+  issue: Issue;
+  inline?: boolean;
 };
 
-export function LabelPicker(props: LabelPickerProps) {
-  const { style, className } = props;
-  const { issue, update, issueLabels, issueLabelsLoading } = useIssueContext();
+export function LabelsPicker(props: LabelsPickerProps) {
+  const { issue, style, className, inline } = props;
+  const { update, issueLabels, issueLabelsLoading } = useIssueContext();
 
   const cacheData = useMemo(
     () =>
@@ -29,13 +33,14 @@ export function LabelPicker(props: LabelPickerProps) {
 
   return (
     <TagPicker
+      virtualized
       style={style}
       className={`labelPicker ${className || ""}`}
       loading={issueLabelsLoading}
       data={cacheData}
       value={issue?.labelIds || []}
-      onChange={(labelIds) => update.issue({ labelIds })}
-      placeholder="Add a labels..."
+      onChange={(labelIds) => update.issue(issue.id, { labelIds })}
+      placeholder="No labels"
       cleanable={false}
       renderOption={(_, item) => (
         <Label key={item.value} issueLabel={item.issueLabel} inline />
@@ -43,7 +48,13 @@ export function LabelPicker(props: LabelPickerProps) {
       renderValue={(_, items) =>
         items.map((item) => {
           if (!item) return null;
-          return <Label key={item.value} issueLabel={item.issueLabel} />;
+          return (
+            <Label
+              key={item.value}
+              issueLabel={item.issueLabel}
+              inline={inline}
+            />
+          );
         })
       }
     />

@@ -1,17 +1,22 @@
 import { useMemo } from "react";
-import { SelectPicker } from "rsuite";
+import { SelectPicker, SelectPickerProps } from "rsuite";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { Assignee } from "./Assignee";
+import { Issue } from "@linear/sdk";
+import { Tooltip } from "../Tooltip/Tooltip";
 
-type AssigneePickerProps = {
-  style?: React.CSSProperties;
-  className?: string;
+export type AssigneePickerProps = Omit<
+  SelectPickerProps,
+  "data" | "value" | "onChange"
+> & {
+  inline?: "text" | "icon";
+  issue: Issue;
 };
 
 export function AssigneePicker(props: AssigneePickerProps) {
-  const { style, className } = props;
+  const { issue, style, className, inline, ...selectPickerProps } = props;
 
-  const { issue, update, users, usersLoading } = useIssueContext();
+  const { update, users, usersLoading } = useIssueContext();
 
   const data = useMemo(
     () => [
@@ -32,33 +37,51 @@ export function AssigneePicker(props: AssigneePickerProps) {
     [users]
   );
 
+  const user = data.find((d) => d.value === issue.assigneeId)?.user;
+
   return (
-    <SelectPicker
-      key={issue.assigneeId}
-      loading={usersLoading}
-      data={data}
-      style={style}
-      className={className}
-      value={issue.assigneeId || undefined}
-      onChange={(value) => update.issue({ assigneeId: value || null })}
-      placeholder={<Assignee label="Assign" />}
-      renderOption={(label, item) => (
-        <Assignee style={{ width: "100%" }} label={label} user={item?.user} />
-      )}
-      renderValue={(value) => {
-        const item = data.find((d) => d.value === value);
+    <Tooltip
+      tooltip={inline === "icon" ? <Assignee user={user} /> : undefined}
+      delayOpen={0}
+    >
+      <span>
+        <SelectPicker
+          key={issue.assigneeId}
+          loading={usersLoading}
+          data={data}
+          style={style}
+          className={className}
+          value={issue.assigneeId || undefined}
+          onChange={(value) =>
+            update.issue(issue.id, { assigneeId: value || null })
+          }
+          placeholder={<Assignee label="Assign" inline={inline} />}
+          renderOption={(label, item) => (
+            <Assignee
+              style={{ width: "100%" }}
+              label={label}
+              user={item?.user}
+            />
+          )}
+          renderValue={(value) => {
+            const item = data.find((d) => d.value === value);
 
-        if (!item?.value) return <Assignee label="Assign" />;
+            if (!item?.value)
+              return <Assignee label="Assign" inline={inline} />;
 
-        return (
-          <Assignee
-            style={{ width: "100%" }}
-            label={item?.label}
-            user={item?.user}
-          />
-        );
-      }}
-      cleanable={true}
-    />
+            return (
+              <Assignee
+                style={{ width: "100%" }}
+                label={item?.label}
+                user={item?.user}
+                inline={inline}
+              />
+            );
+          }}
+          cleanable={true}
+          {...selectPickerProps}
+        />
+      </span>
+    </Tooltip>
   );
 }

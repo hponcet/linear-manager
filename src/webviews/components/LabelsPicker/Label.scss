@@ -6,6 +6,7 @@
   overflow: hidden;
   background-color: transparent;
   white-space: nowrap;
+  user-select: none;
 
   &[is-inline="false"] {
     border-radius: 48px;

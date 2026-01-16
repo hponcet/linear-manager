@@ -3,18 +3,12 @@ import { Editor } from "src/webviews/components/Editor/Editor";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 
 export function IssueContent() {
-  const { issue, update } = useIssueContext();
+  const { issue } = useIssueContext();
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <IssueTitleInput
-        defaultValue={issue?.title}
-        onSave={(value) => update.issue({ title: value })}
-      />
-      <Editor
-        value={issue?.description || ""}
-        onChange={(value) => update.issue({ description: value })}
-      />
+      <IssueTitleInput defaultValue={issue?.title} />
+      <Editor value={issue?.description || ""} />
     </div>
   );
 }

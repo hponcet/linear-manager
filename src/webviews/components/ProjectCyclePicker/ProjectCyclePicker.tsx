@@ -1,18 +1,22 @@
 import { useMemo } from "react";
-import { SelectPicker } from "rsuite";
-import { Cycle } from "@linear/sdk";
+import { SelectPicker, SelectPickerProps } from "rsuite";
+import { Cycle, Issue } from "@linear/sdk";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 
 import { ProjectCycle } from "./ProjectCycle";
+import { Tooltip } from "../Tooltip/Tooltip";
 
-export type ProjectCyclePickerProps = {
-  style?: React.CSSProperties;
-  className?: string;
+export type ProjectCyclePickerProps = Omit<
+  SelectPickerProps,
+  "data" | "value" | "onChange"
+> & {
+  inline?: "text" | "icon";
+  issue: Issue;
 };
 
 export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
-  const { style, className } = props;
-  const { issue, update, cycles, cyclesLoading } = useIssueContext();
+  const { issue, style, className, inline, ...selectPickerProps } = props;
+  const { update, cycles, cyclesLoading } = useIssueContext();
 
   const data = useMemo(
     () => [
@@ -32,28 +36,43 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
     [cycles]
   );
 
+  const projectCycle =
+    data.find((c) => c.value === issue.cycleId)?.cycle || null;
+
   return (
-    <SelectPicker
-      loading={cyclesLoading}
-      style={style}
-      className={className}
-      data={data}
-      value={issue.cycleId || null}
-      placeholder={<ProjectCycle projectCycle={null} />}
-      onChange={(cycleId) =>
-        update.issue({
-          cycleId: cycleId === "no-cycle" ? null : cycleId,
-        })
+    <Tooltip
+      tooltip={
+        inline === "icon" ? (
+          <ProjectCycle projectCycle={projectCycle} />
+        ) : undefined
       }
-      renderOption={(_, item: { cycle: Cycle | null }) => (
-        <ProjectCycle projectCycle={item.cycle} showDate />
-      )}
-      renderValue={(_, item) => {
-        if (!item) {
-          return null;
-        }
-        return <ProjectCycle projectCycle={item.cycle} />;
-      }}
-    />
+      delayOpen={0}
+    >
+      <span>
+        <SelectPicker
+          loading={cyclesLoading}
+          style={style}
+          className={className}
+          data={data}
+          value={issue.cycleId || null}
+          placeholder={<ProjectCycle projectCycle={null} inline={inline} />}
+          onChange={(cycleId) =>
+            update.issue(issue.id, {
+              cycleId: cycleId === "no-cycle" ? null : cycleId,
+            })
+          }
+          renderOption={(_, item: { cycle: Cycle | null }) => (
+            <ProjectCycle projectCycle={item.cycle} showDate />
+          )}
+          renderValue={(_, item) => {
+            if (!item) {
+              return null;
+            }
+            return <ProjectCycle projectCycle={item.cycle} inline={inline} />;
+          }}
+          {...selectPickerProps}
+        />
+      </span>
+    </Tooltip>
   );
 }

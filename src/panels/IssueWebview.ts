@@ -60,6 +60,10 @@ export class IssueWebview extends AbstractWebview<"issue"> {
           await this._issueActions.updateIssue(msg.issueId);
           return true;
         }
+        case "openIssue": {
+          await this._issueActions.openIssue(msg.issueId);
+          return true;
+        }
       }
     }
 

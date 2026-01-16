@@ -1,5 +1,5 @@
 import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker";
-import { LabelPicker } from "src/webviews/components/Labels/LabelPicker";
+import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker";
 import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker";
 import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker";
 
@@ -9,19 +9,30 @@ import { IssueProjectPicker } from "src/webviews/components/ProjectPicker/Projec
 import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker";
 
 import "./IssueHeader.css";
+import { useIssueContext } from "src/webviews/contexts/IssueContext";
 
 export function IssueHeader() {
+  const { issue } = useIssueContext();
+
   return (
     <>
       <div className="issueHeaderTopRow">
-        <WorkflowStatePicker style={{ marginLeft: 6 }} />
-        <PriorityPicker style={{ marginLeft: 6 }} />
-        <EstimatePicker style={{ marginLeft: 6 }} />
-        <ProjectCyclePicker style={{ marginLeft: 6 }} />
-        <IssueProjectPicker style={{ marginLeft: 6 }} />
-        <AssigneePicker style={{ marginLeft: 6 }} />
+        <WorkflowStatePicker issue={issue} style={{ marginLeft: 6 }} />
+        <PriorityPicker issue={issue} style={{ marginLeft: 6 }} />
+        <EstimatePicker issue={issue} style={{ marginLeft: 6 }} />
+        <ProjectCyclePicker issue={issue} style={{ marginLeft: 6 }} />
+        <IssueProjectPicker
+          issue={issue}
+          style={{ marginLeft: 6 }}
+          placement="bottom"
+        />
+        <AssigneePicker
+          issue={issue}
+          style={{ marginLeft: 6 }}
+          placement="bottomEnd"
+        />
       </div>
-      <LabelPicker style={{ marginTop: 6 }} />
+      <LabelsPicker issue={issue} style={{ marginTop: 6 }} />
     </>
   );
 }

@@ -21,9 +21,10 @@ import {
   issueEstimationByType,
 } from "../utils/issueEstimateByType";
 import { Comment, orderComments } from "../utils/comments";
-import { History, orderHistory } from "../utils/history";
+import { History } from "../utils/history";
 import { panelActions } from "../utils/vscMessaging";
 import { useRequestDataUpdate } from "../hooks/useRequestDataUpdate";
+import { useIssueHistory } from "../hooks/useIssueHistory";
 
 type IssueContextProviderProps = {
   issueId: string;
@@ -37,7 +38,10 @@ export type IssueContextValueData = {
   meLoading: boolean;
   issue: Issue;
   update: {
-    issue: (issue: Parameters<LinearClient["updateIssue"]>[1]) => Promise<void>;
+    issue: (
+      issueId: string,
+      issue: Parameters<LinearClient["updateIssue"]>[1]
+    ) => Promise<void>;
     addComment: (body: string) => Promise<void>;
     updateComment: (commentId: string, body: string) => Promise<void>;
     deleteComment: (commentId: string) => Promise<void>;
@@ -131,6 +135,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [commentRefetch, setCommentRefetch] = useState(0);
+  const [subIssuesRefetch, setSubIssuesRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   async function fetchIssue(updatedAt?: number) {
@@ -161,17 +166,28 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   }, [issueId, !!linearClient]);
 
   async function updateIssue(
+    id: string,
     updatedFields: Parameters<LinearClient["updateIssue"]>[1]
   ) {
-    const result = await linearClient?.updateIssue(issueId, updatedFields);
-    const updatedIssue = await result?.issue;
+    try {
+      const result = await linearClient?.updateIssue(id, updatedFields);
+      const updatedIssue = await result?.issue;
 
-    if (result?.success) {
-      setIssue(updatedIssue || null);
+      if (result?.success) {
+        if (id === issueId) {
+          console.log(updatedIssue);
 
-      if (updatedIssue?.id) {
-        panelActions.updateIssue(updatedIssue.id);
+          setIssue(updatedIssue || null);
+        } else {
+          setSubIssuesRefetch((r) => r + 1);
+        }
+
+        if (updatedIssue?.id) {
+          panelActions.updateIssue(updatedIssue.id);
+        }
       }
+    } catch (error) {
+      console.error("Failed to update issue:", error);
     }
   }
 
@@ -312,29 +328,22 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       await comments.fetchPrevious();
     }
     return orderComments(comments?.nodes || []);
-  }, [!!linearClient, issue, commentRefetch]);
+  }, [!!linearClient, issue?.updatedAt.getTime(), commentRefetch]);
 
-  const [history, historyLoading] = useAsyncMemo(async () => {
-    if (!issue || !users) return [];
-    const history = await issue.history({
-      orderBy: PaginationOrderBy.CreatedAt,
-    });
-    while (history?.pageInfo.hasNextPage) {
-      await history.fetchNext();
-    }
-    return await orderHistory(history.nodes || [], users);
-  }, [!!linearClient, issue, users]);
+  const [history, historyLoading] = useIssueHistory({
+    issue,
+    linearClient,
+    users,
+  });
 
   const [subIssues, subIssuesLoading] = useAsyncMemo(async () => {
     if (!issue) return [];
-    const subIssues = await issue?.children({
-      orderBy: PaginationOrderBy.CreatedAt,
-    });
+    const subIssues = await issue?.children({ last: 100 });
     while (subIssues?.pageInfo.hasPreviousPage) {
       await subIssues.fetchPrevious();
     }
     return subIssues?.nodes || [];
-  }, [!!linearClient, issue, users]);
+  }, [!!linearClient, issue?.updatedAt.getTime(), subIssuesRefetch]);
 
   const context = useMemo(
     (): IssueContextValueData => ({

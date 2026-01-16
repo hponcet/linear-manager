@@ -5,7 +5,7 @@ export type PriorityProps = {
   style?: React.CSSProperties;
   className?: string;
   estimate?: EstimateDataItem | null;
-  inline?: boolean;
+  inline?: "text" | "icon";
 };
 
 export function Estimate(props: PriorityProps) {
@@ -13,18 +13,27 @@ export function Estimate(props: PriorityProps) {
 
   function getLabel() {
     if (!estimate?.inlineValue) {
-      return "No estimate";
+      return <span className="estimateLabel">No estimate</span>;
     } else if (typeof estimate?.inlineValue === "number") {
-      return `${estimate?.inlineValue} Point${
-        estimate?.inlineValue !== 1 ? "s" : ""
-      }`;
+      return (
+        <>
+          <span style={{ marginRight: 4 }}>{estimate?.inlineValue}</span>
+          <span className="estimateLabel">
+            Point{estimate?.inlineValue !== 1 ? "s" : ""}
+          </span>
+        </>
+      );
     } else {
       return estimate?.inlineValue;
     }
   }
 
-  if (inline) {
+  if (inline === "text") {
     return getLabel();
+  } else if (inline === "icon") {
+    return (
+      <EstimateIcon estimate={estimate} style={style} className={className} />
+    );
   }
 
   return (
@@ -38,7 +47,11 @@ export function Estimate(props: PriorityProps) {
         ...style,
       }}
     >
-      <EstimateIcon estimate={estimate} style={{ marginRight: 8 }} />
+      <EstimateIcon
+        estimate={estimate}
+        style={{ marginRight: 8 }}
+        className="estimateIcon"
+      />
       {getLabel()}
     </div>
   );

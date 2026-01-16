@@ -15,6 +15,10 @@ function updateIssue(issueId: Issue["id"]) {
   vscApi.postMessage({ action: "updateIssue", issueId });
 }
 
-export const panelActions = { updateIssue };
+function openIssue(issueId: Issue["id"]) {
+  vscApi.postMessage({ action: "openIssue", issueId });
+}
+
+export const panelActions = { updateIssue, openIssue };
 
 export { vscApi };

@@ -13,7 +13,7 @@ export function UserAvatar(props: UserAvatarProps) {
     return (
       <svg
         className={className}
-        style={style}
+        style={{ minWidth: size, minHeight: size, ...style }}
         width={size}
         height={size}
         viewBox="0 0 16 16"
@@ -68,6 +68,8 @@ export function UserAvatar(props: UserAvatarProps) {
       style={{
         width: size,
         height: size,
+        minWidth: size,
+        minHeight: size,
         borderRadius: "50%",
         overflow: "hidden",
         backgroundColor: user?.avatarBackgroundColor,

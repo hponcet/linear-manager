@@ -5,14 +5,22 @@ export type PriorityProps = {
   style?: React.CSSProperties;
   className?: string;
   priority?: IssuePriorityValue;
-  inline?: boolean;
+  inline?: "text" | "icon" | null;
 };
 
 export function Priority(props: PriorityProps) {
   const { style, className, priority, inline } = props;
 
-  if (inline) {
+  if (inline === "text") {
     return priority?.label || "No priority";
+  } else if (inline === "icon") {
+    return (
+      <PriorityIcon
+        priority={priority}
+        style={{ opacity: priority?.priority ? 1 : 0.3 }}
+        className={className}
+      />
+    );
   }
 
   return (

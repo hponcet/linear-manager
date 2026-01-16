@@ -10,6 +10,7 @@ import { SendIcon } from "../Icons/SendIcon";
 
 import "./CommentGroup.scss";
 import { CommentExpander } from "./CommentExpander";
+import { Animation } from "rsuite";
 
 type CommentGroupProps = {
   comment: CommentType;
@@ -44,42 +45,47 @@ export function CommentGroup(props: CommentGroupProps) {
     isChildren: boolean
   ) {
     const user = users.find((u) => u.id === c.userId) || null;
+
+    const shouldCollapse = expanded
+      ? false
+      : threadResolvedByUser
+      ? true
+      : threadResolvedByComment && isChildren && !c.resolver
+      ? true
+      : false;
+
     return (
-      <div
-        className="issueCommentWrapper"
-        key={c.id}
-        is-hidden={
-          expanded
-            ? "false"
-            : threadResolvedByUser
-            ? "true"
-            : threadResolvedByComment && isChildren && !c.resolver
-            ? "true"
-            : "false"
-        }
-      >
-        <Comment
-          comment={c}
-          user={user}
-          setExpanded={setExpanded}
-          parentCommentId={comment.id}
-          isResolved={!!resolvingCommentId || !!resolvingUserId}
-          startReply={
-            index === 0 && !c.childrenComments?.length
-              ? () => {
-                  setReplyValue((r) => (r === "" ? null : r || ""));
-                }
-              : undefined
-          }
-          isChildren={isChildren}
-        />
-        {showSeparator && (
+      <Animation.Collapse in={!shouldCollapse} key={c.id}>
+        {(props, ref) => (
           <div
-            className="issueCommentSeparator"
-            is-child={isChildren ? "true" : "false"}
-          />
+            ref={ref}
+            {...props}
+            className={`issueCommentWrapper ${props.className || ""}`}
+          >
+            <Comment
+              comment={c}
+              user={user}
+              setExpanded={setExpanded}
+              parentCommentId={comment.id}
+              isResolved={!!resolvingCommentId || !!resolvingUserId}
+              startReply={
+                index === 0 && !c.childrenComments?.length
+                  ? () => {
+                      setReplyValue((r) => (r === "" ? null : r || ""));
+                    }
+                  : undefined
+              }
+              isChildren={isChildren}
+            />
+            {showSeparator && (
+              <div
+                className="issueCommentSeparator"
+                is-child={isChildren ? "true" : "false"}
+              />
+            )}
+          </div>
         )}
-      </div>
+      </Animation.Collapse>
     );
   }
 

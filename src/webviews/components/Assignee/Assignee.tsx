@@ -7,14 +7,23 @@ type AssigneeProps = {
   className?: string;
   user?: User | null;
   label?: ReactNode;
-  inline?: boolean;
+  inline?: "text" | "icon";
 };
 
 export function Assignee(props: AssigneeProps) {
   const { style, className, user, label, inline } = props;
 
-  if (inline) {
+  if (inline === "text") {
     return <>{label || user?.name || "No assignee"}</>;
+  } else if (inline === "icon") {
+    return (
+      <UserAvatar
+        user={user}
+        size={16}
+        style={{ opacity: user ? 1 : 0.5, ...style }}
+        className={className}
+      />
+    );
   }
 
   return (

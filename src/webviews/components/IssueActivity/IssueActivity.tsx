@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { CommentGroup } from "../Comment/CommentGroup";
 import { IssueHistory } from "./IssueHistory";
-import { getFirstHistoryType } from "./historyUtils";
+import { getFirstHistoryType } from "../InlineIssue/historyUtils";
 
 import "./IssueActivity.scss";
 
@@ -78,15 +78,17 @@ export function IssueActivity() {
         {activity.length === 0 ? (
           <div className="issueActivityEmpty">No comments or activity yet.</div>
         ) : (
-          activity.map((item) => {
-            if (Array.isArray(item)) {
-              return <IssueHistory key={item[0].id} history={item} />;
-            } else if (item.__key === "comment") {
-              return <CommentGroup key={item.id} comment={item} />;
-            } else {
-              return null;
-            }
-          })
+          <>
+            {activity.map((item) => {
+              if (Array.isArray(item)) {
+                return <IssueHistory key={item[0].id} history={item} />;
+              } else if (item.__key === "comment") {
+                return <CommentGroup key={item.id} comment={item} />;
+              } else {
+                return null;
+              }
+            })}
+          </>
         )}
       </div>
     </div>

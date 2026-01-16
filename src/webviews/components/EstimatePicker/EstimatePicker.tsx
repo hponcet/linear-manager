@@ -1,29 +1,49 @@
-import { SelectPicker } from "rsuite";
+import { SelectPicker, SelectPickerProps } from "rsuite";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { Estimate } from "./Estimate";
+import { Issue } from "@linear/sdk";
 
-export type EstimatePickerProps = {
-  style?: React.CSSProperties;
-  className?: string;
+import "./EstimatePicker.scss";
+import { Tooltip } from "../Tooltip/Tooltip";
+
+export type EstimatePickerProps = Omit<
+  SelectPickerProps,
+  "data" | "value" | "onChange"
+> & {
+  inline?: "text" | "icon";
+  issue: Issue;
 };
 
 export function EstimatePicker(props: EstimatePickerProps) {
-  const { style, className } = props;
-  const { issue, update, issueEstimations } = useIssueContext();
+  const { issue, style, className, inline, ...selectPickerProps } = props;
+  const { update, issueEstimations } = useIssueContext();
 
   if (!issueEstimations || issueEstimations.length === 0) {
     return null;
   }
 
+  const estimate =
+    issueEstimations.find((e) => e.value === issue.estimate) || null;
+
   return (
-    <SelectPicker
-      data={issueEstimations}
-      style={style}
-      className={className}
-      value={issue.estimate || null}
-      onChange={(value) => update.issue({ estimate: value })}
-      placeholder={<Estimate estimate={null} />}
-      cleanable={false}
-    />
+    <Tooltip
+      tooltip={inline === "icon" ? <Estimate estimate={estimate} /> : undefined}
+      delayOpen={0}
+    >
+      <div
+        className={`estimatePickerContainer ${className || ""}`}
+        is-inline={inline}
+      >
+        <SelectPicker
+          style={style}
+          data={issueEstimations}
+          value={issue.estimate || null}
+          onChange={(value) => update.issue(issue.id, { estimate: value })}
+          placeholder={<Estimate estimate={null} inline={inline} />}
+          cleanable={false}
+          {...selectPickerProps}
+        />
+      </div>
+    </Tooltip>
   );
 }

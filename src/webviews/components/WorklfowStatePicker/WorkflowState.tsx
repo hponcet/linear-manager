@@ -5,7 +5,7 @@ export type WorkflowStateProps = {
   style?: React.CSSProperties;
   className?: string;
   workflowState?: WorkflowStateWithStateProgress;
-  inline?: boolean;
+  inline?: "text" | "icon";
 };
 
 export function WorkflowState(props: WorkflowStateProps) {
@@ -15,8 +15,18 @@ export function WorkflowState(props: WorkflowStateProps) {
     return "Unknown state";
   }
 
-  if (inline) {
+  if (inline === "text") {
     return workflowState.name;
+  }
+
+  if (inline === "icon") {
+    return (
+      <WorkflowStateIcon
+        style={style}
+        className={className}
+        workflowState={workflowState}
+      />
+    );
   }
 
   return (

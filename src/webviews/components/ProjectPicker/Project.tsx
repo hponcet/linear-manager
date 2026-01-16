@@ -5,7 +5,7 @@ export type ProjectProps = ProjectIconProps & {
   style?: React.CSSProperties;
   className?: string;
   project: LinearProject | null;
-  inline?: boolean;
+  inline?: "text" | "icon";
 };
 
 export function Project(props: ProjectProps) {
@@ -18,8 +18,17 @@ export function Project(props: ProjectProps) {
     inline,
   } = props;
 
-  if (inline) {
+  if (inline === "text") {
     return project?.name || "No project";
+  } else if (inline === "icon") {
+    return (
+      <ProjectIcon
+        size={size}
+        color={color}
+        style={{ ...style, opacity: project ? 1 : 0.5 }}
+        className={className}
+      />
+    );
   }
 
   return (
@@ -28,7 +37,6 @@ export function Project(props: ProjectProps) {
         maxWidth: "100%",
         display: "inline-flex",
         alignItems: "center",
-        minWidth: 100,
         opacity: project ? 1 : 0.5,
         ...style,
       }}
@@ -38,7 +46,7 @@ export function Project(props: ProjectProps) {
       <div
         style={{
           whiteSpace: "nowrap",
-          maxWidth: "calc(100% - 22px)",
+          maxWidth: `calc(100% - ${size}px)`,
           overflow: "hidden",
           textOverflow: "ellipsis",
         }}

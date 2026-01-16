@@ -11,6 +11,11 @@
     margin-left: 25px;
   }
 
+  &[is-resolved-by-comment="true"][is-expanded="false"]
+    .issueCommentSeparator[is-child="true"] {
+    display: none;
+  }
+
   &[is-resolved-by-user="true"][is-expanded="false"] {
     .issueCommentSeparator {
       display: none;

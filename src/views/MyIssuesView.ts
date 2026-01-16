@@ -178,6 +178,19 @@ export class MyIssuesView
   }
 
   _issuesActions = {
+    openIssue: async (issueId: Issue["id"]) => {
+      if (!issueId) return;
+
+      const issue = this._myIssues.get(issueId);
+      if (issue) {
+        await this.openIssue(issue);
+      } else {
+        const fetchedIssue = await this._linearClient.issue(issueId);
+        const issueWithKey = addKeyOnItem(fetchedIssue, "issue");
+        this._myIssues.set(issueWithKey.id, issueWithKey);
+        await this.openIssue(issueWithKey);
+      }
+    },
     updateIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 

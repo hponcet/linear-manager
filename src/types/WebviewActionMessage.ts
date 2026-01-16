@@ -19,16 +19,21 @@ export interface PropsMessage<K extends keyof Props> extends Message {
   props: Props[K];
 }
 
-export type IssueUpdateAction = {
-  action: "updateIssue";
-  issueId: Issue["id"];
-};
+type IssueAction =
+  | {
+      action: "updateIssue";
+      issueId: Issue["id"];
+    }
+  | {
+      action: "openIssue";
+      issueId: Issue["id"];
+    };
 
 export type ToWebviewActions<K extends keyof Props> =
   | PropsMessage<K>
   | RequestDataUpdateActions;
 
-export type FromWebviewActions = IssueUpdateAction;
+export type FromWebviewActions = IssueAction;
 
 export type VsCodeApi = {
   postMessage(message: PropsAction | FromWebviewActions): void;

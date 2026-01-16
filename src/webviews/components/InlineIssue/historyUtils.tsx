@@ -1,7 +1,7 @@
 import { IssueHistory, IssueLabel } from "@linear/sdk";
 import { ReactNode } from "react";
 import { IssueContextValueData } from "src/webviews/contexts/IssueContext";
-import { Label } from "../Labels/Label";
+import { Label } from "../LabelsPicker/Label";
 import moment from "moment";
 import { Priority } from "../PriorityPicker/Priority";
 import { ProjectCycle } from "../ProjectCyclePicker/ProjectCycle";
@@ -14,7 +14,7 @@ import { EstimateIcon } from "../EstimatePicker/EstimateIcon";
 import { PriorityIcon } from "../PriorityPicker/PriorityIcon";
 import { ProjectIcon } from "../ProjectPicker/ProjectIcon";
 import { WorkflowStateIcon } from "../WorklfowStatePicker/WorkflowStateIcon";
-import { LabelIcon } from "../Labels/LabelIcon";
+import { LabelIcon } from "../LabelsPicker/LabelIcon";
 
 const historyFieldsOfInterest = [
   "addedLabels",
@@ -60,12 +60,10 @@ export function getHistoryType(
   return key.replace(/^(from|to)/, "");
 }
 
-export function getFirstHistoryType(
-  history: IssueHistory
-): PossibleHistoryType | null {
+export function getFirstHistoryType(history: IssueHistory): string | null {
   for (const field of historyFieldsOfInterest) {
     if (history[field]) {
-      return field;
+      return getHistoryType(field) as PossibleHistoryType;
     }
   }
   return null;
@@ -217,15 +215,15 @@ function getHistoryContent(
       } else if (!from && to) {
         return [
           <span>
-            assigned to <Assignee inline user={toUser} />
+            assigned to <Assignee inline="text" user={toUser} />
           </span>,
           null,
         ];
       } else if (fromUser && toUser) {
         return [
           <span>
-            changed assignee from <Assignee inline user={fromUser} /> to{" "}
-            <Assignee inline user={toUser} />
+            changed assignee from <Assignee inline="text" user={fromUser} /> to{" "}
+            <Assignee inline="text" user={toUser} />
           </span>,
           null,
         ];
@@ -244,15 +242,16 @@ function getHistoryContent(
       } else if (!fromCycle && toCycle) {
         return [
           <span>
-            added cycle <ProjectCycle projectCycle={toCycle} inline />
+            added cycle <ProjectCycle projectCycle={toCycle} inline="text" />
           </span>,
           <ProjectCycleIcon size={13} cycle={toCycle} />,
         ];
       } else if (fromCycle && toCycle) {
         return [
           <span>
-            changed cycle from <ProjectCycle projectCycle={fromCycle} inline />{" "}
-            to <ProjectCycle projectCycle={toCycle} inline />
+            changed cycle from{" "}
+            <ProjectCycle projectCycle={fromCycle} inline="text" /> to{" "}
+            <ProjectCycle projectCycle={toCycle} inline="text" />
           </span>,
           <ProjectCycleIcon size={13} cycle={toCycle} />,
         ];
@@ -290,7 +289,8 @@ function getHistoryContent(
       } else if (!fromEstimate && toEstimate) {
         return [
           <span>
-            estimated complexity to <Estimate estimate={toEstimate} inline />
+            estimated complexity to{" "}
+            <Estimate estimate={toEstimate} inline="text" />
           </span>,
           <EstimateIcon size={13} estimate={toEstimate} />,
         ];
@@ -298,8 +298,8 @@ function getHistoryContent(
         return [
           <span>
             {from > to ? "decreased" : "increased"} estimate from{" "}
-            <Estimate estimate={fromEstimate} inline /> to{" "}
-            <Estimate estimate={toEstimate} inline />
+            <Estimate estimate={fromEstimate} inline="text" /> to{" "}
+            <Estimate estimate={toEstimate} inline="text" />
           </span>,
           <EstimateIcon size={13} estimate={toEstimate} />,
         ];
@@ -324,15 +324,16 @@ function getHistoryContent(
       } else if (!fromPriority && toPriority) {
         return [
           <span>
-            added priority <Priority priority={toPriority} inline />
+            added priority <Priority priority={toPriority} inline="text" />
           </span>,
           <PriorityIcon size={13} priority={toPriority} />,
         ];
       } else if (fromPriority && toPriority) {
         return [
           <span>
-            changed priority from <Priority priority={fromPriority} inline /> to{" "}
-            <Priority priority={toPriority} inline />
+            changed priority from{" "}
+            <Priority priority={fromPriority} inline="text" /> to{" "}
+            <Priority priority={toPriority} inline="text" />
           </span>,
           <PriorityIcon size={13} priority={toPriority} />,
         ];
@@ -348,15 +349,15 @@ function getHistoryContent(
       } else if (!fromProject && toProject) {
         return [
           <span>
-            added project <Project inline project={toProject} />
+            added project <Project inline="text" project={toProject} />
           </span>,
           <ProjectIcon size={13} />,
         ];
       } else if (fromProject && toProject) {
         return [
           <span>
-            changed project from <Project inline project={fromProject} /> to{" "}
-            <Project inline project={toProject} />
+            changed project from <Project inline="text" project={fromProject} />{" "}
+            to <Project inline="text" project={toProject} />
           </span>,
           <ProjectIcon size={13} />,
         ];
@@ -372,7 +373,7 @@ function getHistoryContent(
       } else if (!fromState && toState) {
         return [
           <span>
-            added state <WorkflowState workflowState={toState} inline />
+            added state <WorkflowState workflowState={toState} inline="text" />
           </span>,
           <WorkflowStateIcon size={13} workflowState={toState} />,
         ];
@@ -380,8 +381,8 @@ function getHistoryContent(
         return [
           <span>
             changed state from{" "}
-            <WorkflowState workflowState={fromState} inline /> to{" "}
-            <WorkflowState workflowState={toState} inline />
+            <WorkflowState workflowState={fromState} inline="text" /> to{" "}
+            <WorkflowState workflowState={toState} inline="text" />
           </span>,
           <WorkflowStateIcon size={13} workflowState={toState} />,
         ];
@@ -414,7 +415,8 @@ function getHistoryContent(
 
       return [
         <span>
-          has converted the project to <Project inline project={toProject} />
+          has converted the project to{" "}
+          <Project inline="text" project={toProject} />
         </span>,
         null,
       ];

@@ -33,7 +33,7 @@ const AUTO_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
 
 function addKeyOnItem<
   I extends object,
-  K extends "issue" | "team" | "workflowState"
+  K extends "issue" | "team" | "workflowState",
 >(item: I, key: K): I & { __key: K } {
   return { ...item, __key: key };
 }
@@ -83,16 +83,16 @@ export class MyIssuesView
         dragAndDropController: this,
         showCollapseAll: true,
         canSelectMany: true,
-      })
+      }),
     );
 
     this._context.subscriptions.push(
       commands.registerCommand(Commands.openIssue, (issue: Issue) =>
-        this.openIssue(issue)
+        this.openIssue(issue),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) =>
-        this.startWork(issue)
-      )
+        this.startWork(issue),
+      ),
     );
   }
 
@@ -120,7 +120,7 @@ export class MyIssuesView
   }
 
   public getChildren(
-    element?: Team | WorkflowState | Issue | undefined
+    element?: Team | WorkflowState | Issue | undefined,
   ): ProviderResult<Team[] | WorkflowState[] | Issue[]> {
     if (element?.__key === "team") {
       return this._tree.getState(element.id);
@@ -143,7 +143,7 @@ export class MyIssuesView
     }
     if (element.__key === "workflowState") {
       return this._getWorkflowStateTreeItem(
-        element as unknown as WorkflowStateWithStateProgress
+        element as unknown as WorkflowStateWithStateProgress,
       );
     }
 
@@ -152,7 +152,7 @@ export class MyIssuesView
 
   public async handleDrop(
     target: Team | WorkflowState | Issue | undefined,
-    sources: DataTransfer
+    sources: DataTransfer,
   ): Promise<void> {
     const issues: Issue[] = [];
 
@@ -181,13 +181,13 @@ export class MyIssuesView
         });
 
         await this._getIssues();
-      })
+      }),
     );
   }
 
   public async handleDrag(
     source: (Issue | WorkflowState | Team)[],
-    treeDataTransfer: DataTransfer
+    treeDataTransfer: DataTransfer,
   ): Promise<void> {
     if (!source) {
       return;
@@ -263,12 +263,12 @@ export class MyIssuesView
     }
     this._autoRefreshInterval = setInterval(
       () => this._getIssues(),
-      AUTO_REFRESH_INTERVAL_MS
+      AUTO_REFRESH_INTERVAL_MS,
     );
   }
 
   private async _getMe() {
-    if (this._me) {
+    if (this._me || !this._linearClient) {
       return this._me;
     }
     this._me = await this._linearClient.viewer;
@@ -278,17 +278,25 @@ export class MyIssuesView
   private async _getTeams() {
     try {
       const viewer = await this._getMe();
+
+      if (!viewer) {
+        return {};
+      }
+
       const teams = await viewer.teams({ first: 50 });
-      this._teams = teams.nodes.reduce((acc, team) => {
-        acc[team.id] = addKeyOnItem(team, "team");
-        return acc;
-      }, {} as Record<string, Team>);
+      this._teams = teams.nodes.reduce(
+        (acc, team) => {
+          acc[team.id] = addKeyOnItem(team, "team");
+          return acc;
+        },
+        {} as Record<string, Team>,
+      );
       return this._teams;
     } catch (error) {
       window.showErrorMessage(
         `Failed to fetch user teams: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
     return {};
@@ -308,7 +316,7 @@ export class MyIssuesView
             acc[state.id] = addKeyOnItem(state, "workflowState");
             return acc;
           },
-          {} as Record<string, WorkflowState>
+          {} as Record<string, WorkflowState>,
         );
       }
       return this._workflowStatesByTeam;
@@ -316,7 +324,7 @@ export class MyIssuesView
       window.showErrorMessage(
         `Failed to fetch assigned issues: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
     return {};
@@ -325,6 +333,10 @@ export class MyIssuesView
   private async _getIssues() {
     try {
       const viewer = await this._getMe();
+      if (!viewer) {
+        return;
+      }
+
       const issues = await viewer.assignedIssues({ first: 250 });
 
       issues.nodes.forEach((issue) => {
@@ -357,7 +369,7 @@ export class MyIssuesView
       window.showErrorMessage(
         `Failed to fetch assigned issues: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
   }
@@ -377,14 +389,14 @@ export class MyIssuesView
   private _getWorkflowStateTreeItem(state: WorkflowStateWithStateProgress) {
     const issuesCount = Array.from(this._myIssues.values()).filter(
       // @ts-expect-error
-      (issue) => issue._state.id === state.id
+      (issue) => issue._state.id === state.id,
     ).length;
 
     const item = new TreeItem(
       state.name,
       ["unstarted", "started"].includes(state.type)
         ? TreeItemCollapsibleState.Expanded
-        : TreeItemCollapsibleState.Collapsed
+        : TreeItemCollapsibleState.Collapsed,
     );
     item.id = state.id;
     item.description = `${issuesCount}`;
@@ -394,10 +406,10 @@ export class MyIssuesView
         ? `started${Math.ceil(
             Math.min(
               Math.max((10 / state.stateTypeLength) * state.stateProgress, 0),
-              10
-            )
+              10,
+            ),
           )}`
-        : state.type
+        : state.type,
     );
 
     this._treeItems.set(item.id!, item);
@@ -408,7 +420,7 @@ export class MyIssuesView
   private _getIssueTreeItem(issue: Issue) {
     const item = new TreeItem(
       `${issue.identifier}`,
-      TreeItemCollapsibleState.None
+      TreeItemCollapsibleState.None,
     );
     item.id = issue.id;
     item.tooltip = issue.title;
@@ -433,8 +445,8 @@ export class MyIssuesView
       const teams = Object.values(this._teams).filter((team) =>
         Array.from(this._myIssues.values()).some(
           // @ts-expect-error
-          (issue) => issue._team.id === team.id
-        )
+          (issue) => issue._team.id === team.id,
+        ),
       );
 
       if (teams.length === 0) {
@@ -448,13 +460,13 @@ export class MyIssuesView
     },
     getState: (teamId: Team["id"]): WorkflowState[] => {
       return filterWorkflowStatesByType(
-        Object.values(this._workflowStatesByTeam[teamId])
+        Object.values(this._workflowStatesByTeam[teamId]),
       ) as unknown as WorkflowState[];
     },
     getIssue: (stateId: WorkflowState["id"]) => {
       const issue = Array.from(this._myIssues.values()).filter(
         // @ts-expect-error
-        (issue) => issue._state.id === stateId
+        (issue) => issue._state.id === stateId,
       );
       return issue;
     },

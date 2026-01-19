@@ -22,7 +22,6 @@ import {
 } from "../utils/issueEstimateByType";
 import { Comment, orderComments } from "../utils/comments";
 import { History } from "../utils/history";
-import { panelActions } from "../utils/vscMessaging";
 import { useRequestDataUpdate } from "../hooks/useRequestDataUpdate";
 import { useIssueHistory } from "../hooks/useIssueHistory";
 
@@ -36,25 +35,31 @@ type IssueContextProviderProps = {
 export type IssueContextValueData = {
   me: User | null;
   meLoading: boolean;
+  urlBase: string;
   issue: Issue;
   update: {
     issue: (
       issueId: string,
       issue: Parameters<LinearClient["updateIssue"]>[1]
     ) => Promise<void>;
-    addComment: (body: string) => Promise<void>;
-    updateComment: (commentId: string, body: string) => Promise<void>;
-    deleteComment: (commentId: string) => Promise<void>;
-    sendCommentReply: (commentId: string, body: string) => Promise<void>;
-    resolveComment: (
-      commentId: string,
-      parentCommentId?: string
-    ) => Promise<void>;
-    unresolveComment: (commentId: string) => Promise<void>;
-    addReaction: (
-      reaction: Parameters<LinearClient["createReaction"]>[0]
-    ) => Promise<void>;
-    removeReaction: (id: string) => Promise<void>;
+    comments: {
+      addComment: (body: string) => Promise<void>;
+      updateComment: (commentId: string, body: string) => Promise<void>;
+      deleteComment: (commentId: string) => Promise<void>;
+      sendCommentReply: (commentId: string, body: string) => Promise<void>;
+      resolveComment: (
+        commentId: string,
+        parentCommentId?: string
+      ) => Promise<void>;
+      unresolveComment: (commentId: string) => Promise<void>;
+    };
+    reactions: {
+      addReaction: (
+        reaction: Parameters<LinearClient["createReaction"]>[0]
+      ) => Promise<void>;
+      removeReaction: (id: string) => Promise<void>;
+    };
+    panelActions: ReturnType<typeof useRequestDataUpdate>;
   };
   priorities: IssuePriorityValue[];
   prioritiesLoading: boolean;
@@ -81,34 +86,50 @@ export type IssueContextValueData = {
 const IssueContextValue = createContext<IssueContextValueData>({
   me: null,
   meLoading: false,
+  urlBase: "",
   issue: {} as Issue,
   update: {
     issue: async () => {
       console.warn("IssueContext: updater.issue not implemented");
     },
-    addComment: async () => {
-      console.warn("IssueContext: updater.addComment not implemented");
+    comments: {
+      addComment: async () => {
+        console.warn("IssueContext: updater.addComment not implemented");
+      },
+      deleteComment: async () => {
+        console.warn("IssueContext: updater.deleteComment not implemented");
+      },
+      updateComment: async () => {
+        console.warn("IssueContext: updater.updateComment not implemented");
+      },
+      sendCommentReply: async () => {
+        console.warn("IssueContext: updater.sendCommentReply not implemented");
+      },
+      resolveComment: async () => {
+        console.warn("IssueContext: updater.resolveComment not implemented");
+      },
+      unresolveComment: async () => {
+        console.warn("IssueContext: updater.unresolveComment not implemented");
+      },
     },
-    deleteComment: async () => {
-      console.warn("IssueContext: updater.deleteComment not implemented");
+    reactions: {
+      addReaction: async () => {
+        console.warn("IssueContext: updater.addReaction not implemented");
+      },
+      removeReaction: async () => {
+        console.warn("IssueContext: updater.removeReaction not implemented");
+      },
     },
-    updateComment: async () => {
-      console.warn("IssueContext: updater.updateComment not implemented");
-    },
-    sendCommentReply: async () => {
-      console.warn("IssueContext: updater.sendCommentReply not implemented");
-    },
-    resolveComment: async () => {
-      console.warn("IssueContext: updater.resolveComment not implemented");
-    },
-    unresolveComment: async () => {
-      console.warn("IssueContext: updater.unresolveComment not implemented");
-    },
-    addReaction: async () => {
-      console.warn("IssueContext: updater.addReaction not implemented");
-    },
-    removeReaction: async () => {
-      console.warn("IssueContext: updater.removeReaction not implemented");
+    panelActions: {
+      closePanel: () => {},
+      openExternal: (url: string) => {},
+      updateIssue: () => {},
+      openIssue: () => {},
+      startWork: () => {},
+      getAllBranch: () => {},
+      createBranch: () => Promise.resolve(),
+      hasUncommittedChanges: () => Promise.resolve(false),
+      checkout: () => Promise.resolve(),
     },
   },
   priorities: [],
@@ -147,6 +168,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [commentRefetch, setCommentRefetch] = useState(0);
   const [subIssuesRefetch, setSubIssuesRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [urlBase, setUrlBase] = useState<string>("");
 
   async function fetchIssue(updatedAt?: number) {
     if (updatedAt && issue && issue.updatedAt.getTime() >= updatedAt) {
@@ -159,9 +181,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     }
   }
 
-  useRequestDataUpdate({
+  const panelActions = useRequestDataUpdate({
     updateIssue: fetchIssue,
-    updateComments: () => setCommentRefetch((r) => r + 1),
   });
 
   useAsyncEffect(async () => {
@@ -185,8 +206,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
       if (result?.success) {
         if (id === issueId) {
-          console.log(updatedIssue);
-
           setIssue(updatedIssue || null);
         } else {
           setSubIssuesRefetch((r) => r + 1);
@@ -265,6 +284,12 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   const [me, meLoading] = useAsyncMemo(async () => {
     const me = await linearClient?.viewer;
+    if (!urlBase) {
+      const organization = await me?.organization;
+      if (organization?.urlKey) {
+        setUrlBase(`https://linear.app/${organization.urlKey}`);
+      }
+    }
     return me || null;
   }, [!!linearClient]);
 
@@ -375,6 +400,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     (): IssueContextValueData => ({
       me,
       meLoading,
+      urlBase,
       issue: issue!,
       priorities: priorities || [],
       prioritiesLoading,
@@ -398,19 +424,25 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       subIssuesLoading,
       update: {
         issue: updateIssue,
-        addComment,
-        updateComment,
-        deleteComment,
-        sendCommentReply,
-        resolveComment,
-        unresolveComment,
-        addReaction,
-        removeReaction,
+        comments: {
+          addComment,
+          updateComment,
+          deleteComment,
+          sendCommentReply,
+          resolveComment,
+          unresolveComment,
+        },
+        reactions: {
+          addReaction,
+          removeReaction,
+        },
+        panelActions,
       },
     }),
     [
       me,
       meLoading,
+      urlBase,
       issue,
       priorities,
       prioritiesLoading,

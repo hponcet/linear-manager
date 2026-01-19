@@ -5,18 +5,24 @@ import "./Label.scss";
 type LabelProps = {
   issueLabel: IssueLabel;
   inline?: boolean;
+  size?: number;
 };
 
 export function Label(props: LabelProps) {
-  const { issueLabel, inline } = props;
+  const { issueLabel, inline, size } = props;
 
   if (inline) {
     return (
-      <span is-inline="true" className="label">
+      <span is-inline="true" className="label" style={{ fontSize: size }}>
         <span
           className="labelColor"
           is-inline="true"
-          style={{ backgroundColor: issueLabel.color }}
+          style={{
+            backgroundColor: issueLabel.color,
+            width: (size || 14) * 0.5,
+            height: (size || 14) * 0.5,
+            fontSize: size,
+          }}
         />
         {issueLabel.name}
       </span>
@@ -24,10 +30,15 @@ export function Label(props: LabelProps) {
   }
 
   return (
-    <div is-inline="false" className="label">
+    <div is-inline="false" className="label" style={{ fontSize: size }}>
       <div
         className="labelColor"
-        style={{ backgroundColor: issueLabel.color }}
+        style={{
+          backgroundColor: issueLabel.color,
+          width: (size || 14) * 0.5,
+          height: (size || 14) * 0.5,
+          fontSize: size,
+        }}
       />
       {issueLabel.name}
     </div>

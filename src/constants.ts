@@ -6,9 +6,11 @@ export enum Views {
 
 export enum Webviews {
   issueWebview = "issue",
+  startWorkWebview = "startWork",
 }
 
 export enum Commands {
   connect = "linearManager.connect",
   openIssue = "linearManager.commands.openIssue",
+  startWork = "linearManager.commands.startWork",
 }

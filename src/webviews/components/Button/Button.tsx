@@ -3,14 +3,16 @@ import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react";
 import { Tooltip } from "../Tooltip/Tooltip";
 
 import "./Button.scss";
+import { Loader } from "rsuite";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: ReactNode;
   tooltip?: string;
   onClick?: () => void;
   disabled?: boolean;
-  color?: `#${string}`;
+  color?: `${"#" | "var"}${string}`;
   rounded?: boolean;
+  loading?: boolean;
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -24,6 +26,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       color,
       style,
       rounded,
+      loading,
       ...buttonProps
     } = props;
 
@@ -38,10 +41,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             ...style,
           }}
           onClick={onClick}
-          disabled={disabled}
+          disabled={disabled || loading}
           btn-rounded={String(!!rounded)}
           {...buttonProps}
         >
+          {loading ? <Loader size="xs" style={{ marginRight: 8 }} /> : null}
           {children}
         </button>
       </Tooltip>

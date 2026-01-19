@@ -7,16 +7,25 @@ import { Tooltip } from "../Tooltip/Tooltip";
 
 export type AssigneePickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  onChange: (value: string | null) => void;
+  inline?: "text" | "icon";
+  size?: number;
 };
 
 export function AssigneePicker(props: AssigneePickerProps) {
-  const { issue, style, className, inline, ...selectPickerProps } = props;
-
-  const { update, users, usersLoading } = useIssueContext();
+  const {
+    issue,
+    style,
+    className,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { users, usersLoading } = useIssueContext();
 
   const data = useMemo(
     () => [
@@ -46,16 +55,15 @@ export function AssigneePicker(props: AssigneePickerProps) {
     >
       <span>
         <SelectPicker
+          preventOverflow
           key={issue.assigneeId}
           loading={usersLoading}
           data={data}
           style={style}
           className={className}
           value={issue.assigneeId || undefined}
-          onChange={(value) =>
-            update.issue(issue.id, { assigneeId: value || null })
-          }
-          placeholder={<Assignee label="Assign" inline={inline} />}
+          onChange={(value) => onChange?.(value || null)}
+          placeholder={<Assignee label="Assign" inline={inline} size={size} />}
           renderOption={(label, item) => (
             <Assignee
               style={{ width: "100%" }}
@@ -71,10 +79,10 @@ export function AssigneePicker(props: AssigneePickerProps) {
 
             return (
               <Assignee
-                style={{ width: "100%" }}
                 label={item?.label}
                 user={item?.user}
                 inline={inline}
+                size={size}
               />
             );
           }}

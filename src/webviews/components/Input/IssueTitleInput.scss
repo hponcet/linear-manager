@@ -1,0 +1,13 @@
+.linear-issue-title-input {
+  font-size: 24px;
+  font-weight: 600;
+
+  .deleted {
+    text-decoration: line-through;
+    color: var(--lm-color-text-muted);
+
+    &::after {
+      content: "[deleted] ";
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { vscApi } from "../utils/vscMessaging";
 import { Props, ToWebviewActions } from "src/types/WebviewActionMessage";
+import { vscApi } from "./useRequestDataUpdate";
 
 export function useProps<k extends keyof Props>(
   defaults?: Partial<Props[k]>
@@ -20,7 +20,7 @@ export function useProps<k extends keyof Props>(
 
   useEffect(() => {
     window.addEventListener("message", handleMessage);
-    vscApi.postMessage({ action: "get-props" });
+    vscApi.postMessage({ action: "get-props", payload: undefined });
     return () => {
       window.removeEventListener("message", handleMessage);
     };

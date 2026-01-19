@@ -7,15 +7,25 @@ import { Tooltip } from "../Tooltip/Tooltip";
 
 export type PriorityPickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  onChange: (value: number | null) => void;
+  inline?: "text" | "icon";
+  size?: number;
 };
 
 export function PriorityPicker(props: PriorityPickerProps) {
-  const { issue, style, className, inline, ...selectPickerProps } = props;
-  const { update, priorities, prioritiesLoading } = useIssueContext();
+  const {
+    issue,
+    style,
+    className,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { priorities, prioritiesLoading } = useIssueContext();
 
   const data = useMemo(
     () =>
@@ -45,9 +55,7 @@ export function PriorityPicker(props: PriorityPickerProps) {
           style={style}
           className={className}
           value={issue.priority}
-          onChange={async (value) =>
-            update.issue(issue.id, { priority: value })
-          }
+          onChange={onChange}
           renderOption={(_, item) => (
             <Priority priority={item.priority} style={{ marginRight: 8 }} />
           )}
@@ -57,6 +65,7 @@ export function PriorityPicker(props: PriorityPickerProps) {
                 priority={item.priority}
                 style={{ marginRight: 8 }}
                 inline={inline}
+                size={size}
               />
             ) : null
           }

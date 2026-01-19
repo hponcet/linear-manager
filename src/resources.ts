@@ -13,6 +13,10 @@ export class Resources {
       Uri.file(context.asAbsolutePath(path.join(imagesPath, "issue.svg")))
     );
     this.icons.set(
+      "startWork",
+      Uri.file(context.asAbsolutePath(path.join(imagesPath, "start-work.svg")))
+    );
+    this.icons.set(
       "treeIssue",
       Uri.file(context.asAbsolutePath(path.join(imagesPath, "tree-issue.svg")))
     );

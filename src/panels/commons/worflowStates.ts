@@ -42,3 +42,16 @@ export function filterWorkflowStatesByType(
       };
     });
 }
+
+export function getFirstStateOfType(
+  workflowStates: WorkflowStateWithStateProgress[],
+  type: (typeof workflowStateTypes)[number]
+): WorkflowStateWithStateProgress | null {
+  const filteredStates = workflowStates
+    .filter((state) => state.type === type)
+    .sort((a, b) => a.position - b.position);
+  if (filteredStates.length === 0) {
+    return null;
+  }
+  return filteredStates[0];
+}

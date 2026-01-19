@@ -1,0 +1,31 @@
+.startWorkContentTitle {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  font-weight: 600;
+  margin-bottom: 32px;
+  cursor: pointer;
+
+  p {
+    margin: 0;
+    white-space: nowrap !important;
+  }
+}
+
+.startWorkContentIdentifier {
+  color: var(--rs-text-secondary);
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.startWorkContentTitleInput {
+  margin-top: -5px;
+  margin-left: 10px;
+}
+
+.startWorkContentLeftActions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}

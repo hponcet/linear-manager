@@ -6,10 +6,11 @@ export type WorkflowStateProps = {
   className?: string;
   workflowState?: WorkflowStateWithStateProgress;
   inline?: "text" | "icon";
+  size?: number;
 };
 
 export function WorkflowState(props: WorkflowStateProps) {
-  const { style, className, workflowState, inline } = props;
+  const { style, className, workflowState, inline, size } = props;
 
   if (!workflowState) {
     return "Unknown state";
@@ -25,6 +26,7 @@ export function WorkflowState(props: WorkflowStateProps) {
         style={style}
         className={className}
         workflowState={workflowState}
+        size={size}
       />
     );
   }
@@ -36,6 +38,7 @@ export function WorkflowState(props: WorkflowStateProps) {
         alignItems: "center",
         justifyContent: "start",
         whiteSpace: "nowrap",
+        fontSize: size,
         ...style,
       }}
       className={className}
@@ -43,6 +46,7 @@ export function WorkflowState(props: WorkflowStateProps) {
       <WorkflowStateIcon
         style={{ marginRight: 8 }}
         workflowState={workflowState}
+        size={size}
       />
       <span>{workflowState.name}</span>
     </div>

@@ -6,20 +6,17 @@ export type PriorityProps = {
   className?: string;
   priority?: IssuePriorityValue;
   inline?: "text" | "icon" | null;
+  size?: number;
 };
 
 export function Priority(props: PriorityProps) {
-  const { style, className, priority, inline } = props;
+  const { style, className, priority, inline, size } = props;
 
   if (inline === "text") {
     return priority?.label || "No priority";
   } else if (inline === "icon") {
     return (
-      <PriorityIcon
-        priority={priority}
-        style={{ opacity: priority?.priority ? 1 : 0.3 }}
-        className={className}
-      />
+      <PriorityIcon priority={priority} className={className} size={size} />
     );
   }
 
@@ -30,11 +27,15 @@ export function Priority(props: PriorityProps) {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "start",
-        opacity: priority?.priority ? 1 : 0.3,
+        fontSize: size,
         ...style,
       }}
     >
-      <PriorityIcon priority={priority} style={{ marginRight: 8 }} />
+      <PriorityIcon
+        priority={priority}
+        style={{ marginRight: 8 }}
+        size={size}
+      />
       {priority?.label || "No priority"}
     </div>
   );

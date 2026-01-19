@@ -7,7 +7,7 @@ type UserAvatarProps = {
 };
 
 export function UserAvatar(props: UserAvatarProps) {
-  const { user, size = 24, style, className } = props;
+  const { user, size, style, className } = props;
 
   if (!user) {
     return (
@@ -76,18 +76,24 @@ export function UserAvatar(props: UserAvatarProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: size * 0.4,
+        fontSize: size ? size * 0.5 : undefined,
         fontWeight: "bold",
         color: "#fff",
         ...style,
       }}
-      title={user?.name || "Unassigned"}
     >
       {user?.avatarUrl ? (
         <img
           src={user.avatarUrl}
           alt={user.name || "User Avatar"}
-          style={{ width: "100%", height: "100%" }}
+          style={{
+            width: size || "100%",
+            height: size || "100%",
+            minWidth: size,
+            minHeight: size,
+            maxWidth: size,
+            maxHeight: size,
+          }}
         />
       ) : (
         user?.initials

@@ -6,21 +6,20 @@ export type PriorityProps = {
   className?: string;
   estimate?: EstimateDataItem | null;
   inline?: "text" | "icon";
+  size?: number;
 };
 
 export function Estimate(props: PriorityProps) {
-  const { style, className, estimate, inline } = props;
+  const { style, className, estimate, inline, size } = props;
 
   function getLabel() {
     if (!estimate?.inlineValue) {
-      return <span className="estimateLabel">No estimate</span>;
-    } else if (typeof estimate?.inlineValue === "number") {
+      return <span>No estimate</span>;
+    } else if (typeof estimate?.inlineValue === "number" && inline !== "icon") {
       return (
         <>
           <span style={{ marginRight: 4 }}>{estimate?.inlineValue}</span>
-          <span className="estimateLabel">
-            Point{estimate?.inlineValue !== 1 ? "s" : ""}
-          </span>
+          <span>Point{estimate?.inlineValue !== 1 ? "s" : ""}</span>
         </>
       );
     } else {
@@ -32,7 +31,15 @@ export function Estimate(props: PriorityProps) {
     return getLabel();
   } else if (inline === "icon") {
     return (
-      <EstimateIcon estimate={estimate} style={style} className={className} />
+      <>
+        <EstimateIcon
+          estimate={estimate}
+          style={{ marginRight: 6, ...style }}
+          className={className}
+          size={size}
+        />
+        {getLabel()}
+      </>
     );
   }
 
@@ -44,6 +51,7 @@ export function Estimate(props: PriorityProps) {
         alignItems: "center",
         justifyContent: "start",
         opacity: estimate?.value ? 1 : 0.3,
+        fontSize: size,
         ...style,
       }}
     >
@@ -51,6 +59,7 @@ export function Estimate(props: PriorityProps) {
         estimate={estimate}
         style={{ marginRight: 8 }}
         className="estimateIcon"
+        size={size}
       />
       {getLabel()}
     </div>

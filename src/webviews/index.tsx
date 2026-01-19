@@ -4,6 +4,7 @@ import { CustomProvider } from "rsuite";
 
 import { Webviews } from "../constants";
 import IssueWebview from "./views/IssueWebview/IssueWebview";
+import { StartWorkWebview } from "./views/StartWorkWebview/StartWorkWebview";
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
 
 moment.locale("en", {
@@ -34,6 +35,8 @@ function getViewContent() {
   switch (view.getAttribute("content")) {
     case Webviews.issueWebview:
       return <IssueWebview />;
+    case Webviews.startWorkWebview:
+      return <StartWorkWebview />;
     default:
       throw new Error("Unknown webview content");
   }

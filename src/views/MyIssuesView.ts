@@ -25,6 +25,9 @@ import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates";
 import { IssueWebview } from "src/panels/IssueWebview";
 import { Controller } from "src/controller";
 import { WorkflowStateWithStateProgress } from "src/types/Linear";
+import { StartWorkWebview } from "src/panels/StartWorkWebview";
+
+export const MIME_TYPE_ISSUE = "application/vnd.code.issueViewer.issue";
 
 const AUTO_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
 
@@ -46,8 +49,8 @@ export class MyIssuesView
     TreeDataProvider<Team | WorkflowState | Issue>,
     TreeDragAndDropController<Issue | WorkflowState | Team>
 {
-  dropMimeTypes = ["application/vnd.code.issueViewer.issue"];
-  dragMimeTypes = ["text/uri-list"];
+  dropMimeTypes = [MIME_TYPE_ISSUE];
+  dragMimeTypes = [MIME_TYPE_ISSUE];
 
   private _onDidChangeTreeData = new EventEmitter<void>();
   private _treeItems = new Map<string, TreeItem>();
@@ -61,7 +64,8 @@ export class MyIssuesView
   private _myIssues: Map<string, Issue> = new Map();
 
   private _autoRefreshInterval: NodeJS.Timeout | null = null;
-  private _issues: Map<string, IssueWebview> = new Map();
+  private _issuesWebviews: Map<string, IssueWebview> = new Map();
+  private _startWorkWebviews: Map<string, StartWorkWebview> = new Map();
 
   constructor(context: ExtensionContext) {
     this._context = context;
@@ -78,12 +82,16 @@ export class MyIssuesView
         treeDataProvider: this,
         dragAndDropController: this,
         showCollapseAll: true,
+        canSelectMany: true,
       })
     );
 
     this._context.subscriptions.push(
       commands.registerCommand(Commands.openIssue, (issue: Issue) =>
         this.openIssue(issue)
+      ),
+      commands.registerCommand(Commands.startWork, (issue: Issue) =>
+        this.startWork(issue)
       )
     );
   }
@@ -94,10 +102,19 @@ export class MyIssuesView
   }
 
   public async openIssue(issue: Issue) {
-    let webview = this._issues.get(issue.id);
+    let webview = this._issuesWebviews.get(issue.id);
     if (!webview) {
       webview = new IssueWebview(this._context, this._issuesActions);
-      this._issues.set(issue.id, webview);
+      this._issuesWebviews.set(issue.id, webview);
+    }
+    await webview.open(issue, ViewColumn.Active);
+  }
+
+  public async startWork(issue: Issue) {
+    let webview = this._startWorkWebviews.get(issue.id);
+    if (!webview) {
+      webview = new StartWorkWebview(this._context, this._issuesActions);
+      this._startWorkWebviews.set(issue.id, webview);
     }
     await webview.open(issue, ViewColumn.Active);
   }
@@ -137,42 +154,55 @@ export class MyIssuesView
     target: Team | WorkflowState | Issue | undefined,
     sources: DataTransfer
   ): Promise<void> {
-    console.log(sources);
+    const issues: Issue[] = [];
 
-    const transferItem = sources.get("application/vnd.code.issueViewer.issue");
-    if (!transferItem) {
-      return;
-    }
-
-    const issue = transferItem.value as Issue;
-    if (!issue || issue.__key !== "issue") {
-      return;
-    }
-
-    if (!target || !["workflowState", "issue"].includes(target.__key)) {
-      return;
-    }
-
-    const targetStateId =
-      // @ts-expect-error
-      target.__key === "workflowState" ? target.id : target._state.id;
-
-    await this._linearClient.updateIssue(issue.id, {
-      stateId: targetStateId,
+    sources.forEach((value, key) => {
+      if (key.toLocaleLowerCase().startsWith(MIME_TYPE_ISSUE.toLowerCase())) {
+        issues.push(value.value as Issue);
+      }
     });
 
-    await this._getIssues();
+    await Promise.all(
+      issues.map(async (issue) => {
+        if (!issue || issue.__key !== "issue") {
+          return;
+        }
+
+        if (!target || !["workflowState", "issue"].includes(target.__key)) {
+          return;
+        }
+
+        const targetStateId =
+          // @ts-expect-error
+          target.__key === "workflowState" ? target.id : target._state.id;
+
+        await this._linearClient.updateIssue(issue.id, {
+          stateId: targetStateId,
+        });
+
+        await this._getIssues();
+      })
+    );
   }
 
   public async handleDrag(
-    source: [Issue | WorkflowState | Team],
+    source: (Issue | WorkflowState | Team)[],
     treeDataTransfer: DataTransfer
   ): Promise<void> {
-    if (!source || source[0].__key !== "issue") {
+    if (!source) {
       return;
     }
-    const item = new DataTransferItem(source[0]);
-    treeDataTransfer.set("application/vnd.code.issueViewer.issue", item);
+
+    const issues = source.filter((s) => s.__key === "issue") as Issue[];
+
+    if (issues.length === 0) {
+      return;
+    }
+
+    issues.forEach((issue, index) => {
+      const item = new DataTransferItem(issue);
+      treeDataTransfer.set(`${MIME_TYPE_ISSUE}_${index}`, item);
+    });
   }
 
   public refresh(): void {
@@ -202,6 +232,19 @@ export class MyIssuesView
         this._onDidChangeTreeData.fire();
       }
     },
+    startWork: async (issueId: Issue["id"]) => {
+      if (!issueId) return;
+
+      const issue = this._myIssues.get(issueId);
+      if (issue) {
+        await this.startWork(issue);
+      } else {
+        const fetchedIssue = await this._linearClient.issue(issueId);
+        const issueWithKey = addKeyOnItem(fetchedIssue, "issue");
+        this._myIssues.set(issueWithKey.id, issueWithKey);
+        await this.startWork(issueWithKey);
+      }
+    },
   };
 
   public dispose() {
@@ -210,8 +253,8 @@ export class MyIssuesView
       this._autoRefreshInterval = null;
     }
 
-    this._issues.forEach((webview) => webview.dispose());
-    this._issues.clear();
+    this._issuesWebviews.forEach((webview) => webview.dispose());
+    this._issuesWebviews.clear();
   }
 
   private _startAutoRefresh() {
@@ -285,14 +328,25 @@ export class MyIssuesView
       const issues = await viewer.assignedIssues({ first: 250 });
 
       issues.nodes.forEach((issue) => {
-        const panel = this._issues.get(issue.id);
+        // issues webviews
+        const issuePanel = this._issuesWebviews.get(issue.id);
+        const webviewPanel = this._startWorkWebviews.get(issue.id);
 
         if (
-          panel?.visible &&
-          panel?._issue?.updatedAt &&
-          panel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
+          issuePanel?.visible &&
+          issuePanel?._issue?.updatedAt &&
+          issuePanel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
         ) {
-          panel?.updateWebview(issue);
+          issuePanel?.updateWebview(issue);
+        }
+
+        // startWork webviews
+        if (
+          webviewPanel?.visible &&
+          webviewPanel?._issue?.updatedAt &&
+          webviewPanel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
+        ) {
+          webviewPanel?.updateWebview(issue);
         }
 
         this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
@@ -326,7 +380,12 @@ export class MyIssuesView
       (issue) => issue._state.id === state.id
     ).length;
 
-    const item = new TreeItem(state.name, TreeItemCollapsibleState.Expanded);
+    const item = new TreeItem(
+      state.name,
+      ["unstarted", "started"].includes(state.type)
+        ? TreeItemCollapsibleState.Expanded
+        : TreeItemCollapsibleState.Collapsed
+    );
     item.id = state.id;
     item.description = `${issuesCount}`;
 
@@ -353,7 +412,7 @@ export class MyIssuesView
     );
     item.id = issue.id;
     item.tooltip = issue.title;
-    item.description = `- ${issue.title}`;
+    item.description = `- ${issue.trashed ? "[trashed] " : ""}${issue.title}`;
 
     item.contextValue = "issueItem";
     item.iconPath = Controller.resources.icons.get("treeIssue");

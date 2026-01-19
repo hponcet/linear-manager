@@ -14,14 +14,17 @@ import { history } from "prosemirror-history";
 import placeholderPlugin from "./plugins/placeholder";
 
 import "prosemirror-view/style/prosemirror.css";
-import "./IssueTitleInput.css";
+import "./IssueTitleInput.scss";
 
 export type TextEditorProps = {
-  defaultValue?: string;
+  value?: string;
+  placeholder?: string;
+  deleted?: boolean | null;
   onSave?: (value: string) => void;
   onFocus?: () => void;
   onBlur?: () => void;
-  placeholder?: string;
+  style?: React.CSSProperties;
+  className?: string;
 };
 
 const schema = new Schema({
@@ -41,14 +44,23 @@ const mdParser = new MarkdownParser(
 );
 
 export function IssueTitleInput(props: TextEditorProps) {
-  const { defaultValue = "", onBlur, onFocus, onSave, placeholder } = props;
+  const {
+    value = "",
+    placeholder,
+    onBlur,
+    onFocus,
+    onSave,
+    style,
+    className,
+    deleted,
+  } = props;
 
   const editorEl = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
 
   function handleSave() {
     const value = mdSerializer.serialize(view.current!.state.doc);
-    if (value !== defaultValue) {
+    if (value !== value) {
       onSave?.(value);
     }
   }
@@ -70,7 +82,7 @@ export function IssueTitleInput(props: TextEditorProps) {
 
     const state = EditorState.create({
       schema,
-      doc: mdParser.parse(defaultValue),
+      doc: mdParser.parse(value),
       plugins: plugins,
     });
     const currView = new EditorView(editorEl.current!, {
@@ -87,7 +99,15 @@ export function IssueTitleInput(props: TextEditorProps) {
       view.current?.dom.removeEventListener("blur", handleBlur);
       currView.destroy();
     };
-  }, []);
+  }, [value]);
 
-  return <div className="linear-issue-title-input" ref={editorEl} />;
+  return (
+    <div
+      className={`linear-issue-title-input ${deleted ? "deleted" : ""} ${
+        className || ""
+      }`}
+      style={style}
+      ref={editorEl}
+    />
+  );
 }

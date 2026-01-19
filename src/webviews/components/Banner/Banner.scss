@@ -1,0 +1,26 @@
+.bannerContainer {
+  padding: 4px 20px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+
+  &[banner-type="info"] {
+    border-color: #c3d9ff;
+    background-color: #88cbf5;
+    color: #23558d;
+  }
+
+  &[banner-type="warning"] {
+    border-color: #ffc389;
+    background-color: #e19024;
+    color: #fff5e6;
+  }
+
+  &[banner-type="error"] {
+    border-color: #ff9b94;
+    background-color: #ea6161;
+    color: #ffe7e6;
+  }
+}

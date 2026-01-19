@@ -14,12 +14,14 @@ const appDirectory = fs.realpathSync(process.cwd());
 //@ts-ignore
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
 
-console.log(process.env.NODE_ENV);
+const isProduction = process.env.NODE_ENV === "production";
 
 /** @type WebpackConfig */
 const extensionConfig = {
   target: "node",
   mode: "none",
+
+  devtool: isProduction ? "nosources-source-map" : "eval-source-map",
 
   entry: {
     extension: resolveApp("./src/extension.ts"),
@@ -60,7 +62,6 @@ const extensionConfig = {
       },
     ],
   },
-  devtool: "nosources-source-map",
   infrastructureLogging: {
     level: "log",
   },

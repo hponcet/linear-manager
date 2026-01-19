@@ -1,6 +1,7 @@
-import { Action, isAction, PropsAction } from "src/ipc/messaging";
+import { isAction } from "src/ipc/messaging";
 import {
   Disposable,
+  env,
   Event,
   EventEmitter,
   ExtensionContext,
@@ -13,9 +14,9 @@ import {
 
 import { makeid } from "src/utils/makeid";
 import {
-  ToWebviewActions,
   Props,
   PropsMessage,
+  FromWebviewActions,
 } from "src/types/WebviewActionMessage";
 import { IS_PRODUCTION } from "src/constants";
 
@@ -29,7 +30,7 @@ export interface ReactWebview<P extends Props[keyof Props]> extends Disposable {
   open(...params: any[]): Promise<WebviewPanel>;
   onDidPanelDispose(): Event<void>;
   getProps(): Promise<P>;
-  handleContextMenuCommand?({ action, data }: ContextMenuCommandData): void;
+  updateWebview(issue: any): void;
 }
 
 export abstract class AbstractWebview<K extends keyof Props>
@@ -51,6 +52,7 @@ export abstract class AbstractWebview<K extends keyof Props>
   abstract getProps(): Promise<Props[K]>;
   abstract open(...params: any[]): Promise<WebviewPanel>;
   abstract onVisibilityChange(visible: boolean): void;
+  abstract updateWebview(issue: any): void;
 
   constructor(context: ExtensionContext) {
     this._context = context;
@@ -230,11 +232,17 @@ export abstract class AbstractWebview<K extends keyof Props>
     return this._panel!.webview.postMessage(message);
   }
 
-  protected async onMessageReceived(
-    a: PropsAction | Action | ToWebviewActions<K>
-  ): Promise<boolean> {
+  protected async onMessageReceived(a: FromWebviewActions): Promise<boolean> {
     if (isAction(a)) {
       switch (a.action) {
+        case "closePanel": {
+          this.dispose();
+          return true;
+        }
+        case "openExternal": {
+          env.openExternal(Uri.parse(a.url));
+          return true;
+        }
         case "get-props": {
           this.postMessage({ type: "props", props: await this.getProps() });
           this._propsSent = true;

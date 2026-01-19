@@ -20,7 +20,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
   const {
     onSelect,
     onUnselect,
-    size = 16,
+    size,
     reactions,
     placement = "bottomEnd",
   } = props;
@@ -52,7 +52,6 @@ export function EmojiPicker(props: EmojiPickerProps) {
       >
         <Picker
           onEmojiClick={(emoji) => {
-            console.log(emoji);
             onSelect?.(emoji.unified);
             onClose();
           }}

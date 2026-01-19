@@ -22,6 +22,8 @@
   --rs-tooltip-color: var(--rs-text-primary);
 
   --rs-modal-body-padding: 1rem;
+
+  --rs-listbox-option-group-bg: #1e1f1f;
 }
 
 .rs-picker-toggle-indicator {
@@ -70,9 +72,21 @@
 .rs-picker-toggle-placeholder,
 .rs-picker-toggle-value {
   display: flex;
+  align-items: center;
 }
 .rs-picker-toggle.rs-btn {
   padding: 0 8px;
+}
+
+.rs-picker-select-menu-grouped {
+  padding: 0;
+}
+.rs-picker-menu-group {
+  padding: 0;
+  border-radius: 4px;
+}
+.rs-picker-menu-group-caret {
+  top: 12px !important;
 }
 
 .rs-btn {
@@ -119,4 +133,14 @@
 
 .rs-modal-body {
   color: var(--rs-text-secondary) !important;
+}
+
+.rs-input {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: var(--rs-text-primary) !important;
+  height: 26px !important;
+  padding: 0 8px !important;
 }

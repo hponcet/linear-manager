@@ -1,14 +1,4 @@
 .estimatePickerContainer {
   width: fit-content;
   height: fit-content;
-
-  &[is-inline="text"] .estimateIcon {
-    display: none;
-  }
-
-  &[is-inline="icon"] {
-    & .estimateLabel {
-      display: none;
-    }
-  }
 }

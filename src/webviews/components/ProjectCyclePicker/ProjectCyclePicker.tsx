@@ -8,15 +8,25 @@ import { Tooltip } from "../Tooltip/Tooltip";
 
 export type ProjectCyclePickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  onChange: (value: string | null) => void;
+  size?: number;
+  inline?: "text" | "icon";
 };
 
 export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
-  const { issue, style, className, inline, ...selectPickerProps } = props;
-  const { update, cycles, cyclesLoading } = useIssueContext();
+  const {
+    issue,
+    style,
+    className,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { cycles, cyclesLoading } = useIssueContext();
 
   const data = useMemo(
     () => [
@@ -43,7 +53,7 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
     <Tooltip
       tooltip={
         inline === "icon" ? (
-          <ProjectCycle projectCycle={projectCycle} />
+          <ProjectCycle projectCycle={projectCycle} showDate />
         ) : undefined
       }
       delayOpen={0}
@@ -57,9 +67,7 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
           value={issue.cycleId || null}
           placeholder={<ProjectCycle projectCycle={null} inline={inline} />}
           onChange={(cycleId) =>
-            update.issue(issue.id, {
-              cycleId: cycleId === "no-cycle" ? null : cycleId,
-            })
+            onChange?.(cycleId === "no-cycle" ? null : cycleId)
           }
           renderOption={(_, item: { cycle: Cycle | null }) => (
             <ProjectCycle projectCycle={item.cycle} showDate />
@@ -68,7 +76,13 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
             if (!item) {
               return null;
             }
-            return <ProjectCycle projectCycle={item.cycle} inline={inline} />;
+            return (
+              <ProjectCycle
+                projectCycle={item.cycle}
+                inline={inline}
+                size={size}
+              />
+            );
           }}
           {...selectPickerProps}
         />

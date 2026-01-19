@@ -146,7 +146,7 @@ export function CommentGroup(props: CommentGroupProps) {
             <Button
               disabled={!(replyValue || "").trim()}
               onClick={async () => {
-                await update.sendCommentReply(id, replyValue || "");
+                await update.comments.sendCommentReply(id, replyValue || "");
                 setReplyValue("");
               }}
               className="commentSendButton"

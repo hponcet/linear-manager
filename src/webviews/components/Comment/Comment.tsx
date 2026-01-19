@@ -69,7 +69,7 @@ export function Comment(props: CommentProps) {
       }
     );
     if (shouldDelete) {
-      await update.deleteComment(comment.id);
+      await update.comments.deleteComment(comment.id);
     }
   }
 
@@ -111,10 +111,13 @@ export function Comment(props: CommentProps) {
               }
               onClick={async () => {
                 if (isResolved) {
-                  await update.unresolveComment(parentCommentId);
+                  await update.comments.unresolveComment(parentCommentId);
                   setExpanded(true);
                 } else {
-                  await update.resolveComment(parentCommentId, comment.id);
+                  await update.comments.resolveComment(
+                    parentCommentId,
+                    comment.id
+                  );
                   setExpanded(false);
                 }
               }}
@@ -124,7 +127,10 @@ export function Comment(props: CommentProps) {
           )}
           <EmojiPicker
             onSelect={async (emoji) => {
-              await update.addReaction({ emoji, commentId: comment.id });
+              await update.reactions.addReaction({
+                emoji,
+                commentId: comment.id,
+              });
             }}
           />
           {me?.id === comment.userId && (
@@ -173,7 +179,10 @@ export function Comment(props: CommentProps) {
             <Button
               disabled={!updateValue.trim() || updateValue === comment.body}
               onClick={async () => {
-                await update.updateComment(comment.id, updateValue.trim());
+                await update.comments.updateComment(
+                  comment.id,
+                  updateValue.trim()
+                );
               }}
               className="issueCommentUpdateButton"
             >
@@ -184,9 +193,12 @@ export function Comment(props: CommentProps) {
           <EmojiPicker
             reactions={comment.reactions}
             onSelect={async (emoji) => {
-              await update.addReaction({ emoji, commentId: comment.id });
+              await update.reactions.addReaction({
+                emoji,
+                commentId: comment.id,
+              });
             }}
-            onUnselect={(id) => update.removeReaction(id)}
+            onUnselect={(id) => update.reactions.removeReaction(id)}
           />
         ) : null}
       </div>

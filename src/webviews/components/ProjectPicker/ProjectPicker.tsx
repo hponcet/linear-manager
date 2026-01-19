@@ -7,15 +7,25 @@ import { Tooltip } from "../Tooltip/Tooltip";
 
 export type IssueProjectPickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  inline?: "text" | "icon";
+  size?: number;
+  onChange: (value: string | null) => void;
 };
 
 export function IssueProjectPicker(props: IssueProjectPickerProps) {
-  const { style, className, issue, inline, ...selectPickerProps } = props;
-  const { update, projects, projectsLoading } = useIssueContext();
+  const {
+    style,
+    className,
+    issue,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { projects, projectsLoading } = useIssueContext();
 
   const data = useMemo(
     () => [
@@ -50,15 +60,15 @@ export function IssueProjectPicker(props: IssueProjectPickerProps) {
           className={className}
           data={data}
           value={issue.projectId || null}
-          placeholder={<Project project={null} inline={inline} />}
+          placeholder={<Project project={null} inline={inline} size={size} />}
           onChange={(projectId) =>
-            update.issue(issue.id, {
-              projectId: projectId === "no-project" ? null : projectId,
-            })
+            onChange?.(projectId === "no-project" ? null : projectId)
           }
           renderOption={(_, item) => <Project project={item.project} />}
           renderValue={(_, item) =>
-            item ? <Project project={item.project} inline={inline} /> : null
+            item ? (
+              <Project project={item.project} inline={inline} size={size} />
+            ) : null
           }
           {...selectPickerProps}
         />

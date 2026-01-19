@@ -6,14 +6,15 @@ import moment from "moment";
 
 export type ProjectCycleProps = {
   projectCycle: Cycle | null;
-  style?: React.CSSProperties;
-  className?: string;
   showDate?: boolean;
   inline?: "text" | "icon";
+  size?: number;
+  style?: React.CSSProperties;
+  className?: string;
 };
 
 export function ProjectCycle(props: ProjectCycleProps) {
-  const { style, className, projectCycle, showDate, inline } = props;
+  const { style, className, projectCycle, showDate, inline, size } = props;
 
   function getLabel() {
     if (!projectCycle) {
@@ -40,6 +41,7 @@ export function ProjectCycle(props: ProjectCycleProps) {
         cycle={projectCycle}
         style={style}
         className={className}
+        size={size}
       />
     );
   }
@@ -51,11 +53,16 @@ export function ProjectCycle(props: ProjectCycleProps) {
         alignItems: "center",
         justifyContent: "start",
         opacity: projectCycle ? 1 : 0.5,
+        fontSize: size,
         ...style,
       }}
       className={className}
     >
-      <ProjectCycleIcon cycle={projectCycle} style={{ marginRight: 8 }} />
+      <ProjectCycleIcon
+        cycle={projectCycle}
+        style={{ marginRight: 8 }}
+        size={size}
+      />
       <span>{getLabel()}</span>
       {showDate && projectCycle?.startsAt && projectCycle?.endsAt ? (
         <div className="cycleDates">

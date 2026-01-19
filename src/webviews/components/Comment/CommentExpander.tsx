@@ -39,7 +39,7 @@ export function CommentExpander(props: CommentExpanderProps) {
     <>
       <div className="commentExpander" onClick={() => setExpanded(!expanded)}>
         <div>
-          <ResolveIcon style={{ fill: "lch(80% 80 141.95deg)" }} />
+          <ResolveIcon style={{ fill: "var(--color-success)" }} />
           <span className="commentExpanderResolver">{user?.email}</span>{" "}
           <span>resolved the thread</span>
         </div>

@@ -1,9 +1,8 @@
 import { Issue as LinearIssue } from "@linear/sdk";
-
-import "./Issue.scss";
 import { WorkflowStateIcon } from "../WorklfowStatePicker/WorkflowStateIcon";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { panelActions } from "src/webviews/utils/vscMessaging";
+
+import "./Issue.scss";
 
 type IssueProps = {
   issue: LinearIssue;
@@ -12,16 +11,14 @@ type IssueProps = {
 export function Issue(props: IssueProps) {
   const { issue } = props;
 
-  const { workflowStates } = useIssueContext();
+  const { workflowStates, update } = useIssueContext();
 
   const workflowState = workflowStates.find((ws) => ws.id === issue.stateId);
 
   return (
     <div
       className="issueContainer"
-      onClick={() => {
-        panelActions.openIssue(issue.id);
-      }}
+      onClick={() => update.panelActions.openIssue(issue.id)}
     >
       {workflowState ? (
         <WorkflowStateIcon workflowState={workflowState} size={12} />

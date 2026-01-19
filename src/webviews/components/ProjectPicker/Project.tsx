@@ -13,7 +13,7 @@ export function Project(props: ProjectProps) {
     style,
     className,
     project,
-    size = 16,
+    size,
     color = "currentColor",
     inline,
   } = props;

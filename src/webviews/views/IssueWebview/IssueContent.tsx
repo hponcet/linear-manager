@@ -9,17 +9,20 @@ export function IssueContent() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <IssueTitleInput defaultValue={issue?.title} />
+      <IssueTitleInput value={issue?.title} deleted={issue?.trashed} />
       <IssueParent />
       <Editor value={issue?.description || ""} />
       <div style={{ margin: "20px 0 16px" }}>
         <EmojiPicker
           placement="bottomStart"
           onSelect={async (emoji) => {
-            await update.addReaction({ emoji, issueId: issue?.id || "" });
+            await update.reactions.addReaction({
+              emoji,
+              issueId: issue?.id || "",
+            });
           }}
           onUnselect={async (id) => {
-            await update.removeReaction(id);
+            await update.reactions.removeReaction(id);
           }}
           reactions={issue?.reactions || []}
         />

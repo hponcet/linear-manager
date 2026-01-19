@@ -16,7 +16,7 @@ export function CommentInput() {
     if (!value.trim()) {
       return;
     }
-    await update.addComment(value);
+    await update.comments.addComment(value);
 
     setValue("");
   }

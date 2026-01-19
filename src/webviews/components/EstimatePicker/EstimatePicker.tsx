@@ -5,20 +5,44 @@ import { Issue } from "@linear/sdk";
 
 import "./EstimatePicker.scss";
 import { Tooltip } from "../Tooltip/Tooltip";
+import { useMemo } from "react";
+import { EstimateDataItem } from "src/webviews/utils/issueEstimateByType";
 
 export type EstimatePickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  inline?: "text" | "icon";
+  size?: number;
+  onChange: (value: number | null) => void;
 };
 
 export function EstimatePicker(props: EstimatePickerProps) {
-  const { issue, style, className, inline, ...selectPickerProps } = props;
-  const { update, issueEstimations } = useIssueContext();
+  const {
+    issue,
+    style,
+    className,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { issueEstimations = [], issueEstimationsLoading } = useIssueContext();
 
-  if (!issueEstimations || issueEstimations.length === 0) {
+  const data = useMemo(
+    (): EstimateDataItem[] => [
+      { label: "No estimate", value: "no-estimate", inlineValue: null },
+      ...(issueEstimations || []),
+    ],
+    [issueEstimations]
+  );
+
+  if (
+    !issueEstimations ||
+    issueEstimationsLoading ||
+    issueEstimations.length === 0
+  ) {
     return null;
   }
 
@@ -36,11 +60,25 @@ export function EstimatePicker(props: EstimatePickerProps) {
       >
         <SelectPicker
           style={style}
-          data={issueEstimations}
+          data={data}
           value={issue.estimate || null}
-          onChange={(value) => update.issue(issue.id, { estimate: value })}
-          placeholder={<Estimate estimate={null} inline={inline} />}
+          onChange={(value) =>
+            onChange?.(value === "no-estimate" ? null : value)
+          }
+          placeholder={<Estimate estimate={null} inline={inline} size={size} />}
           cleanable={false}
+          renderOption={(_, item) => (
+            <Estimate estimate={item as EstimateDataItem} />
+          )}
+          renderValue={(_, item) =>
+            item ? (
+              <Estimate
+                estimate={item as EstimateDataItem}
+                inline={inline}
+                size={size}
+              />
+            ) : null
+          }
           {...selectPickerProps}
         />
       </div>

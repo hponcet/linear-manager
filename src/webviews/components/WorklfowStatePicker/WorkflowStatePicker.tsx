@@ -7,15 +7,25 @@ import { Tooltip } from "../Tooltip/Tooltip";
 
 export type WorkflowStatePickerProps = Omit<
   SelectPickerProps,
-  "data" | "value" | "onChange"
+  "data" | "value" | "onChange" | "size"
 > & {
-  inline?: "text" | "icon";
   issue: Issue;
+  onChange: (value: string) => void;
+  inline?: "text" | "icon";
+  size?: number;
 };
 
 export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
-  const { style, className, issue, inline, ...selectPickerProps } = props;
-  const { update, workflowStates, workflowStatesLoading } = useIssueContext();
+  const {
+    style,
+    className,
+    issue,
+    inline,
+    size,
+    onChange,
+    ...selectPickerProps
+  } = props;
+  const { workflowStates, workflowStatesLoading } = useIssueContext();
 
   const data = useMemo(
     () =>
@@ -35,7 +45,7 @@ export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
     <Tooltip
       tooltip={
         inline === "icon" ? (
-          <WorkflowState workflowState={workflowState} />
+          <WorkflowState workflowState={workflowState} size={size} />
         ) : undefined
       }
       delayOpen={0}
@@ -47,15 +57,16 @@ export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
           style={style}
           className={className}
           value={data.find((state) => state.value === issue?.stateId)?.value}
-          onChange={async (value) => {
-            if (!value) return;
-            await update.issue(issue.id, { stateId: value });
-          }}
+          onChange={onChange}
           renderOption={(_, item) => (
             <WorkflowState workflowState={item.workflowState} />
           )}
           renderValue={(_, item) => (
-            <WorkflowState workflowState={item.workflowState} inline={inline} />
+            <WorkflowState
+              workflowState={item.workflowState}
+              inline={inline}
+              size={size}
+            />
           )}
           cleanable={false}
           {...selectPickerProps}

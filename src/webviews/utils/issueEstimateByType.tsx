@@ -1,6 +1,3 @@
-import { ReactNode } from "react";
-import { Estimate } from "../components/EstimatePicker/Estimate";
-
 export const issueEstimationByType = {
   notUsed: [],
   exponential: [1, 2, 4, 8, 16, 32, 64],
@@ -10,8 +7,8 @@ export const issueEstimationByType = {
 } as const;
 
 export type EstimateDataItem = {
-  label: ReactNode;
-  value: number | null;
+  label: number | "No estimate";
+  value: number | "no-estimate";
   inlineValue:
     | (typeof issueEstimationByType)[keyof typeof issueEstimationByType][number]
     | null;
@@ -20,21 +17,13 @@ export type EstimateDataItem = {
 export function createEstimateDataItems(
   issueEstimationType: keyof typeof issueEstimationByType
 ): EstimateDataItem[] {
-  return [
-    { label: <Estimate estimate={null} />, value: null, inlineValue: null },
-    ...issueEstimationByType[issueEstimationType].map((label, index) => {
-      const value =
-        typeof issueEstimationByType[issueEstimationType][index] === "string"
-          ? index + 1
-          : issueEstimationByType[issueEstimationType][index];
+  return issueEstimationByType[issueEstimationType].map((label, index) => {
+    const value = typeof label === "string" ? index + 1 : label;
 
-      const inlineValue = issueEstimationByType[issueEstimationType][index];
-
-      return {
-        label: <Estimate estimate={{ label, value, inlineValue }} />,
-        value: value,
-        inlineValue,
-      };
-    }),
-  ];
+    return {
+      label: value,
+      value: value,
+      inlineValue: label,
+    };
+  });
 }

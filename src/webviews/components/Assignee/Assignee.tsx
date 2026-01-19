@@ -8,10 +8,11 @@ type AssigneeProps = {
   user?: User | null;
   label?: ReactNode;
   inline?: "text" | "icon";
+  size?: number;
 };
 
 export function Assignee(props: AssigneeProps) {
-  const { style, className, user, label, inline } = props;
+  const { style, className, user, label, inline, size } = props;
 
   if (inline === "text") {
     return <>{label || user?.name || "No assignee"}</>;
@@ -19,7 +20,7 @@ export function Assignee(props: AssigneeProps) {
     return (
       <UserAvatar
         user={user}
-        size={16}
+        size={size || 16}
         style={{ opacity: user ? 1 : 0.5, ...style }}
         className={className}
       />
@@ -34,10 +35,11 @@ export function Assignee(props: AssigneeProps) {
         alignItems: "center",
         justifyContent: "start",
         opacity: user ? 1 : 0.5,
+        fontSize: size,
         ...style,
       }}
     >
-      <UserAvatar user={user} size={16} style={{ marginRight: 8 }} />
+      <UserAvatar user={user} size={size || 16} style={{ marginRight: 8 }} />
       <div>{label || user?.name || "No assignee"}</div>
     </div>
   );

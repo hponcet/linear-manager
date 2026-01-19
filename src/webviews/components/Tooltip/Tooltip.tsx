@@ -10,16 +10,17 @@ type TooltipProps = Omit<RSWhisperProps, "speaker"> & {
 };
 
 export function Tooltip(props: TooltipProps) {
-  const { children, tooltip, ...tooltipProps } = props;
+  const { children, tooltip, preventOverflow, ...tooltipProps } = props;
 
   return (
     <Whisper
-      placement="top"
       controlId="control-id-hover"
       trigger="hover"
       speaker={<RSTooltip arrow={false}>{tooltip}</RSTooltip>}
       disabled={!tooltip}
       delayOpen={1000}
+      preventOverflow={preventOverflow ?? true}
+      placement="auto"
       {...tooltipProps}
     >
       {children}

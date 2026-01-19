@@ -9,7 +9,6 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./dist/extension.js",
   "scripts": {
     "vscode:prepublish": "cross-env NODE_ENV=production npm run package",
@@ -45,7 +44,8 @@
       "linear-manager-issues": [
         {
           "id": "linearManager.views.myIssues",
-          "name": "My issues"
+          "name": "My issues",
+          "icon": "resources/images/linear.svg"
         }
       ]
     },
@@ -57,17 +57,31 @@
       {
         "command": "linearManager.commands.openIssue",
         "title": "Open Issue"
+      },
+      {
+        "command": "linearManager.commands.startWork",
+        "title": "Start Work"
       }
     ],
     "menus": {
       "view/item/context": [
         {
           "command": "linearManager.commands.openIssue",
+          "icon": "resources/images/issue.svg",
+          "when": "viewItem == issueItem"
+        },
+        {
+          "command": "linearManager.commands.startWork",
+          "icon": "resources/images/start-work.svg",
           "when": "viewItem == issueItem"
         }
       ]
     }
   },
+  "extensionDependencies": [
+    "linear.linear-connect",
+    "vscode.git"
+  ],
   "devDependencies": {
     "@types/lodash.throttle": "^4.1.9",
     "@types/mocha": "^10.0.10",
@@ -141,9 +155,7 @@
     "react-dom": "^19.2.3",
     "react-hotkeys-hook": "^5.2.1",
     "rsuite": "^6.1.1",
-    "serve": "^14.2.5"
-  },
-  "extensionDependencies": [
-    "linear.linear-connect"
-  ]
+    "serve": "^14.2.5",
+    "simple-git": "^3.30.0"
+  }
 }

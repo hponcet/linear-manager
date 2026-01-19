@@ -1,7 +1,13 @@
 import { useProps } from "src/webviews/hooks/useProps";
 import { IssueContextProvider } from "src/webviews/contexts/IssueContext";
-import { IssueWebviewContent } from "./IssueWebviewContent";
 import { Container } from "src/webviews/components/Container/Container";
+import { IssueHeader } from "src/webviews/views/IssueWebview/IssueHeader";
+import { IssueContent } from "./IssueContent";
+import { IssueActivity } from "src/webviews/components/IssueActivity/IssueActivity";
+import { CommentInput } from "src/webviews/components/Comment/CommentInput";
+import { SubIssues } from "src/webviews/components/SubIssues/SubIssues";
+
+import "./IssueWebview.scss";
 
 export default function IssueWebview() {
   const [props, loaded] = useProps();
@@ -17,7 +23,15 @@ export default function IssueWebview() {
       issueId={issueId}
       linearAccessToken={linearAccessToken}
     >
-      <IssueWebviewContent />
+      <Container>
+        <IssueHeader />
+        <div className="issueBody">
+          <IssueContent />
+          <SubIssues />
+          <IssueActivity />
+          <CommentInput />
+        </div>
+      </Container>
     </IssueContextProvider>
   );
 }

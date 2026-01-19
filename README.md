@@ -1,71 +1,124 @@
-# linear-issue-manager README
+# Linear Manager - VS Code Extension
 
-This is the README for your extension "linear-issue-manager". After writing up a brief description, we recommend including the following sections.
+A powerful VS Code extension to manage your Linear issues directly from your code editor.
 
-## Features
+## 🚀 Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Complete Linear integration**: Connect your Linear account and access your issues
+- **Dedicated activity view**: View your assigned issues in the VS Code sidebar
+- **Issue management**: Open, view, and start working on your issues directly from VS Code
+- **Rich user interface**: Modern React interface with rich editor and intuitive selectors
+- **Git integration**: Automatic branch creation and Git workflow management
+- **Comments and activity**: View and add comments on your issues
 
-For example if there is an image subfolder under your extension project workspace:
+## 📋 Prerequisites
 
-\!\[feature X\]\(images/feature-x.png\)
+- VS Code version 1.107.0 or higher
+- `linear.linear-connect` extension installed
+- `vscode.git` extension (usually already included)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## 🔧 Installation
 
-## Requirements
+1. Install the extension from the VS Code marketplace
+2. Restart VS Code
+3. Click on the Linear icon in the activity bar
+4. Connect your Linear account with the "Connect to Linear" command
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## 📖 Usage
 
-## Extension Settings
+### Connecting to Linear
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Open the "Linear issue manager" view in the sidebar
+2. Click on "Connect to Linear" to authenticate your account
+3. Your assigned issues will appear in the "My issues" view
 
-For example:
+### Issue management
 
-This extension contributes the following settings:
+- **Open an issue**: Simply click on it or via the context menu
+- **Start working**: Use "Start Work" from the context menu to automatically create a Git branch
+- **Move your issues**: From the "My Issues" view, you can change issue status with simple drag and drop. You can also select multiple issues.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Available commands
 
-## Known Issues
+- `linearManager.connect`: Connect your Linear account
+- `linearManager.commands.openIssue`: Open an issue in VS Code
+- `linearManager.commands.startWork`: Start working on an issue
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## 🏗️ Project structure
 
-## Release Notes
+```
+src/
+├── extension.ts           # Extension entry point
+├── commands.ts           # VS Code commands
+├── controller.ts         # Main controller
+├── linear/              # Linear API integration
+├── git/                # Git integration
+├── panels/             # Webview panels
+├── webviews/           # React interface
+│   ├── components/     # Reusable React components
+│   └── views/         # Main views
+└── types/             # TypeScript definitions
+```
 
-Users appreciate release notes as you update your extension.
+## 🛠️ Development
 
-### 1.0.0
+### Install dependencies
 
-Initial release of ...
+```bash
+npm install
+```
 
-### 1.0.1
+### Development with watch mode
 
-Fixed issue #.
+```bash
+npm run watch
+```
 
-### 1.1.0
+### Build the project
 
-Added features X, Y, and Z.
+```bash
+npm run package
+```
+
+### Tests
+
+```bash
+npm run test
+```
+
+## 🏗️ Technologies used
+
+- **Backend**: TypeScript, VS Code Extension API
+- **Frontend**: React, TipTap (rich editor), Rsuite (UI components)
+- **Integrations**: Linear SDK, Simple Git
+- **Build**: Webpack, PostCSS, Sass
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 Available scripts
+
+- `npm run watch`: Development with automatic reload
+- `npm run compile`: TypeScript code compilation
+- `npm run package`: Production build
+- `npm run lint`: Code verification with ESLint
+- `npm run test`: Run tests
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🐛 Report an issue
+
+If you encounter a problem or have a suggestion for improvement, feel free to [open an issue](https://github.com/hponcet/linear-manager/issues).
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Developed with ❤️ to improve your Linear workflow in VS Code.

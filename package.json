@@ -3,6 +3,7 @@
   "displayName": "linear-manager",
   "description": "",
   "version": "0.0.1",
+  "publisher": "hpon",
   "engines": {
     "vscode": "^1.107.0"
   },
@@ -81,6 +82,9 @@
   "extensionDependencies": [
     "linear.linear-connect",
     "vscode.git"
+  ],
+  "activationEvents": [
+    "*"
   ],
   "devDependencies": {
     "@types/lodash.throttle": "^4.1.9",

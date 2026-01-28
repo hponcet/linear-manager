@@ -3,7 +3,7 @@ import { Issue } from "@linear/sdk";
 import { LinearSecretKeys } from "src/linear/auth";
 import { Webviews } from "src/constants";
 import { Controller } from "src/controller";
-import { MyIssuesView } from "src/views/MyIssuesView";
+import { MyIssuesView } from "src/webviews/MyIssuesView";
 import { AbstractIssueWebview } from "./AbstractIssueWebview";
 
 export class IssueWebview extends AbstractIssueWebview<"issue"> {

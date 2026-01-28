@@ -13,4 +13,5 @@ export enum Commands {
   connect = "linearManager.connect",
   openIssue = "linearManager.commands.openIssue",
   startWork = "linearManager.commands.startWork",
+  checkoutIssue = "linearManager.commands.checkoutIssue",
 }

@@ -1,99 +1,93 @@
 import { Issue } from "@linear/sdk";
 import { useEffect } from "react";
 import { Ref } from "src/types/GitAPI";
-import { ToWebviewActions } from "src/types/WebviewActionMessage";
-import { VsCodeApi } from "src/types/WebviewActionMessage";
+import {
+  GlobalListenerMessage,
+  Ipc,
+  IpcType,
+  VsCodeApi,
+} from "src/types/ActionMessage";
 
 // @ts-expect-error
 const acquireVsCodeApi = (window.acquireVsCodeApi ||
   (() => ({
-    postMessage: () => {},
-    setState: () => {},
-    getState: () => ({}),
+    postMessage: () => { },
   }))) as () => VsCodeApi;
 
-const vscApi = acquireVsCodeApi();
+const VsCodeApi = acquireVsCodeApi();
+
+const vscApi = {
+  postMessage<T extends IpcType<"req">>(
+    msg: { type: T } & Ipc<"req", T>,
+  ): Promise<Ipc<"res", T>["payload"]> {
+    VsCodeApi.postMessage(msg);
+    return new Promise((resolve, reject) => {
+      function handleMessage(e: MessageEvent<Ipc<"res">>) {
+        const timeout = setTimeout(() => {
+          reject(new Error("Timeout waiting for response"));
+          window.removeEventListener("message", handleMessage);
+        }, 10000);
+
+        const { type, payload } = e.data;
+
+        if (type === `${msg.type}_response`) {
+          clearTimeout(timeout);
+          resolve(payload);
+          window.removeEventListener("message", handleMessage);
+        }
+        if (type === `${msg.type}_error`) {
+          clearTimeout(timeout);
+          reject(new Error(payload));
+          window.removeEventListener("message", handleMessage);
+        }
+      }
+      window.addEventListener("message", handleMessage);
+    });
+  },
+};
 
 type RequestDataUpdateParams = {
   updateIssue?: (updatedAt?: number) => void;
 };
 
-export function useRequestDataUpdate(params: Partial<RequestDataUpdateParams>) {
-  const { updateIssue } = params;
+export function useRequestDataUpdate(
+  params?: Partial<RequestDataUpdateParams>,
+) {
+  const { updateIssue } = params || {};
 
-  function handleRequestDataUpdate(e: MessageEvent<ToWebviewActions<any>>) {
+  function handleGlobalMessages(e: MessageEvent<GlobalListenerMessage>) {
     const msg = e.data;
-
-    if (msg.type === "updateIssue") updateIssue?.(msg.payload);
+    if (msg.action === "updateIssue") updateIssue?.(msg.payload);
   }
 
   useEffect(() => {
-    window.addEventListener("message", handleRequestDataUpdate);
+    if (!updateIssue) return;
+
+    window.addEventListener("message", handleGlobalMessages);
     return () => {
-      window.removeEventListener("message", handleRequestDataUpdate);
+      window.removeEventListener("message", handleGlobalMessages);
     };
-  }, []);
+  }, [!!updateIssue]);
 
   return {
-    closePanel: () => vscApi.postMessage({ action: "closePanel" }),
-    openExternal: (url: string) => {
-      vscApi.postMessage({ action: "openExternal", url });
-      console.log("openExternal", url);
-    },
+    closePanel: async () => vscApi.postMessage({ type: "closePanel" }),
+    openExternal: (url: string) =>
+      vscApi.postMessage<"openExternal">({ type: "openExternal", url }),
     updateIssue: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ action: "updateIssue", issueId }),
+      vscApi.postMessage({ type: "updateIssue", issueId }),
     openIssue: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ action: "openIssue", issueId }),
+      vscApi.postMessage({ type: "openIssue", issueId }),
     startWork: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ action: "startWork", issueId }),
-    getAllBranch: () => vscApi.postMessage({ action: "getAllBranch" }),
-    createBranch: (branchName: string, from: Ref) => {
-      vscApi.postMessage({ action: "createBranch", branchName, from });
-      return new Promise<void>((resolve, reject) => {
-        const handleMessage = (e: MessageEvent<ToWebviewActions<any>>) => {
-          const msg = e.data;
-          if (msg.type === "createBranchResult") {
-            resolve();
-            window.removeEventListener("message", handleMessage);
-          }
-          if (msg.type === "createBranchError") {
-            reject(new Error(msg.payload));
-            window.removeEventListener("message", handleMessage);
-          }
-        };
-        window.addEventListener("message", handleMessage);
-      });
-    },
-    hasUncommittedChanges: () => {
-      vscApi.postMessage({ action: "hasUncommittedChanges" });
-      return new Promise<boolean>((resolve) => {
-        const handleMessage = (e: MessageEvent<ToWebviewActions<any>>) => {
-          const msg = e.data;
-          if (msg.type === "hasUncommittedChangesResult") {
-            resolve(msg.payload);
-            window.removeEventListener("message", handleMessage);
-          }
-        };
-        window.addEventListener("message", handleMessage);
-      });
-    },
-    checkout: (branchName: string) => {
-      vscApi.postMessage({ action: "checkout", branchName });
-      return new Promise<void>((resolve, reject) => {
-        const handleMessage = (e: MessageEvent<ToWebviewActions<any>>) => {
-          const msg = e.data;
-          if (msg.type === "checkoutResult") {
-            resolve();
-            window.removeEventListener("message", handleMessage);
-          }
-          if (msg.type === "checkoutError") {
-            reject(new Error(msg.payload));
-            window.removeEventListener("message", handleMessage);
-          }
-        };
-        window.addEventListener("message", handleMessage);
-      });
-    },
+      vscApi.postMessage({ type: "startWork", issueId }),
+    getGitStatus: () =>
+      vscApi.postMessage({ type: "getGitStatus", key: "gitStatus" }),
+    getAllBranches: () => vscApi.postMessage({ type: "getAllBranches" }),
+    getCurrentBranch: () => vscApi.postMessage({ type: "getCurrentBranch" }),
+    createBranch: (branchName: string, from: Ref) =>
+      vscApi.postMessage({ type: "createBranch", branchName, from }),
+    hasUncommittedChanges: () =>
+      vscApi.postMessage({ type: "hasUncommittedChanges" }),
+    checkout: (branch: Ref) => vscApi.postMessage({ type: "checkout", branch }),
   };
 }
 

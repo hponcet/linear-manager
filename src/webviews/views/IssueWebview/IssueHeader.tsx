@@ -6,11 +6,12 @@ import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/P
 import { IssueProjectPicker } from "src/webviews/components/ProjectPicker/ProjectPicker";
 import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { StartWorkButton } from "src/webviews/components/StartWorkButton/StartWorkButton";
+import { ConfigureBranchButton } from "src/webviews/components/ConfigureBranchButton/ConfigureBranchButton";
 import { OpenExternalIssue } from "src/webviews/components/OpenExternalIssue/OpenExternalIssue";
+import { TrashIcon } from "src/webviews/components/Icons/TrashIcon";
+import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton";
 
 import "./IssueHeader.css";
-import { TrashIcon } from "src/webviews/components/Icons/TrashIcon";
 
 export function IssueHeader() {
   const { issue, update } = useIssueContext();
@@ -70,8 +71,24 @@ export function IssueHeader() {
             inline="icon"
             disabled={!!issue.trashed}
           />
-          {!issue.trashed && <StartWorkButton issue={issue} />}
-          <OpenExternalIssue issue={issue} style={{ marginLeft: 6 }} />
+          {!issue.trashed && (
+            <>
+              <CheckoutButton
+                issue={issue}
+                style={{ marginLeft: 6, padding: 0 }}
+                inline="icon"
+              />
+              <ConfigureBranchButton
+                issue={issue}
+                style={{ marginLeft: 6, padding: 0 }}
+                inline="icon"
+              />
+            </>
+          )}
+          <OpenExternalIssue
+            issue={issue}
+            style={{ marginLeft: 6, padding: 0 }}
+          />
         </div>
       </div>
       <LabelsPicker

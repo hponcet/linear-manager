@@ -6,7 +6,13 @@ import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker
 import { Ref } from "src/types/GitAPI";
 import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker";
 
+import { Menu } from "src/webviews/components/Menu/Menu";
+
 import "./StartWorkHeader.scss";
+import { useVSCState } from "src/webviews/hooks/useVSCState";
+import { IssueVscState, VscStateKeys } from "src/vscStates";
+import { OpenExternalIcon } from "src/webviews/components/Icons/OpenExternalIcon";
+import { ResetIcon } from "src/webviews/components/Icons/ResetIcon";
 
 export type StartWorkHeaderProps = {
   branches?: Ref[];
@@ -15,6 +21,11 @@ export type StartWorkHeaderProps = {
 
 export function StartWorkHeader(props: StartWorkHeaderProps) {
   const { issue, update } = useIssueContext();
+
+  const [, setIssueSettings] = useVSCState<IssueVscState>(
+    VscStateKeys.issueSettings,
+    {},
+  );
 
   return (
     <div className="startWorkContentTitle">
@@ -63,6 +74,28 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
           size={14}
           onChange={(assigneeId) => update.issue(issue.id, { assigneeId })}
           placement="bottomEnd"
+        />
+        <Menu
+          items={[
+            {
+              label: "Open in Linear",
+              action: () => update.panelActions.openExternal(issue.id),
+              icon: <OpenExternalIcon size={14} />,
+            },
+            {
+              label: "Reset branch settings",
+              action: () =>
+                setIssueSettings((s) => ({
+                  ...s,
+                  [issue.id]: {
+                    branch: undefined,
+                    branchInitialized: false,
+                    ignoredBranches: [],
+                  },
+                })),
+              icon: <ResetIcon size={14} />,
+            },
+          ]}
         />
       </span>
     </div>

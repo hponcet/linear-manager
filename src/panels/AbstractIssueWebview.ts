@@ -1,18 +1,13 @@
-import { isAction } from "src/ipc/messaging";
-import { AbstractWebview } from "./AbstractWebview";
+import { AbstractWebview, ReactWebview } from "./AbstractWebview";
 import { ExtensionContext, ViewColumn, WebviewPanel } from "vscode";
-import {
-  FromWebviewActions,
-  Props,
-  ToWebviewActions,
-} from "src/types/WebviewActionMessage";
+import { Ipc, Props } from "src/types/ActionMessage";
 import { Issue } from "@linear/sdk";
 import { MyIssuesView } from "src/views/MyIssuesView";
 import { Controller } from "src/controller";
 
-type PType = keyof Props;
-
-export interface ReactIssueWebview {
+export interface ReactIssueWebview<
+  T extends keyof Props,
+> extends ReactWebview<T> {
   open(
     issue: Partial<Issue>,
     column: ViewColumn,
@@ -20,10 +15,9 @@ export interface ReactIssueWebview {
   ): Promise<WebviewPanel>;
 }
 
-export abstract class AbstractIssueWebview<P extends PType>
-  extends AbstractWebview<PType>
-  implements ReactIssueWebview
-{
+export abstract class AbstractIssueWebview<T extends keyof Props>
+  extends AbstractWebview<T>
+  implements ReactIssueWebview<T> {
   _issue: Partial<Issue> | null = null;
   _issueActions: MyIssuesView["_issuesActions"];
 
@@ -37,95 +31,70 @@ export abstract class AbstractIssueWebview<P extends PType>
 
   constructor(
     context: ExtensionContext,
-    issueActions: MyIssuesView["_issuesActions"]
+    issueActions: MyIssuesView["_issuesActions"],
   ) {
     super(context);
     this._issueActions = issueActions;
   }
 
-  protected override postMessage(
-    message: ToWebviewActions<"issue">
-  ): Thenable<boolean> {
-    if (this._panel === undefined) {
-      return Promise.resolve(false);
-    }
-    return this._panel!.webview.postMessage(message);
-  }
-
-  protected override async onMessageReceived(
-    msg: FromWebviewActions
+  override async onMessageReceived<T extends Ipc<"req">["type"]>(
+    msg: Ipc<"req", T>,
   ): Promise<boolean> {
     if (await super.onMessageReceived(msg)) {
-      return true;
+      return Promise.resolve(true);
     }
 
-    if (isAction(msg)) {
-      if (!this._issue?.id) {
-        return false;
-      }
-
-      switch (msg.action) {
+    try {
+      switch (msg.type) {
         case "updateIssue": {
           await this._issueActions.updateIssue(msg.issueId);
-          return true;
+          return this.postMessage(msg.type, void 0);
         }
         case "openIssue": {
           await this._issueActions.openIssue(msg.issueId);
-          return true;
+          return this.postMessage(msg.type, void 0);
         }
         case "startWork": {
           await this._issueActions.startWork(msg.issueId);
-          return true;
+          return this.postMessage(msg.type, void 0);
         }
-        case "getAllBranch": {
+        case "getGitStatus": {
+          const gitStatus = await Controller.git.getGitStatus();
+          return this.postMessage(msg.type, gitStatus);
+        }
+        case "getAllBranches": {
           const branches = await Controller.git.getBranches({ remote: true });
-          this.postMessage({ type: "allBranchResult", payload: branches });
-          return true;
+          return this.postMessage(msg.type, branches);
+        }
+        case "getCurrentBranch": {
+          const branch = Controller.git.getCurrentBranch();
+          return this.postMessage(msg.type, branch);
         }
         case "createBranch": {
-          try {
-            await Controller.git.createBranch(msg.branchName, msg.from);
-            this.postMessage({
-              type: "createBranchResult",
-              payload: undefined,
-            });
-          } catch (error) {
-            this.postMessage({
-              type: "createBranchError",
-              payload:
-                (error as Error).message || String(error) || "Unknown error",
-            });
-          }
-          return true;
+          const branch = await Controller.git.createBranch(
+            msg.branchName,
+            msg.from,
+          );
+          return this.postMessage(msg.type, branch);
         }
         case "checkout": {
-          try {
-            await Controller.git.checkout(msg.branchName);
-            this.postMessage({
-              type: "checkoutResult",
-              payload: undefined,
-            });
-          } catch (error) {
-            this.postMessage({
-              type: "checkoutError",
-              payload:
-                (error as Error).message || String(error) || "Unknown error",
-            });
-          }
-          return true;
+          await Controller.git.checkout(msg.branch);
+          return this.postMessage(msg.type, void 0);
         }
         case "hasUncommittedChanges": {
           const hasChanges = await Controller.git.hasUncommittedChanges();
-          this.postMessage({
-            type: "hasUncommittedChangesResult",
-            payload: hasChanges,
-          });
-          return true;
+          return this.postMessage(msg.type, hasChanges);
         }
       }
+    } catch (error) {
+      return this.postMessage(
+        msg.type,
+        (error as Error).message || String(error) || "Unknown error",
+        true,
+      );
     }
 
-    return false;
+    return Promise.resolve(false);
   }
 
   public override updateWebview(issue: Partial<Issue>) {
@@ -135,16 +104,13 @@ export abstract class AbstractIssueWebview<P extends PType>
     }
 
     if (this._propsSent) {
-      this.postMessage({
-        type: "updateIssue",
-        payload: issue.updatedAt?.getTime(),
-      });
+      this.postListenerMessage("updateIssue", issue.updatedAt?.getTime());
     }
   }
 
   override onVisibilityChange(visible: boolean): void {
     if (visible) {
-      this.postMessage({ type: "updateIssue", payload: undefined });
+      this.postListenerMessage("updateIssue", undefined);
     }
   }
 }

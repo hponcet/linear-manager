@@ -1,10 +1,10 @@
-import { isAction } from "src/ipc/messaging";
 import {
   Disposable,
   env,
   Event,
   EventEmitter,
   ExtensionContext,
+  Memento,
   Uri,
   ViewColumn,
   WebviewPanel,
@@ -15,9 +15,10 @@ import {
 import { makeid } from "src/utils/makeid";
 import {
   Props,
-  PropsMessage,
-  FromWebviewActions,
-} from "src/types/WebviewActionMessage";
+  Ipc,
+  IpcResponse,
+  GlobalListenerMessage,
+} from "src/types/ActionMessage";
 import { IS_PRODUCTION } from "src/constants";
 
 export type ContextMenuCommandData = {
@@ -25,17 +26,20 @@ export type ContextMenuCommandData = {
   data: Record<string, string | boolean>;
 };
 
-export interface ReactWebview<P extends Props[keyof Props]> extends Disposable {
+export interface ReactWebview<K extends keyof Props> extends Disposable {
   hide(): void;
   open(...params: any[]): Promise<WebviewPanel>;
   onDidPanelDispose(): Event<void>;
-  getProps(): Promise<P>;
+  getProps(): Promise<Props[K]>;
   updateWebview(issue: any): void;
+  onMessageReceived<T extends Ipc<"req">["type"]>(
+    msg: Ipc<"req", T>,
+  ): Promise<boolean>;
 }
 
-export abstract class AbstractWebview<K extends keyof Props>
-  implements ReactWebview<Props[K]>
-{
+export abstract class AbstractWebview<
+  K extends keyof Props,
+> implements ReactWebview<K> {
   private static readonly viewType = "webview";
 
   private _visible: boolean = false;
@@ -46,6 +50,7 @@ export abstract class AbstractWebview<K extends keyof Props>
   private _onDidPanelDispose = new EventEmitter<void>();
 
   protected _propsSent: boolean = false;
+  protected _storage: Memento;
 
   abstract get title(): string;
   abstract get viewId(): string;
@@ -56,6 +61,7 @@ export abstract class AbstractWebview<K extends keyof Props>
 
   constructor(context: ExtensionContext) {
     this._context = context;
+    this._storage = context.globalState;
   }
 
   public async createOrShow(column?: ViewColumn) {
@@ -75,7 +81,7 @@ export abstract class AbstractWebview<K extends keyof Props>
           Uri.joinPath(this._context.extensionUri, "dist"),
           Uri.joinPath(this._context.extensionUri, "resources"),
         ],
-      }
+      },
     );
 
     this.getWebviewContent(this._panel);
@@ -85,13 +91,13 @@ export abstract class AbstractWebview<K extends keyof Props>
     this._disposablePanel = Disposable.from(
       this._panel,
       this._panel.onDidDispose(this.onPanelDisposed, this),
-      this._panel.onDidChangeViewState(this.onViewStateChanged, this)
+      this._panel.onDidChangeViewState(this.onViewStateChanged, this),
     );
 
     this._panel.webview.onDidReceiveMessage(
       this.onMessageReceived,
       this,
-      this._context.subscriptions
+      this._context.subscriptions,
     );
 
     return this._panel;
@@ -107,27 +113,27 @@ export abstract class AbstractWebview<K extends keyof Props>
 
   private getWebviewContent(panel: WebviewPanel) {
     const scriptSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", "main.js")
+      Uri.joinPath(this._context.extensionUri, "dist", "main.js"),
     );
 
     const styleSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", "main.css")
+      Uri.joinPath(this._context.extensionUri, "dist", "main.css"),
     );
 
     const font = panel.webview.asWebviewUri(
       Uri.joinPath(
         this._context.extensionUri,
         "resources",
-        "Inter-VariableFont.ttf"
-      )
+        "Inter-VariableFont.ttf",
+      ),
     );
 
     const fontItalic = panel.webview.asWebviewUri(
       Uri.joinPath(
         this._context.extensionUri,
         "resources",
-        "Inter-Italic-VariableFont.ttf"
-      )
+        "Inter-Italic-VariableFont.ttf",
+      ),
     );
 
     const nonce = makeid(16);
@@ -140,16 +146,16 @@ export abstract class AbstractWebview<K extends keyof Props>
           content="default-src 'self' ${
             panel.webview.cspSource
           }; img-src 'self' https: data:; script-src ${
-      IS_PRODUCTION
-        ? `${panel.webview.cspSource} 'nonce-${nonce}'`
-        : `${panel.webview.cspSource} 'unsafe-eval'`
-    }; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${
-      panel.webview.cspSource
-    } data: https:; style-src-elem 'self' 'unsafe-inline' ${
-      panel.webview.cspSource
-    }; connect-src ${
-      panel.webview.cspSource
-    } https://*.linear.app ws://*.linear.app https://storage.googleapis.com https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/data.json https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/messages.json"
+            IS_PRODUCTION
+              ? `${panel.webview.cspSource} 'nonce-${nonce}'`
+              : `${panel.webview.cspSource} 'unsafe-eval'`
+          }; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${
+            panel.webview.cspSource
+          } data: https:; style-src-elem 'self' 'unsafe-inline' ${
+            panel.webview.cspSource
+          }; connect-src ${
+            panel.webview.cspSource
+          } https://*.linear.app ws://*.linear.app https://storage.googleapis.com https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/data.json https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/messages.json"
         />
        
         <meta id="webview" name="webview" content="${this.viewId}" />
@@ -173,7 +179,7 @@ export abstract class AbstractWebview<K extends keyof Props>
         </style>
         <base href="${Uri.joinPath(
           this._context.extensionUri,
-          "resources"
+          "resources",
         ).toString()}/" />
       </head>
       <body>
@@ -224,33 +230,78 @@ export abstract class AbstractWebview<K extends keyof Props>
     this._onDidPanelDispose.dispose();
   }
 
-  protected postMessage(message: PropsMessage<K>): Thenable<boolean> {
+  public postListenerMessage<T extends GlobalListenerMessage["action"]>(
+    action: T,
+    payload: Extract<GlobalListenerMessage, { action: T }>["payload"],
+  ): void {
+    if (this._panel === undefined) {
+      return;
+    }
+    this._panel!.webview.postMessage({ action, payload });
+  }
+
+  public postMessage<
+    T extends Ipc<"req">["type"],
+    E extends true | void = void,
+  >(
+    type: T,
+    payload: E extends true ? string : IpcResponse<T>["payload"],
+    error?: boolean,
+  ): Thenable<boolean> {
     if (this._panel === undefined) {
       return Promise.resolve(false);
     }
 
-    return this._panel!.webview.postMessage(message);
-  }
-
-  protected async onMessageReceived(a: FromWebviewActions): Promise<boolean> {
-    if (isAction(a)) {
-      switch (a.action) {
-        case "closePanel": {
-          this.dispose();
-          return true;
-        }
-        case "openExternal": {
-          env.openExternal(Uri.parse(a.url));
-          return true;
-        }
-        case "get-props": {
-          this.postMessage({ type: "props", props: await this.getProps() });
-          this._propsSent = true;
-          return true;
-        }
-      }
+    if (error) {
+      return this._panel!.webview.postMessage({
+        type: `${type}_error`,
+        error: payload,
+      });
     }
 
-    return false;
+    return this._panel!.webview.postMessage({
+      type: `${type}_response`,
+      payload,
+    });
+  }
+
+  async onMessageReceived<T extends Ipc<"req">["type"]>(
+    msg: Ipc<"req", T>,
+  ): Promise<boolean> {
+    try {
+      switch (msg.type) {
+        case "closePanel": {
+          this.dispose();
+          return this.postMessage(msg.type, undefined);
+        }
+        case "openExternal": {
+          env.openExternal(Uri.parse(msg.url));
+          return this.postMessage(msg.type, undefined);
+        }
+        case "props": {
+          this._propsSent = true;
+          return this.postMessage(msg.type, await this.getProps());
+        }
+        case "getState": {
+          const key = msg.key;
+          const value = this._context.globalState.get(key);
+          return this.postMessage(msg.type, value);
+        }
+        case "setState": {
+          const { key, value, timestamp } = msg;
+          await this._context.globalState.update(key, value);
+          this.postListenerMessage("stateUpdate", { value, timestamp, key });
+          return this.postMessage(msg.type, undefined);
+        }
+        default:
+          return false;
+      }
+    } catch (error) {
+      return this.postMessage(
+        msg.type,
+        error.message || String(error) || "Unknown error",
+        true,
+      );
+    }
   }
 }

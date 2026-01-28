@@ -5,7 +5,6 @@ import {
   LinearClient,
   User,
 } from "@linear/sdk";
-import { getLinearClient } from "../linear/auth";
 import {
   ProviderResult,
   TreeDataProvider,
@@ -20,12 +19,14 @@ import {
   ViewColumn,
   commands,
 } from "vscode";
+import { getLinearClient } from "../linear/auth";
 import { Commands, Views } from "../constants";
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates";
 import { IssueWebview } from "src/panels/IssueWebview";
 import { Controller } from "src/controller";
 import { WorkflowStateWithStateProgress } from "src/types/Linear";
 import { StartWorkWebview } from "src/panels/StartWorkWebview";
+import { Stores } from "src/utils/Stores";
 
 export const MIME_TYPE_ISSUE = "application/vnd.code.issueViewer.issue";
 
@@ -46,32 +47,32 @@ type Issue = ReturnType<typeof addKeyOnItem<LIssue, "issue">>;
 
 export class MyIssuesView
   implements
-    TreeDataProvider<Team | WorkflowState | Issue>,
-    TreeDragAndDropController<Issue | WorkflowState | Team>
-{
+  TreeDataProvider<Team | WorkflowState | Issue>,
+  TreeDragAndDropController<Issue | WorkflowState | Team> {
   dropMimeTypes = [MIME_TYPE_ISSUE];
   dragMimeTypes = [MIME_TYPE_ISSUE];
 
-  private _onDidChangeTreeData = new EventEmitter<void>();
-  private _treeItems = new Map<string, TreeItem>();
+  #onDidChangeTreeData = new EventEmitter<void>();
+  #treeItems = new Map<string, TreeItem>();
 
-  private _context: ExtensionContext;
-  private _linearClient = getLinearClient() as LinearClient;
-  private _me: User | null = null;
-  private _teams: Record<string, Team> = {};
-  private _workflowStatesByTeam: Record<string, Record<string, WorkflowState>> =
-    {};
-  private _myIssues: Map<string, Issue> = new Map();
+  #context: ExtensionContext;
+  #linearClient = getLinearClient() as LinearClient;
+  #me: User | null = null;
+  #teams: Record<string, Team> = {};
+  #workflowStatesByTeam: Record<string, Record<string, WorkflowState>> = {};
+  #myIssues: Map<string, Issue> = new Map();
+  protected issuesStore: ReturnType<Stores["issuesStore"]>;
 
-  private _autoRefreshInterval: NodeJS.Timeout | null = null;
-  private _issuesWebviews: Map<string, IssueWebview> = new Map();
-  private _startWorkWebviews: Map<string, StartWorkWebview> = new Map();
+  #autoRefreshInterval: NodeJS.Timeout | null = null;
+  #issuesWebviews: Map<string, IssueWebview> = new Map();
+  #startWorkWebviews: Map<string, StartWorkWebview> = new Map();
 
   constructor(context: ExtensionContext) {
-    this._context = context;
+    this.#context = context;
+    this.issuesStore = new Stores(context).issuesStore();
   }
 
-  onDidChangeTreeData = this._onDidChangeTreeData.event;
+  onDidChangeTreeData = this.#onDidChangeTreeData.event;
 
   public async initialize(context: ExtensionContext): Promise<void> {
     await this.fetchDatas();
@@ -86,12 +87,15 @@ export class MyIssuesView
       }),
     );
 
-    this._context.subscriptions.push(
+    this.#context.subscriptions.push(
       commands.registerCommand(Commands.openIssue, (issue: Issue) =>
         this.openIssue(issue),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) =>
         this.startWork(issue),
+      ),
+      commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
+        this.checkoutToIssueBranch(issue.id),
       ),
     );
   }
@@ -102,21 +106,42 @@ export class MyIssuesView
   }
 
   public async openIssue(issue: Issue) {
-    let webview = this._issuesWebviews.get(issue.id);
+    let webview = this.#issuesWebviews.get(issue.id);
     if (!webview) {
-      webview = new IssueWebview(this._context, this._issuesActions);
-      this._issuesWebviews.set(issue.id, webview);
+      webview = new IssueWebview(this.#context, this._issuesActions);
+      this.#issuesWebviews.set(issue.id, webview);
     }
     await webview.open(issue, ViewColumn.Active);
   }
 
-  public async startWork(issue: Issue) {
-    let webview = this._startWorkWebviews.get(issue.id);
+  public async startWork(issue: Issue, fromCheckout?: true) {
+    let webview = this.#startWorkWebviews.get(issue.id);
     if (!webview) {
-      webview = new StartWorkWebview(this._context, this._issuesActions);
-      this._startWorkWebviews.set(issue.id, webview);
+      webview = new StartWorkWebview(
+        this.#context,
+        this._issuesActions,
+        fromCheckout,
+      );
+      this.#startWorkWebviews.set(issue.id, webview);
     }
     await webview.open(issue, ViewColumn.Active);
+  }
+
+  public async checkoutToIssueBranch(issueId: Issue["id"]) {
+    const issueState = this.issuesStore.get(issueId);
+
+    if (issueState.branchInitialized && issueState.branch) {
+      Controller.git.checkout(issueState.branch);
+      return;
+    }
+
+    const issue =
+      this.#myIssues.get(issueId) ||
+      addKeyOnItem(await this.#linearClient.issue(issueId), "issue");
+
+    if (!issue) return;
+
+    this.startWork(issue, true);
   }
 
   public getChildren(
@@ -135,6 +160,15 @@ export class MyIssuesView
     }
 
     return [];
+  }
+
+  public changeGitStatus(gitStatus: { repoActive: boolean, apiActive: boolean }) {
+    this.#issuesWebviews.values().forEach((webview) =>
+      webview.postListenerMessage("gitActive", gitStatus),
+    );
+    this.#startWorkWebviews.values().forEach((webview) =>
+      webview.postListenerMessage("gitActive", gitStatus),
+    );
   }
 
   public getTreeItem(element: Team | WorkflowState | Issue) {
@@ -176,7 +210,7 @@ export class MyIssuesView
           // @ts-expect-error
           target.__key === "workflowState" ? target.id : target._state.id;
 
-        await this._linearClient.updateIssue(issue.id, {
+        await this.#linearClient.updateIssue(issue.id, {
           stateId: targetStateId,
         });
 
@@ -213,66 +247,66 @@ export class MyIssuesView
     openIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 
-      const issue = this._myIssues.get(issueId);
+      const issue = this.#myIssues.get(issueId);
       if (issue) {
         await this.openIssue(issue);
       } else {
-        const fetchedIssue = await this._linearClient.issue(issueId);
+        const fetchedIssue = await this.#linearClient.issue(issueId);
         const issueWithKey = addKeyOnItem(fetchedIssue, "issue");
-        this._myIssues.set(issueWithKey.id, issueWithKey);
+        this.#myIssues.set(issueWithKey.id, issueWithKey);
         await this.openIssue(issueWithKey);
       }
     },
     updateIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 
-      if (this._myIssues.has(issueId)) {
-        const issue = await this._linearClient.issue(issueId);
-        this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
-        this._onDidChangeTreeData.fire();
+      if (this.#myIssues.has(issueId)) {
+        const issue = await this.#linearClient.issue(issueId);
+        this.#myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
+        this.#onDidChangeTreeData.fire();
       }
     },
     startWork: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 
-      const issue = this._myIssues.get(issueId);
+      const issue = this.#myIssues.get(issueId);
       if (issue) {
         await this.startWork(issue);
       } else {
-        const fetchedIssue = await this._linearClient.issue(issueId);
+        const fetchedIssue = await this.#linearClient.issue(issueId);
         const issueWithKey = addKeyOnItem(fetchedIssue, "issue");
-        this._myIssues.set(issueWithKey.id, issueWithKey);
+        this.#myIssues.set(issueWithKey.id, issueWithKey);
         await this.startWork(issueWithKey);
       }
     },
   };
 
   public dispose() {
-    if (this._autoRefreshInterval) {
-      clearInterval(this._autoRefreshInterval);
-      this._autoRefreshInterval = null;
+    if (this.#autoRefreshInterval) {
+      clearInterval(this.#autoRefreshInterval);
+      this.#autoRefreshInterval = null;
     }
 
-    this._issuesWebviews.forEach((webview) => webview.dispose());
-    this._issuesWebviews.clear();
+    this.#issuesWebviews.forEach((webview) => webview.dispose());
+    this.#issuesWebviews.clear();
   }
 
   private _startAutoRefresh() {
-    if (this._autoRefreshInterval) {
+    if (this.#autoRefreshInterval) {
       return;
     }
-    this._autoRefreshInterval = setInterval(
+    this.#autoRefreshInterval = setInterval(
       () => this._getIssues(),
       AUTO_REFRESH_INTERVAL_MS,
     );
   }
 
   private async _getMe() {
-    if (this._me || !this._linearClient) {
-      return this._me;
+    if (this.#me || !this.#linearClient) {
+      return this.#me;
     }
-    this._me = await this._linearClient.viewer;
-    return this._me;
+    this.#me = await this.#linearClient.viewer;
+    return this.#me;
   }
 
   private async _getTeams() {
@@ -284,18 +318,17 @@ export class MyIssuesView
       }
 
       const teams = await viewer.teams({ first: 50 });
-      this._teams = teams.nodes.reduce(
+      this.#teams = teams.nodes.reduce(
         (acc, team) => {
           acc[team.id] = addKeyOnItem(team, "team");
           return acc;
         },
         {} as Record<string, Team>,
       );
-      return this._teams;
+      return this.#teams;
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch user teams: ${
-          error instanceof Error ? error.message : String(error)
+        `Failed to fetch user teams: ${error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -307,11 +340,11 @@ export class MyIssuesView
       const teams = await this._getTeams();
 
       for (const teamId in teams) {
-        const workflowStates = await this._linearClient.workflowStates({
+        const workflowStates = await this.#linearClient.workflowStates({
           filter: { team: { id: { eq: teamId } } },
         });
 
-        this._workflowStatesByTeam[teamId] = workflowStates.nodes.reduce(
+        this.#workflowStatesByTeam[teamId] = workflowStates.nodes.reduce(
           (acc, state) => {
             acc[state.id] = addKeyOnItem(state, "workflowState");
             return acc;
@@ -319,11 +352,10 @@ export class MyIssuesView
           {} as Record<string, WorkflowState>,
         );
       }
-      return this._workflowStatesByTeam;
+      return this.#workflowStatesByTeam;
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch assigned issues: ${
-          error instanceof Error ? error.message : String(error)
+        `Failed to fetch assigned issues: ${error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -341,8 +373,8 @@ export class MyIssuesView
 
       issues.nodes.forEach((issue) => {
         // issues webviews
-        const issuePanel = this._issuesWebviews.get(issue.id);
-        const webviewPanel = this._startWorkWebviews.get(issue.id);
+        const issuePanel = this.#issuesWebviews.get(issue.id);
+        const webviewPanel = this.#startWorkWebviews.get(issue.id);
 
         if (
           issuePanel?.visible &&
@@ -361,14 +393,13 @@ export class MyIssuesView
           webviewPanel?.updateWebview(issue);
         }
 
-        this._myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
+        this.#myIssues.set(issue.id, addKeyOnItem(issue, "issue"));
       });
 
-      this._onDidChangeTreeData.fire();
+      this.#onDidChangeTreeData.fire();
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch assigned issues: ${
-          error instanceof Error ? error.message : String(error)
+        `Failed to fetch assigned issues: ${error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -381,13 +412,13 @@ export class MyIssuesView
       item.description = team.description;
     }
 
-    this._treeItems.set(item.id!, item);
+    this.#treeItems.set(item.id!, item);
 
     return item;
   }
 
   private _getWorkflowStateTreeItem(state: WorkflowStateWithStateProgress) {
-    const issuesCount = Array.from(this._myIssues.values()).filter(
+    const issuesCount = Array.from(this.#myIssues.values()).filter(
       // @ts-expect-error
       (issue) => issue._state.id === state.id,
     ).length;
@@ -404,15 +435,15 @@ export class MyIssuesView
     item.iconPath = Controller.resources.icons.get(
       state.type === "started"
         ? `started${Math.ceil(
-            Math.min(
-              Math.max((10 / state.stateTypeLength) * state.stateProgress, 0),
-              10,
-            ),
-          )}`
+          Math.min(
+            Math.max((10 / state.stateTypeLength) * state.stateProgress, 0),
+            10,
+          ),
+        )}`
         : state.type,
     );
 
-    this._treeItems.set(item.id!, item);
+    this.#treeItems.set(item.id!, item);
 
     return item;
   }
@@ -435,15 +466,15 @@ export class MyIssuesView
       arguments: [issue],
     };
 
-    this._treeItems.set(item.id!, item);
+    this.#treeItems.set(item.id!, item);
 
     return item;
   }
 
   private _tree = {
     getTeam: (): Team[] | WorkflowState[] | null => {
-      const teams = Object.values(this._teams).filter((team) =>
-        Array.from(this._myIssues.values()).some(
+      const teams = Object.values(this.#teams).filter((team) =>
+        Array.from(this.#myIssues.values()).some(
           // @ts-expect-error
           (issue) => issue._team.id === team.id,
         ),
@@ -460,11 +491,11 @@ export class MyIssuesView
     },
     getState: (teamId: Team["id"]): WorkflowState[] => {
       return filterWorkflowStatesByType(
-        Object.values(this._workflowStatesByTeam[teamId]),
+        Object.values(this.#workflowStatesByTeam[teamId]),
       ) as unknown as WorkflowState[];
     },
     getIssue: (stateId: WorkflowState["id"]) => {
-      const issue = Array.from(this._myIssues.values()).filter(
+      const issue = Array.from(this.#myIssues.values()).filter(
         // @ts-expect-error
         (issue) => issue._state.id === stateId,
       );

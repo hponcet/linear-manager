@@ -24,7 +24,7 @@ export function CommentGroup(props: CommentGroupProps) {
 
   const [replyValue, setReplyValue] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(
-    !resolvingCommentId && !resolvingUserId
+    !resolvingCommentId && !resolvingUserId,
   );
 
   function onKeyDown(e: KeyboardEvent) {
@@ -42,17 +42,17 @@ export function CommentGroup(props: CommentGroupProps) {
     c: CommentType,
     index: number,
     showSeparator = true,
-    isChildren: boolean
+    isChildren: boolean,
   ) {
     const user = users.find((u) => u.id === c.userId) || null;
 
     const shouldCollapse = expanded
       ? false
       : threadResolvedByUser
-      ? true
-      : threadResolvedByComment && isChildren && !c.resolver
-      ? true
-      : false;
+        ? true
+        : threadResolvedByComment && isChildren && !c.resolver
+          ? true
+          : false;
 
     return (
       <Animation.Collapse in={!shouldCollapse} key={c.id}>
@@ -111,7 +111,7 @@ export function CommentGroup(props: CommentGroupProps) {
       />
 
       {childrenComments?.map((c, i, a) =>
-        displayComment(c, i, i < a.length - 1, true)
+        displayComment(c, i, i < a.length - 1, true),
       )}
 
       {(typeof replyValue === "string" ||
@@ -121,8 +121,8 @@ export function CommentGroup(props: CommentGroupProps) {
             expanded
               ? "false"
               : threadResolvedByUser || threadResolvedByComment
-              ? "true"
-              : "false"
+                ? "true"
+                : "false"
           }
           className="issueCommentReply"
           ref={(el) => {

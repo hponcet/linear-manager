@@ -7,11 +7,15 @@ import { MyIssuesView } from "src/views/MyIssuesView";
 import { AbstractIssueWebview } from "./AbstractIssueWebview";
 
 export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
+  #fromCheckout: boolean = false;
+
   constructor(
     context: ExtensionContext,
-    issueActions: MyIssuesView["_issuesActions"]
+    issueActions: MyIssuesView["_issuesActions"],
+    fromCheckout?: true,
   ) {
     super(context, issueActions);
+    this.#fromCheckout = fromCheckout ?? false;
   }
 
   async open(issue: Issue, column?: ViewColumn) {
@@ -22,15 +26,21 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
 
     return panel;
   }
+
   public async getProps() {
-    return {
-      branches: await Controller.git.getBranches({ remote: true }),
-      currentBranch: Controller.git.getCurrentBranch(),
+    const props = {
       issueId: this._issue?.id || null,
       linearAccessToken: await this._context.secrets.get(
-        LinearSecretKeys.accessToken
+        LinearSecretKeys.accessToken,
       ),
+      fromCheckout: this.#fromCheckout,
+      repoInitialized: Controller.git.repositoryActive,
+      gitInitialized: Controller.git.apiActive,
     };
+
+    this.#fromCheckout = false;
+
+    return props;
   }
 
   public get title(): string {

@@ -24,6 +24,15 @@
   --rs-modal-body-padding: 1rem;
 
   --rs-listbox-option-group-bg: #1e1f1f;
+
+  --rs-btn-default-hover-bg: transparent;
+  --rs-btn-primary-bg: #3a3a3a;
+  --rs-btn-primary-border-color: #3a3a3a;
+  --rs-btn-primary-hover-bg: #4a4a4a;
+
+  --rs-carousel-bg: transparent;
+  --rs-segmented-control-bg: transparent;
+  --rs-segmented-control-border-color: transparent;
 }
 
 .rs-picker-toggle-indicator {
@@ -143,4 +152,8 @@
   color: var(--rs-text-primary) !important;
   height: 26px !important;
   padding: 0 8px !important;
+}
+
+.rs-loader {
+  display: flex;
 }

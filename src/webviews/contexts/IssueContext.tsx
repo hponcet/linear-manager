@@ -40,7 +40,7 @@ export type IssueContextValueData = {
   update: {
     issue: (
       issueId: string,
-      issue: Parameters<LinearClient["updateIssue"]>[1]
+      issue: Parameters<LinearClient["updateIssue"]>[1],
     ) => Promise<void>;
     comments: {
       addComment: (body: string) => Promise<void>;
@@ -49,13 +49,13 @@ export type IssueContextValueData = {
       sendCommentReply: (commentId: string, body: string) => Promise<void>;
       resolveComment: (
         commentId: string,
-        parentCommentId?: string
+        parentCommentId?: string,
       ) => Promise<void>;
       unresolveComment: (commentId: string) => Promise<void>;
     };
     reactions: {
       addReaction: (
-        reaction: Parameters<LinearClient["createReaction"]>[0]
+        reaction: Parameters<LinearClient["createReaction"]>[0],
       ) => Promise<void>;
       removeReaction: (id: string) => Promise<void>;
     };
@@ -89,47 +89,31 @@ const IssueContextValue = createContext<IssueContextValueData>({
   urlBase: "",
   issue: {} as Issue,
   update: {
-    issue: async () => {
-      console.warn("IssueContext: updater.issue not implemented");
-    },
+    issue: async () => Promise.reject(),
     comments: {
-      addComment: async () => {
-        console.warn("IssueContext: updater.addComment not implemented");
-      },
-      deleteComment: async () => {
-        console.warn("IssueContext: updater.deleteComment not implemented");
-      },
-      updateComment: async () => {
-        console.warn("IssueContext: updater.updateComment not implemented");
-      },
-      sendCommentReply: async () => {
-        console.warn("IssueContext: updater.sendCommentReply not implemented");
-      },
-      resolveComment: async () => {
-        console.warn("IssueContext: updater.resolveComment not implemented");
-      },
-      unresolveComment: async () => {
-        console.warn("IssueContext: updater.unresolveComment not implemented");
-      },
+      addComment: async () => Promise.reject(),
+      deleteComment: async () => Promise.reject(),
+      updateComment: async () => Promise.reject(),
+      sendCommentReply: async () => Promise.reject(),
+      resolveComment: async () => Promise.reject(),
+      unresolveComment: async () => Promise.reject(),
     },
     reactions: {
-      addReaction: async () => {
-        console.warn("IssueContext: updater.addReaction not implemented");
-      },
-      removeReaction: async () => {
-        console.warn("IssueContext: updater.removeReaction not implemented");
-      },
+      addReaction: async () => Promise.reject(),
+      removeReaction: async () => Promise.reject(),
     },
     panelActions: {
-      closePanel: () => {},
-      openExternal: (url: string) => {},
-      updateIssue: () => {},
-      openIssue: () => {},
-      startWork: () => {},
-      getAllBranch: () => {},
-      createBranch: () => Promise.resolve(),
-      hasUncommittedChanges: () => Promise.resolve(false),
-      checkout: () => Promise.resolve(),
+      closePanel: () => Promise.reject(),
+      openExternal: () => Promise.reject(),
+      updateIssue: () => Promise.reject(),
+      openIssue: () => Promise.reject(),
+      startWork: () => Promise.reject(),
+      getGitStatus: () => Promise.reject(),
+      getAllBranches: () => Promise.reject(),
+      getCurrentBranch: () => Promise.reject(),
+      createBranch: () => Promise.reject(),
+      hasUncommittedChanges: () => Promise.reject(),
+      checkout: () => Promise.reject(),
     },
   },
   priorities: [],
@@ -198,7 +182,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   async function updateIssue(
     id: string,
-    updatedFields: Parameters<LinearClient["updateIssue"]>[1]
+    updatedFields: Parameters<LinearClient["updateIssue"]>[1],
   ) {
     try {
       const result = await linearClient?.updateIssue(id, updatedFields);
@@ -248,7 +232,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   }
 
   async function addReaction(
-    reaction: Parameters<LinearClient["createReaction"]>[0]
+    reaction: Parameters<LinearClient["createReaction"]>[0],
   ) {
     await linearClient?.createReaction(reaction);
 
@@ -266,13 +250,13 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   async function resolveComment(
     commentId: string,
-    resolvingCommentId?: string
+    resolvingCommentId?: string,
   ) {
     await linearClient?.commentResolve(
       commentId,
       resolvingCommentId && commentId !== resolvingCommentId
         ? { resolvingCommentId }
-        : undefined
+        : undefined,
     );
     setCommentRefetch((r) => r + 1);
   }
@@ -346,7 +330,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
         return null;
       }
       return createEstimateDataItems(
-        team?.issueEstimationType as keyof typeof issueEstimationByType
+        team?.issueEstimationType as keyof typeof issueEstimationByType,
       );
     }, [!!linearClient, issue?.id]);
 
@@ -464,7 +448,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       historyLoading,
       subIssues,
       subIssuesLoading,
-    ]
+    ],
   );
 
   if (!issue || !linearClient || isLoading || externalLoading) {

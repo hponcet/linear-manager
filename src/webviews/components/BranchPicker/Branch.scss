@@ -1,0 +1,25 @@
+.branchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.branchName {
+  display: inline-flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.branchActions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.branchIsCurrent {
+  color: var(--rs-text-tertiary);
+  font-size: small;
+  margin-left: 6px;
+}

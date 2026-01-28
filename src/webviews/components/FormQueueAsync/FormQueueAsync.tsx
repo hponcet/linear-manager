@@ -1,15 +1,24 @@
-import { cloneElement, ReactElement, useEffect, useState } from "react";
+import {
+  cloneElement,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { FormQueueFieldProps } from "./FormQueueField";
 import { Button } from "../Button/Button";
 
 export type FormQueueAsyncProps = {
-  children: ReactElement<FormQueueFieldProps>[];
+  children: (ReactElement<FormQueueFieldProps> | null)[];
   startButtonLabel?: string;
   endButtonLabel?: string;
   continueOnError?: boolean;
   canRestart?: boolean;
   canRetry?: boolean;
-  actionOnComplete?: () => void;
+  actions?: ReactNode[];
+  onComplete?: () => void;
+  onReset?: () => void;
 };
 
 type QueueItem = {
@@ -19,6 +28,7 @@ type QueueItem = {
   disabled?: boolean;
   validated?: boolean;
   validations?: (value: any) => string | null;
+  showToggle?: boolean;
 };
 
 export function FormQueueAsync(props: FormQueueAsyncProps) {
@@ -29,102 +39,137 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
     continueOnError,
     canRestart,
     canRetry,
-    actionOnComplete,
+    onComplete,
+    onReset,
+    actions,
   } = props;
+
+  const nonNullChildren = useMemo(
+    () => children.filter(Boolean) as ReactElement<FormQueueFieldProps>[],
+    [children],
+  );
 
   const [processing, setProcessing] = useState(false);
   const [executed, setExecuted] = useState(false);
-  const [queue, setQueue] = useState<QueueItem[]>(
-    children.map(
-      (child): QueueItem => ({
-        fn: child.props.onProcess,
-        loading: false,
-        disabled: child.props.disabled ?? undefined,
-        errors: [],
-        validated: false,
-      })
-    )
+  const [queue, setQueue] = useState<Record<string, QueueItem>>(
+    nonNullChildren.reduce(
+      (acc, child) => ({
+        ...acc,
+        [child.props.indexKey]: {
+          fn: child.props.onProcess,
+          loading: false,
+          disabled: child.props.disabled ?? undefined,
+          errors: [],
+          validated: false,
+        },
+      }),
+      {} as Record<string, QueueItem>,
+    ),
   );
 
   useEffect(() => {
     if (processing || executed) return;
 
     setQueue((queue) =>
-      children.map((child, i): QueueItem => {
-        return {
-          ...queue[i],
-          disabled: queue[i].disabled ?? child.props.disabled,
-          errors: child.props.errors || [],
-          fn: child.props.onProcess,
-        };
-      })
+      nonNullChildren.reduce(
+        (acc, { props }) => ({
+          ...acc,
+          [props.indexKey]: {
+            ...queue[props.indexKey],
+            disabled: queue[props.indexKey]?.disabled ?? props.disabled,
+            errors: props.errors || [],
+            fn: props.onProcess,
+          },
+        }),
+        {} as Record<string, QueueItem>,
+      ),
     );
-  }, [children, processing, executed]);
+  }, [nonNullChildren, processing, executed]);
 
-  const processDone = queue.every((item) => item.disabled || item.validated);
-  const processLoading = queue.some((item) => item.loading) || processing;
-  const processHasErrors = queue.some((item) => item.errors.length > 0);
+  const processDone = Object.values(queue).every(
+    (item) => item.disabled || item.validated,
+  );
+  const processLoading =
+    Object.values(queue).some((item) => item.loading) || processing;
+  const processHasErrors = Object.values(queue).some(
+    (item) => !item.disabled && item.errors.length > 0,
+  );
   const processCanRetry = canRetry && executed && processHasErrors;
   const processCanRestart = canRestart && executed;
 
   async function executeQueue(executeType?: "restart" | "retry") {
     if (executed) {
-      if (actionOnComplete && processDone) {
-        actionOnComplete();
+      if (onComplete && processDone && !executeType) {
+        onComplete();
       }
 
       if (processCanRestart && executeType === "restart") {
-        const newQueue = queue.map((item, index) => ({
-          ...item,
-          loading: false,
-          errors: [],
-          validated: false,
-          showToggle: !item.validated,
-        }));
-        setQueue(newQueue);
+        setQueue((queue) => {
+          return Object.fromEntries(
+            Object.entries(queue).map(([key, item]) => [
+              key,
+              {
+                ...item,
+                loading: false,
+                errors: [],
+                validated: false,
+                showToggle: !item.validated,
+              },
+            ]),
+          );
+        });
         setExecuted(false);
         return;
       }
       if (processCanRetry && executeType === "retry") {
-        const newQueue = queue.map((item) => {
-          if (item.errors.length > 0 && !item.disabled) {
-            return {
-              ...item,
-              loading: false,
-              errors: [],
-              validated: false,
-              showToggle: true,
-            };
-          }
-          return item;
+        setQueue((queue) => {
+          return Object.fromEntries(
+            Object.entries(queue).map(([key, item]) => [
+              key,
+              item.errors.length > 0 && !item.disabled
+                ? {
+                    ...item,
+                    loading: false,
+                    errors: [],
+                    validated: false,
+                    showToggle: true,
+                  }
+                : item,
+            ]),
+          );
         });
-        setQueue(newQueue);
         setExecuted(false);
       }
     }
 
     setProcessing(true);
-    for (let i = 0; i < queue.length; i++) {
-      if (queue[i].disabled || queue[i].loading || queue[i].validated) {
+
+    for (const indexKey of Object.keys(queue)) {
+      if (
+        queue[indexKey]?.disabled ||
+        queue[indexKey]?.loading ||
+        queue[indexKey]?.validated
+      ) {
         continue;
       }
-      const newQueue = [...queue];
-      newQueue[i].loading = true;
-      newQueue[i].errors = [];
+
+      const newQueue = { ...queue };
+      newQueue[indexKey].loading = true;
+      newQueue[indexKey].errors = [];
       setQueue(newQueue);
 
       try {
-        await newQueue[i].fn?.();
-        newQueue[i].validated = true;
+        await newQueue[indexKey].fn?.();
+        newQueue[indexKey].validated = true;
       } catch (e) {
         if (!continueOnError) {
-          newQueue[i].errors = [e];
+          newQueue[indexKey].errors = [e];
           setQueue(newQueue);
           break;
         }
-        newQueue[i].errors.push(e);
+        newQueue[indexKey].errors.push(e);
       } finally {
-        newQueue[i].loading = false;
+        newQueue[indexKey].loading = false;
         setQueue(newQueue);
       }
     }
@@ -134,73 +179,85 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
 
   return (
     <div className="formQueueAsyncContainer">
-      {children.map((child, index) =>
+      {nonNullChildren.map((child) =>
         cloneElement(child, {
           ...child.props,
-          key: index,
-          disabled: queue[index]?.disabled,
-          loading: queue[index]?.loading,
-          validated: queue[index]?.validated,
-          errors: queue[index]?.errors,
-          processing,
+          disabled: queue[child.props.indexKey]?.disabled,
+          loading: queue[child.props.indexKey]?.loading,
+          validated: queue[child.props.indexKey]?.validated,
+          errors: queue[child.props.indexKey]?.errors,
+          processing: processLoading,
           executed,
           allDone: processDone,
           onDisable: !child.props.required
             ? () => {
-                const newQueue = [...queue];
-                newQueue[index].disabled = true;
-                setQueue(newQueue);
+                setQueue((queue) => {
+                  const newQueue = { ...queue };
+                  newQueue[child.props.indexKey].disabled = true;
+                  return newQueue;
+                });
               }
             : undefined,
           onEnable: !child.props.required
             ? () => {
-                const newQueue = [...queue];
-                newQueue[index].disabled = false;
-                setQueue(newQueue);
+                setQueue((queue) => {
+                  const newQueue = { ...queue };
+                  newQueue[child.props.indexKey].disabled = false;
+                  return newQueue;
+                });
               }
             : undefined,
-        })
+        }),
       )}
-      <div style={{ marginLeft: "auto", display: "table" }}>
+      <div style={{ marginLeft: "auto", display: "table", marginTop: 20 }}>
+        {!executed && !processing && actions}
         {canRestart && !processing && executed ? (
           <Button
-            onClick={() => executeQueue("restart")}
-            color="#353333"
-            style={{ marginTop: 20, marginRight: 8, padding: "0 16px" }}
+            onClick={() => {
+              onReset?.();
+              executeQueue("restart");
+            }}
+            style={{
+              marginRight: 8,
+              padding: "0 16px",
+            }}
           >
-            Restart
+            Reset
           </Button>
         ) : null}
         <Button
-          disabled={processLoading || (executed && !canRetry)}
+          disabled={
+            processLoading || (executed && !canRetry) || processHasErrors
+          }
           tooltip={
             executed && !canRestart && !canRetry
               ? "All actions have been processed"
-              : queue.every((item) => item.validated)
-              ? "All actions are already validated"
-              : undefined
+              : Object.values(queue).every((item) => item.validated)
+                ? "All actions are already validated"
+                : undefined
           }
           loading={processing}
-          onClick={() => executeQueue(executed ? "retry" : undefined)}
-          style={{
-            marginTop: 20,
-            padding: "0 16px",
-            backgroundColor: processDone
-              ? "#023b0a"
-              : processCanRetry || processHasErrors
-              ? "#a21a24"
-              : "#353333",
+          onClick={() => {
+            if (processDone && onComplete) {
+              onComplete();
+            } else if (executed) {
+              if (processCanRetry) {
+                executeQueue("retry");
+              }
+            } else {
+              executeQueue();
+            }
           }}
+          style={{ padding: "0 16px" }}
+          color={processCanRetry ? "#a21a24" : "#353333"}
         >
           {processDone
             ? endButtonLabel || "Done"
             : processing
-            ? "Processing..."
-            : processCanRetry
-            ? "Retry failed steps"
-            : processHasErrors
-            ? "Failed"
-            : startButtonLabel || "Execute"}
+              ? "Processing..."
+              : processCanRetry
+                ? "Retry failed steps"
+                : startButtonLabel || "Execute"}
         </Button>
       </div>
     </div>

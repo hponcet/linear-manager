@@ -62,6 +62,10 @@
       {
         "command": "linearManager.commands.startWork",
         "title": "Start Work"
+      },
+      {
+        "command": "linearManager.commands.checkoutIssue",
+        "title": "Checkout to branch"
       }
     ],
     "menus": {
@@ -74,7 +78,12 @@
         {
           "command": "linearManager.commands.startWork",
           "icon": "resources/images/start-work.svg",
-          "when": "viewItem == issueItem"
+          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded == true"
+        },
+        {
+          "command": "linearManager.commands.checkoutIssue",
+          "icon": "resources/images/start-work.svg",
+          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded == true"
         }
       ]
     }

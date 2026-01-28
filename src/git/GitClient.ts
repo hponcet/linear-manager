@@ -1,4 +1,4 @@
-import { extensions, workspace } from "vscode";
+import { extensions, window, workspace } from "vscode";
 import {
   Branch,
   BranchQuery,
@@ -7,19 +7,29 @@ import {
   Ref,
   Repository,
 } from "../types/GitAPI";
-import { CommandContext, setCommandContext } from "../commandsContext";
-import { filterEvent, isDescendant, onceEvent } from "./utils";
+import { filterEvent, isDescendant, onceEvent, uniqBy } from "./utils";
 
 export class GitClient {
-  private _api: GitAPI | null = null;
-  private _repository: Repository | null = null;
+  #api: GitAPI | null = null;
+  #repository: Repository | null = null;
+  #branchesCache: Map<string, Ref> | null = null;
 
-  get active(): boolean {
-    return !!this._api && !!this._repository;
+  onStatusChange?: ({ repoActive, apiActive }: { repoActive: boolean, apiActive: boolean }) => void;
+
+  get apiActive(): boolean {
+    return !!this.#api;
   }
 
-  constructor() {
-    setCommandContext(CommandContext.gitExtensionLoaded, false);
+  get repositoryActive(): boolean {
+    return !!this.#repository;
+  }
+
+  get active(): boolean {
+    return this.apiActive && this.repositoryActive;
+  }
+
+  constructor(onStatusChange?: ({ repoActive, apiActive }: { repoActive: boolean, apiActive: boolean }) => void) {
+    this.onStatusChange = onStatusChange;
   }
 
   async init(): Promise<void> {
@@ -30,64 +40,130 @@ export class GitClient {
     const rootPath = workspace.workspaceFolders?.[0].uri.fsPath || "";
 
     if (!rootPath || !api) {
-      setCommandContext(CommandContext.gitExtensionLoaded, false);
+      this.onStatusChange?.({ repoActive: false, apiActive: false });
       return;
     }
 
     const repository = api.repositories.filter((r) =>
-      isDescendant(r.rootUri.fsPath, rootPath)
+      isDescendant(r.rootUri.fsPath, rootPath),
     )[0];
 
     if (repository) {
-      setCommandContext(CommandContext.gitExtensionLoaded, true);
-      this._api = api;
-      this._repository = repository;
+      this.#api = api;
+      this.#repository = repository;
+      this.onStatusChange?.({ repoActive: true, apiActive: true });
     } else {
+      this.onStatusChange?.({ repoActive: false, apiActive: true });
       const onDidOpenRelevantRepository = filterEvent(
         api.onDidOpenRepository,
-        (r) => isDescendant(r.rootUri.fsPath, rootPath)
+        (r) => isDescendant(r.rootUri.fsPath, rootPath),
       );
       onceEvent(onDidOpenRelevantRepository)((r) => {
-        this._api = api;
-        this._repository = r;
-        setCommandContext(CommandContext.gitExtensionLoaded, true);
+        this.#api = api;
+        this.#repository = r;
+        this.onStatusChange?.({ repoActive: true, apiActive: true });
       });
     }
   }
 
-  getCurrentBranch(): Branch | null {
-    if (!this._repository) {
-      return null;
-    }
+  getGitStatus(): { repoActive: boolean, apiActive: boolean } {
+    return {
+      repoActive: this.repositoryActive,
+      apiActive: this.apiActive,
+    };
+  }
 
-    return this._repository.state.HEAD || null;
+  getCurrentBranch(): Branch | null {
+    if (!this.#repository) {
+      throw new Error("No repository available");
+    }
+    return this.#repository.state.HEAD || null;
   }
 
   async getBranches(query: BranchQuery): Promise<Ref[]> {
-    if (!this._repository) {
-      return [];
+    if (!this.#repository) {
+      throw new Error("No repository available");
     }
-    return this._repository.getBranches(query);
+
+    try {
+      await this.#repository.fetch({ all: true, prune: true });
+
+      const branches = uniqBy(
+        (await this.#repository.getBranches(query))
+          .map((b) => ({
+            ...b,
+            name: b.name?.replace("origin/", "") || b.name,
+          }))
+          .sort((a, b) => (a.remote === b.remote ? 0 : a.remote ? 1 : -1))
+          .sort((a, b) => a.name!.localeCompare(b.name!)) || [],
+        (i) => i.name || "",
+      );
+      this.#branchesCache = new Map(branches.map((b) => [b.name || "", b]));
+
+      return branches;
+    } catch (error) {
+      if (error.stderr) {
+        window.showErrorMessage(error.stderr || "Failed to get branches");
+      }
+      throw new Error(error.stderr || "Failed to get branches");
+    }
   }
 
   async hasUncommittedChanges(): Promise<boolean> {
-    if (!this._repository) {
-      return false;
+    if (!this.#repository) {
+      throw new Error("No repository available");
     }
-    return this._repository.state.workingTreeChanges.length > 0;
+    return this.#repository.state.workingTreeChanges.length > 0;
   }
 
-  async checkout(branchName: string): Promise<void> {
-    if (!this._repository) {
-      return;
+  async checkout(branch: Ref): Promise<boolean> {
+    if (!this.#repository) {
+      throw new Error("No repository available");
     }
-    return this._repository.checkout(branchName);
+
+    try {
+      if (!branch.remote) {
+        await this.#repository.checkout(branch.name || "");
+      } else {
+        await this.createBranch(branch.name || "", branch);
+      }
+      return true;
+    } catch (error) {
+      if (error.stderr) {
+        window.showErrorMessage(error.stderr || "Failed to checkout branch");
+      }
+      throw new Error(error.stderr || "Failed to checkout branch");
+    }
   }
 
-  async createBranch(branchName: string, from: Ref): Promise<void> {
-    if (!this._repository) {
-      return;
+  async createBranch(branchName: string, from: Ref): Promise<Ref> {
+    try {
+      if (!this.#repository) {
+        throw new Error("No repository available");
+      }
+      await this.#repository.createBranch(branchName, true, from.commit);
+      return this.getCurrentBranch()!;
+    } catch (error) {
+      if (error.stderr) {
+        window.showErrorMessage(error.stderr || "Failed to create branch");
+      }
+      throw new Error(error.stderr || "Failed to create branch");
     }
-    return this._repository.createBranch(branchName, true, from.commit);
+  }
+
+  async branchExists(branchName: string): Promise<Ref | null> {
+    if (!this.#repository) {
+      throw new Error("No repository available");
+    }
+
+    if (!this.#branchesCache) {
+      await this.getBranches({});
+    }
+
+    return (
+      Array.from(this.#branchesCache!.values()).find(
+        (ref) => (ref.remote ? `origin/${ref.name}` : ref.name) === branchName,
+      ) || null
+    );
   }
 }

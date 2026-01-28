@@ -1,18 +1,23 @@
-import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react";
+import { forwardRef, ReactNode, useState } from "react";
+import {
+  Loader,
+  Button as RSButton,
+  ButtonProps as RSButtonProps,
+} from "rsuite";
 
 import { Tooltip } from "../Tooltip/Tooltip";
 
 import "./Button.scss";
-import { Loader } from "rsuite";
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = Omit<RSButtonProps, "color"> & {
   children?: ReactNode;
-  tooltip?: string;
-  onClick?: () => void;
+  tooltip?: ReactNode;
+  onClick?: () => void | Promise<void>;
   disabled?: boolean;
-  color?: `${"#" | "var"}${string}`;
+  color?: string;
   rounded?: boolean;
   loading?: boolean;
+  icon?: ReactNode;
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -27,12 +32,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       style,
       rounded,
       loading,
+      icon,
       ...buttonProps
     } = props;
 
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
+    async function handleClick() {
+      setIsActionLoading(true);
+      try {
+        await onClick?.();
+      } finally {
+        setIsActionLoading(false);
+      }
+    }
+
     return (
       <Tooltip tooltip={tooltip || ""} style={{ position: "relative" }}>
-        <button
+        <RSButton
           ref={ref}
           className={`button ${className || ""}`}
           style={{
@@ -40,15 +57,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             borderColor: color ? `${color}00` : undefined,
             ...style,
           }}
-          onClick={onClick}
-          disabled={disabled || loading}
+          onClick={handleClick}
+          disabled={disabled || loading || isActionLoading}
           btn-rounded={String(!!rounded)}
           {...buttonProps}
         >
-          {loading ? <Loader size="xs" style={{ marginRight: 8 }} /> : null}
+          {loading || isActionLoading ? (
+            <Loader size="xs" style={{ marginRight: children ? 8 : 0 }} />
+          ) : (
+            icon
+          )}
           {children}
-        </button>
+        </RSButton>
       </Tooltip>
     );
-  }
+  },
 );

@@ -21,12 +21,11 @@ export function OpenExternalIssue(props: OpenExternalIssueProps) {
       className={className}
       onClick={() =>
         update.panelActions.openExternal(
-          `${urlBase}/issue/${issue.identifier}/`
+          `${urlBase}/issue/${issue.identifier}/`,
         )
       }
       tooltip={`Open issue ${issue.identifier} on Linear.app`}
-    >
-      <OpenExternalIcon size={size} />
-    </Button>
+      icon={<OpenExternalIcon size={size} />}
+    />
   );
 }

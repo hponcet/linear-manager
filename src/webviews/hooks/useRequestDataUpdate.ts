@@ -11,7 +11,7 @@ import {
 // @ts-expect-error
 const acquireVsCodeApi = (window.acquireVsCodeApi ||
   (() => ({
-    postMessage: () => { },
+    postMessage: () => {},
   }))) as () => VsCodeApi;
 
 const VsCodeApi = acquireVsCodeApi();
@@ -71,8 +71,8 @@ export function useRequestDataUpdate(
 
   return {
     closePanel: async () => vscApi.postMessage({ type: "closePanel" }),
-    openExternal: (url: string) =>
-      vscApi.postMessage<"openExternal">({ type: "openExternal", url }),
+    openExternal: () =>
+      vscApi.postMessage<"openExternal">({ type: "openExternal" }),
     updateIssue: (issueId: Issue["id"]) =>
       vscApi.postMessage({ type: "updateIssue", issueId }),
     openIssue: (issueId: Issue["id"]) =>

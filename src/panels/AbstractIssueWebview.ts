@@ -17,9 +17,10 @@ export interface ReactIssueWebview<
 
 export abstract class AbstractIssueWebview<T extends keyof Props>
   extends AbstractWebview<T>
-  implements ReactIssueWebview<T> {
-  _issue: Partial<Issue> | null = null;
-  _issueActions: MyIssuesView["_issuesActions"];
+  implements ReactIssueWebview<T>
+{
+  issue: Partial<Issue> | null = null;
+  protected issueActions: MyIssuesView["issuesActions"];
 
   isLoading: boolean = false;
 
@@ -31,10 +32,10 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
 
   constructor(
     context: ExtensionContext,
-    issueActions: MyIssuesView["_issuesActions"],
+    issueActions: MyIssuesView["issuesActions"],
   ) {
     super(context);
-    this._issueActions = issueActions;
+    this.issueActions = issueActions;
   }
 
   override async onMessageReceived<T extends Ipc<"req">["type"]>(
@@ -47,15 +48,22 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
     try {
       switch (msg.type) {
         case "updateIssue": {
-          await this._issueActions.updateIssue(msg.issueId);
+          await this.issueActions.updateIssue(msg.issueId);
           return this.postMessage(msg.type, void 0);
         }
         case "openIssue": {
-          await this._issueActions.openIssue(msg.issueId);
+          await this.issueActions.openIssue(msg.issueId);
           return this.postMessage(msg.type, void 0);
         }
+        case "openExternal": {
+          if (!this.issue?.identifier) {
+            throw new Error("Issue identifier is not available");
+          }
+          await this.issueActions.openIssueExternal(this.issue.identifier);
+          return this.postMessage(msg.type, undefined);
+        }
         case "startWork": {
-          await this._issueActions.startWork(msg.issueId);
+          await this.issueActions.startWork(msg.issueId);
           return this.postMessage(msg.type, void 0);
         }
         case "getGitStatus": {
@@ -99,7 +107,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
 
   public override updateWebview(issue: Partial<Issue>) {
     if (issue) {
-      this._issue = issue;
+      this.issue = issue;
       this._setTitle();
     }
 

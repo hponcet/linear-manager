@@ -49,10 +49,14 @@ export type Listener<Type extends string, Payload> = {
 export type Message<K extends keyof Props = any> =
   | Action<"props", void, Props[K]>
   | Action<"closePanel">
-  | Action<"openExternal", { url: string }>
+  | Action<"openExternal">
   | Action<"updateIssue", { issueId: Issue["id"] }>
   | Action<"openIssue", { issueId: Issue["id"] }>
-  | Action<"getGitStatus", { key: string }, { repoActive: boolean, apiActive: boolean }>
+  | Action<
+      "getGitStatus",
+      { key: string },
+      { repoActive: boolean; apiActive: boolean }
+    >
   | Action<"getAllBranches", void, Branch[]>
   | Action<"getCurrentBranch", void, Ref | null>
   | Action<"createBranch", { branchName: string; from: Ref }, Ref>
@@ -65,7 +69,7 @@ export type Message<K extends keyof Props = any> =
 export type GlobalListenerMessage =
   | Listener<"updateIssue", number | undefined>
   | Listener<"stateUpdate", { value: any; timestamp: number; key: string }>
-  | Listener<"gitActive", { repoActive: boolean, apiActive: boolean }>;
+  | Listener<"gitActive", { repoActive: boolean; apiActive: boolean }>;
 
 export type Ipc<
   K extends "req" | "res" | "err",

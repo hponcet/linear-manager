@@ -79,7 +79,7 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
           items={[
             {
               label: "Open in Linear",
-              action: () => update.panelActions.openExternal(issue.id),
+              action: () => update.panelActions.openExternal(),
               icon: <OpenExternalIcon size={14} />,
             },
             {

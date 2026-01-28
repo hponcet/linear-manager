@@ -1,6 +1,5 @@
 import {
   Disposable,
-  env,
   Event,
   EventEmitter,
   ExtensionContext,
@@ -272,10 +271,6 @@ export abstract class AbstractWebview<
       switch (msg.type) {
         case "closePanel": {
           this.dispose();
-          return this.postMessage(msg.type, undefined);
-        }
-        case "openExternal": {
-          env.openExternal(Uri.parse(msg.url));
           return this.postMessage(msg.type, undefined);
         }
         case "props": {

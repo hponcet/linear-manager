@@ -13,17 +13,13 @@ export type OpenExternalIssueProps = {
 export function OpenExternalIssue(props: OpenExternalIssueProps) {
   const { issue, className, style, size } = props;
 
-  const { update, urlBase } = useIssueContext();
+  const { update } = useIssueContext();
 
   return (
     <Button
       style={style}
       className={className}
-      onClick={() =>
-        update.panelActions.openExternal(
-          `${urlBase}/issue/${issue.identifier}/`,
-        )
-      }
+      onClick={() => update.panelActions.openExternal()}
       tooltip={`Open issue ${issue.identifier} on Linear.app`}
       icon={<OpenExternalIcon size={size} />}
     />

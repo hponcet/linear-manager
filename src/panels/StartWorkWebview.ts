@@ -11,7 +11,7 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
 
   constructor(
     context: ExtensionContext,
-    issueActions: MyIssuesView["_issuesActions"],
+    issueActions: MyIssuesView["issuesActions"],
     fromCheckout?: true,
   ) {
     super(context, issueActions);
@@ -19,7 +19,7 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
   }
 
   async open(issue: Issue, column?: ViewColumn) {
-    this._issue = issue;
+    this.issue = issue;
     const panel = await super.createOrShow(column);
 
     panel.iconPath = Controller.resources.icons.get("startWork");
@@ -29,7 +29,7 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
 
   public async getProps() {
     const props = {
-      issueId: this._issue?.id || null,
+      issueId: this.issue?.id || null,
       linearAccessToken: await this._context.secrets.get(
         LinearSecretKeys.accessToken,
       ),
@@ -44,8 +44,8 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
   }
 
   public get title(): string {
-    return this._issue
-      ? `${this._issue.identifier} - ${this._issue.title}` || "Untitled Issue"
+    return this.issue
+      ? `${this.issue.identifier} - ${this.issue.title}` || "Untitled Issue"
       : "Start working on issue...";
   }
 

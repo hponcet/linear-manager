@@ -35,7 +35,6 @@ type IssueContextProviderProps = {
 export type IssueContextValueData = {
   me: User | null;
   meLoading: boolean;
-  urlBase: string;
   issue: Issue;
   update: {
     issue: (
@@ -86,7 +85,6 @@ export type IssueContextValueData = {
 const IssueContextValue = createContext<IssueContextValueData>({
   me: null,
   meLoading: false,
-  urlBase: "",
   issue: {} as Issue,
   update: {
     issue: async () => Promise.reject(),
@@ -152,7 +150,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [commentRefetch, setCommentRefetch] = useState(0);
   const [subIssuesRefetch, setSubIssuesRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [urlBase, setUrlBase] = useState<string>("");
 
   async function fetchIssue(updatedAt?: number) {
     if (updatedAt && issue && issue.updatedAt.getTime() >= updatedAt) {
@@ -268,12 +265,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   const [me, meLoading] = useAsyncMemo(async () => {
     const me = await linearClient?.viewer;
-    if (!urlBase) {
-      const organization = await me?.organization;
-      if (organization?.urlKey) {
-        setUrlBase(`https://linear.app/${organization.urlKey}`);
-      }
-    }
     return me || null;
   }, [!!linearClient]);
 
@@ -384,7 +375,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     (): IssueContextValueData => ({
       me,
       meLoading,
-      urlBase,
       issue: issue!,
       priorities: priorities || [],
       prioritiesLoading,
@@ -426,7 +416,6 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     [
       me,
       meLoading,
-      urlBase,
       issue,
       priorities,
       prioritiesLoading,

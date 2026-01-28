@@ -41,9 +41,7 @@ A powerful VS Code extension to manage your Linear issues directly from your cod
 ### Available commands
 
 - `linearManager.connect`: Connect your Linear account
-- `linearManager.commands.openIssue`: Open an issue in VS Code
-- `linearManager.commands.startWork`: Start working on an issue
-- `linearManager.commands.checkoutIssue`: Checkout on the issue branch or create it
+- `linearManager.disconnet`: Disconnect your Linear account
 
 ## 🏗️ Project structure
 

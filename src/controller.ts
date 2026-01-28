@@ -16,8 +16,12 @@ export class Controller {
     await this._issueViewer.initialize(context);
   }
 
-  static onGitStatusChange(gitStatus: { repoActive: boolean, apiActive: boolean }) {
-    setCommandContext(CommandContext.gitExtensionLoaded, gitStatus.apiActive);
+  static onGitStatusChange(gitStatus: {
+    repoActive: boolean;
+    apiActive: boolean;
+  }) {
+    console.log(gitStatus.repoActive);
+    setCommandContext(CommandContext.gitExtensionLoaded, gitStatus.repoActive);
     this._issueViewer?.changeGitStatus(gitStatus);
   }
 
@@ -28,5 +32,6 @@ export class Controller {
 
   public static dispose() {
     this._issueViewer?.dispose();
+    this.git.dispose();
   }
 }

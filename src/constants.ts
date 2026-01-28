@@ -11,7 +11,9 @@ export enum Webviews {
 
 export enum Commands {
   connect = "linearManager.connect",
+  disconnect = "linearManager.disconnect",
   openIssue = "linearManager.commands.openIssue",
+  openIssueExternal = "linearManager.commands.openIssueExternal",
   startWork = "linearManager.commands.startWork",
   checkoutIssue = "linearManager.commands.checkoutIssue",
 }

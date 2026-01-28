@@ -14,7 +14,13 @@ export class GitClient {
   #repository: Repository | null = null;
   #branchesCache: Map<string, Ref> | null = null;
 
-  onStatusChange?: ({ repoActive, apiActive }: { repoActive: boolean, apiActive: boolean }) => void;
+  onStatusChange?: ({
+    repoActive,
+    apiActive,
+  }: {
+    repoActive: boolean;
+    apiActive: boolean;
+  }) => void;
 
   get apiActive(): boolean {
     return !!this.#api;
@@ -28,7 +34,15 @@ export class GitClient {
     return this.apiActive && this.repositoryActive;
   }
 
-  constructor(onStatusChange?: ({ repoActive, apiActive }: { repoActive: boolean, apiActive: boolean }) => void) {
+  constructor(
+    onStatusChange?: ({
+      repoActive,
+      apiActive,
+    }: {
+      repoActive: boolean;
+      apiActive: boolean;
+    }) => void,
+  ) {
     this.onStatusChange = onStatusChange;
   }
 
@@ -66,7 +80,7 @@ export class GitClient {
     }
   }
 
-  getGitStatus(): { repoActive: boolean, apiActive: boolean } {
+  getGitStatus(): { repoActive: boolean; apiActive: boolean } {
     return {
       repoActive: this.repositoryActive,
       apiActive: this.apiActive,
@@ -165,5 +179,11 @@ export class GitClient {
         (ref) => (ref.remote ? `origin/${ref.name}` : ref.name) === branchName,
       ) || null
     );
+  }
+
+  dispose() {
+    this.#api = null;
+    this.#repository = null;
+    this.#branchesCache = null;
   }
 }

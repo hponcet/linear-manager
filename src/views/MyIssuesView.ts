@@ -18,6 +18,8 @@ import {
   ExtensionContext,
   ViewColumn,
   commands,
+  Disposable,
+  Uri,
 } from "vscode";
 import { getLinearClient } from "../linear/auth";
 import { Commands, Views } from "../constants";
@@ -47,8 +49,9 @@ type Issue = ReturnType<typeof addKeyOnItem<LIssue, "issue">>;
 
 export class MyIssuesView
   implements
-  TreeDataProvider<Team | WorkflowState | Issue>,
-  TreeDragAndDropController<Issue | WorkflowState | Team> {
+    TreeDataProvider<Team | WorkflowState | Issue>,
+    TreeDragAndDropController<Issue | WorkflowState | Team>
+{
   dropMimeTypes = [MIME_TYPE_ISSUE];
   dragMimeTypes = [MIME_TYPE_ISSUE];
 
@@ -66,6 +69,8 @@ export class MyIssuesView
   #autoRefreshInterval: NodeJS.Timeout | null = null;
   #issuesWebviews: Map<string, IssueWebview> = new Map();
   #startWorkWebviews: Map<string, StartWorkWebview> = new Map();
+
+  #disposable: Disposable[] = [];
 
   constructor(context: ExtensionContext) {
     this.#context = context;
@@ -87,9 +92,14 @@ export class MyIssuesView
       }),
     );
 
-    this.#context.subscriptions.push(
+    const disposableCommands = [
       commands.registerCommand(Commands.openIssue, (issue: Issue) =>
         this.openIssue(issue),
+      ),
+      commands.registerCommand(
+        Commands.openIssueExternal,
+        async (issueIdentifier: Issue["identifier"]) =>
+          await this.openIssueExternal(issueIdentifier),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) =>
         this.startWork(issue),
@@ -97,7 +107,10 @@ export class MyIssuesView
       commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
         this.checkoutToIssueBranch(issue.id),
       ),
-    );
+    ];
+
+    this.#context.subscriptions.push(...disposableCommands);
+    this.#disposable.push(...disposableCommands);
   }
 
   public async fetchDatas() {
@@ -108,10 +121,18 @@ export class MyIssuesView
   public async openIssue(issue: Issue) {
     let webview = this.#issuesWebviews.get(issue.id);
     if (!webview) {
-      webview = new IssueWebview(this.#context, this._issuesActions);
+      webview = new IssueWebview(this.#context, this.issuesActions);
       this.#issuesWebviews.set(issue.id, webview);
     }
     await webview.open(issue, ViewColumn.Active);
+  }
+
+  public async openIssueExternal(issueIdentifier: Issue["identifier"]) {
+    const organisation = await this.#me?.organization;
+    if (organisation?.urlKey) {
+      const url = `https://linear.app/${organisation.urlKey}/issue/${issueIdentifier}`;
+      await commands.executeCommand("vscode.open", Uri.parse(url));
+    }
   }
 
   public async startWork(issue: Issue, fromCheckout?: true) {
@@ -119,7 +140,7 @@ export class MyIssuesView
     if (!webview) {
       webview = new StartWorkWebview(
         this.#context,
-        this._issuesActions,
+        this.issuesActions,
         fromCheckout,
       );
       this.#startWorkWebviews.set(issue.id, webview);
@@ -162,13 +183,20 @@ export class MyIssuesView
     return [];
   }
 
-  public changeGitStatus(gitStatus: { repoActive: boolean, apiActive: boolean }) {
-    this.#issuesWebviews.values().forEach((webview) =>
-      webview.postListenerMessage("gitActive", gitStatus),
-    );
-    this.#startWorkWebviews.values().forEach((webview) =>
-      webview.postListenerMessage("gitActive", gitStatus),
-    );
+  public changeGitStatus(gitStatus: {
+    repoActive: boolean;
+    apiActive: boolean;
+  }) {
+    this.#issuesWebviews
+      .values()
+      .forEach((webview) =>
+        webview.postListenerMessage("gitActive", gitStatus),
+      );
+    this.#startWorkWebviews
+      .values()
+      .forEach((webview) =>
+        webview.postListenerMessage("gitActive", gitStatus),
+      );
   }
 
   public getTreeItem(element: Team | WorkflowState | Issue) {
@@ -243,7 +271,7 @@ export class MyIssuesView
     this.fetchDatas();
   }
 
-  _issuesActions = {
+  issuesActions = {
     openIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 
@@ -257,6 +285,7 @@ export class MyIssuesView
         await this.openIssue(issueWithKey);
       }
     },
+    openIssueExternal: this.openIssueExternal.bind(this),
     updateIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return;
 
@@ -280,16 +309,6 @@ export class MyIssuesView
       }
     },
   };
-
-  public dispose() {
-    if (this.#autoRefreshInterval) {
-      clearInterval(this.#autoRefreshInterval);
-      this.#autoRefreshInterval = null;
-    }
-
-    this.#issuesWebviews.forEach((webview) => webview.dispose());
-    this.#issuesWebviews.clear();
-  }
 
   private _startAutoRefresh() {
     if (this.#autoRefreshInterval) {
@@ -328,7 +347,8 @@ export class MyIssuesView
       return this.#teams;
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch user teams: ${error instanceof Error ? error.message : String(error)
+        `Failed to fetch user teams: ${
+          error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -355,7 +375,8 @@ export class MyIssuesView
       return this.#workflowStatesByTeam;
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch assigned issues: ${error instanceof Error ? error.message : String(error)
+        `Failed to fetch assigned issues: ${
+          error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -378,8 +399,8 @@ export class MyIssuesView
 
         if (
           issuePanel?.visible &&
-          issuePanel?._issue?.updatedAt &&
-          issuePanel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
+          issuePanel?.issue?.updatedAt &&
+          issuePanel.issue.updatedAt.getTime() !== issue.updatedAt.getTime()
         ) {
           issuePanel?.updateWebview(issue);
         }
@@ -387,8 +408,8 @@ export class MyIssuesView
         // startWork webviews
         if (
           webviewPanel?.visible &&
-          webviewPanel?._issue?.updatedAt &&
-          webviewPanel._issue.updatedAt.getTime() !== issue.updatedAt.getTime()
+          webviewPanel?.issue?.updatedAt &&
+          webviewPanel.issue.updatedAt.getTime() !== issue.updatedAt.getTime()
         ) {
           webviewPanel?.updateWebview(issue);
         }
@@ -399,7 +420,8 @@ export class MyIssuesView
       this.#onDidChangeTreeData.fire();
     } catch (error) {
       window.showErrorMessage(
-        `Failed to fetch assigned issues: ${error instanceof Error ? error.message : String(error)
+        `Failed to fetch assigned issues: ${
+          error instanceof Error ? error.message : String(error)
         }`,
       );
     }
@@ -435,11 +457,11 @@ export class MyIssuesView
     item.iconPath = Controller.resources.icons.get(
       state.type === "started"
         ? `started${Math.ceil(
-          Math.min(
-            Math.max((10 / state.stateTypeLength) * state.stateProgress, 0),
-            10,
-          ),
-        )}`
+            Math.min(
+              Math.max((10 / state.stateTypeLength) * state.stateProgress, 0),
+              10,
+            ),
+          )}`
         : state.type,
     );
 
@@ -502,4 +524,25 @@ export class MyIssuesView
       return issue;
     },
   };
+
+  public dispose() {
+    if (this.#autoRefreshInterval) {
+      clearInterval(this.#autoRefreshInterval);
+      this.#autoRefreshInterval = null;
+    }
+
+    this.#onDidChangeTreeData.dispose();
+    this.#disposable.forEach((d) => d.dispose());
+
+    this.#issuesWebviews.forEach((webview) => webview.dispose());
+    this.#issuesWebviews.clear();
+    this.#startWorkWebviews.forEach((webview) => webview.dispose());
+    this.#startWorkWebviews.clear();
+
+    this.#treeItems.clear();
+    this.#myIssues.clear();
+    this.#workflowStatesByTeam = {};
+    this.#teams = {};
+    this.#me = null;
+  }
 }

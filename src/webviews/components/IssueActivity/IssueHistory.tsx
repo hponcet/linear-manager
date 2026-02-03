@@ -1,16 +1,13 @@
 import { Fragment, useState } from "react";
 import moment from "moment";
 import { UserAvatar } from "../UserAvatar/UserAvatar";
-
 import {
   getActivity,
   getAllHistoryTypes,
   getHistoryType,
 } from "../InlineIssue/historyUtils";
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
-
 import { History } from "src/webviews/utils/history";
-
 import { Animation } from "rsuite";
 
 import "./IssueHistory.scss";
@@ -18,23 +15,24 @@ import "./IssueHistory.scss";
 type IssueHistoryProps = {
   history: History[];
   level?: number;
+  onClick?: () => void;
 };
 
 export function IssueHistory(props: IssueHistoryProps) {
-  const { history, level = 0 } = props;
+  const { history, level = 0, onClick } = props;
 
   const contextValues = useIssueContext();
 
   const [expand, setExpand] = useState(false);
 
-  const activity = history[history.length - 1];
+  const activity = history[0];
 
   if (!activity) {
     return null;
   }
 
   const historyTypes = getAllHistoryTypes(activity).sort((a, b) =>
-    getHistoryType(a).localeCompare(getHistoryType(b))
+    getHistoryType(a).localeCompare(getHistoryType(b)),
   );
 
   if (historyTypes.length === 0) {
@@ -56,18 +54,30 @@ export function IssueHistory(props: IssueHistoryProps) {
               className={`issueHistoryExpandArea ${props.className || ""}`}
             >
               <div className="activityBreadcrumbTrail" style={{ left: 29 }} />
-              {history.slice(0, history.length - 1).map((h) => (
-                <IssueHistory key={h.id} history={[h]} level={1} />
-              ))}
+              {history
+                .slice(1, history.length)
+                .map((h, i, arr) => (
+                  <IssueHistory
+                    key={h.id}
+                    history={[h]}
+                    level={i === arr.length - 1 ? 0 : 1}
+                    onClick={
+                      i === arr.length - 1
+                        ? () => setExpand((v) => !v)
+                        : undefined
+                    }
+                  />
+                ))
+                .reverse()}
             </div>
           )}
         </Animation.Collapse>
       )}
       <div
         className="issueHistory"
-        onClick={() => setExpand((v) => !v)}
+        onClick={onClick || (() => setExpand((v) => !v))}
         style={{
-          cursor: shouldCollapse ? "pointer" : "default",
+          cursor: shouldCollapse || !!onClick ? "pointer" : "default",
           paddingLeft: level * 20,
         }}
       >
@@ -96,7 +106,7 @@ export function IssueHistory(props: IssueHistoryProps) {
             })}
             <span style={{ padding: "0 3px" }}>·</span>
             <span className="issueHistoryDate">
-              {moment(activity.updatedAt).fromNow()} ago
+              {moment(activity.updatedAt).fromNow()}
             </span>
             {shouldCollapse && (
               <span className="issueHistoryExpandIndicator">

@@ -10,11 +10,15 @@ import { ConfigureBranchButton } from "src/webviews/components/ConfigureBranchBu
 import { OpenExternalIssue } from "src/webviews/components/OpenExternalIssue/OpenExternalIssue";
 import { TrashIcon } from "src/webviews/components/Icons/TrashIcon";
 import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton";
+import { Menu } from "src/webviews/components/Menu/Menu";
+import { useModalsContext } from "src/webviews/contexts/ModalsContext";
+import { LinkIcon } from "src/webviews/components/Icons/LinkIcon";
 
 import "./IssueHeader.css";
 
 export function IssueHeader() {
   const { issue, update } = useIssueContext();
+  const { setIsCreatingAttachment } = useModalsContext();
 
   return (
     <>
@@ -88,6 +92,15 @@ export function IssueHeader() {
           <OpenExternalIssue
             issue={issue}
             style={{ marginLeft: 6, padding: 0 }}
+          />
+          <Menu
+            items={[
+              {
+                label: "Add an attachment",
+                action: () => setIsCreatingAttachment({}),
+                icon: <LinkIcon size={14} />,
+              },
+            ]}
           />
         </div>
       </div>

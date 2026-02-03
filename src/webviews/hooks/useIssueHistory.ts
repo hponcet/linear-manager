@@ -12,10 +12,11 @@ import { orderHistory } from "../utils/history";
 type UseIssueHistoryParams = {
   issue: Issue | null;
   users: User[] | null;
+  historyRefetch?: number;
 };
 
 export function useIssueHistory(params: UseIssueHistoryParams) {
-  const { issue, users } = params;
+  const { issue, users, historyRefetch } = params;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [history, setHistory] = useState<Record<string, IssueHistory>>({});
@@ -54,7 +55,7 @@ export function useIssueHistory(params: UseIssueHistoryParams) {
     }
 
     setIsLoading(false);
-  }, [issue]);
+  }, [issue, historyRefetch]);
 
   const orderedHistory = useMemo(() => {
     if (!users) return [];

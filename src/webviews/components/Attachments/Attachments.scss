@@ -1,0 +1,16 @@
+.attachmentsButton,
+.attachmentsContainer {
+  font-size: var(--font-size-xsmall) !important;
+  color: var(--rs-text-secondary);
+  margin-bottom: 8px;
+}
+
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachmentsButton {
+  padding: 0 10px 0 4px;
+}

@@ -1,5 +1,6 @@
 import {
   Cycle,
+  Attachment,
   Issue,
   IssueLabel,
   IssuePriorityValue,
@@ -59,6 +60,16 @@ export type IssueContextValueData = {
       removeReaction: (id: string) => Promise<void>;
     };
     panelActions: ReturnType<typeof useRequestDataUpdate>;
+    attachments: {
+      delete: (attachmentId: string) => Promise<void>;
+      create: (issueId: string, url: string, title?: string) => Promise<void>;
+      update: (
+        attachmentId: string,
+        issueId: string,
+        url: string,
+        title?: string,
+      ) => Promise<void>;
+    };
   };
   priorities: IssuePriorityValue[];
   prioritiesLoading: boolean;
@@ -80,6 +91,8 @@ export type IssueContextValueData = {
   historyLoading: boolean;
   subIssues: Issue[] | null;
   subIssuesLoading: boolean;
+  attachments: Attachment[] | null;
+  attachmentsLoading: boolean;
 };
 
 const IssueContextValue = createContext<IssueContextValueData>({
@@ -103,6 +116,7 @@ const IssueContextValue = createContext<IssueContextValueData>({
     panelActions: {
       closePanel: () => Promise.reject(),
       openExternal: () => Promise.reject(),
+      openExternalUrl: () => Promise.reject(),
       updateIssue: () => Promise.reject(),
       openIssue: () => Promise.reject(),
       startWork: () => Promise.reject(),
@@ -112,6 +126,11 @@ const IssueContextValue = createContext<IssueContextValueData>({
       createBranch: () => Promise.reject(),
       hasUncommittedChanges: () => Promise.reject(),
       checkout: () => Promise.reject(),
+    },
+    attachments: {
+      delete: async () => Promise.reject(),
+      create: async () => Promise.reject(),
+      update: async () => Promise.reject(),
     },
   },
   priorities: [],
@@ -134,6 +153,8 @@ const IssueContextValue = createContext<IssueContextValueData>({
   historyLoading: false,
   subIssues: null,
   subIssuesLoading: false,
+  attachments: null,
+  attachmentsLoading: false,
 });
 
 export function IssueContextProvider(props: IssueContextProviderProps) {
@@ -148,7 +169,9 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [commentRefetch, setCommentRefetch] = useState(0);
+  const [historyRefetch, setHistoryRefetch] = useState(0);
   const [subIssuesRefetch, setSubIssuesRefetch] = useState(0);
+  const [attachmentsRefetch, setIssueResourcesRefetch] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   async function fetchIssue(updatedAt?: number) {
@@ -190,6 +213,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
           setIssue(updatedIssue || null);
         } else {
           setSubIssuesRefetch((r) => r + 1);
+          setIssueResourcesRefetch((r) => r + 1);
         }
 
         if (updatedIssue?.id) {
@@ -261,6 +285,35 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   async function unresolveComment(commentId: string) {
     await linearClient?.commentUnresolve(commentId);
     setCommentRefetch((r) => r + 1);
+  }
+
+  async function deleteAttachment(attachmentId: string) {
+    await linearClient?.deleteAttachment(attachmentId);
+    setIssueResourcesRefetch((r) => r + 1);
+    setHistoryRefetch((r) => r + 1);
+  }
+
+  async function createAttachment(issueId: string, url: string, title: string) {
+    await linearClient?.createAttachment({
+      issueId: issueId,
+      url,
+      title,
+      iconUrl: `https://favicone.com/${new URL(url).hostname}?s=32`,
+    });
+    setIssueResourcesRefetch((r) => r + 1);
+    setHistoryRefetch((r) => r + 1);
+  }
+
+  async function updateAttachment(
+    attachmentId: string,
+    issueId: string,
+    url: string,
+    title: string,
+  ) {
+    await linearClient?.deleteAttachment(attachmentId);
+    await createAttachment(issueId, url, title);
+    setIssueResourcesRefetch((r) => r + 1);
+    setHistoryRefetch((r) => r + 1);
   }
 
   const [me, meLoading] = useAsyncMemo(async () => {
@@ -360,6 +413,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   const [history, historyLoading] = useIssueHistory({
     issue,
     users,
+    historyRefetch,
   });
 
   const [subIssues, subIssuesLoading] = useAsyncMemo(async () => {
@@ -370,6 +424,15 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     }
     return subIssues?.nodes || [];
   }, [issue?.updatedAt.getTime(), subIssuesRefetch]);
+
+  const [attachments, attachmentsLoading] = useAsyncMemo(async () => {
+    if (!issue) return [];
+    const attachments = await issue?.attachments({ last: 100 });
+    while (attachments?.pageInfo.hasPreviousPage) {
+      await attachments.fetchPrevious();
+    }
+    return attachments?.nodes || [];
+  }, [issue?.updatedAt.getTime(), attachmentsRefetch]);
 
   const context = useMemo(
     (): IssueContextValueData => ({
@@ -396,6 +459,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       historyLoading,
       subIssues,
       subIssuesLoading,
+      attachments,
+      attachmentsLoading,
       update: {
         issue: updateIssue,
         comments: {
@@ -409,6 +474,11 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
         reactions: {
           addReaction,
           removeReaction,
+        },
+        attachments: {
+          delete: deleteAttachment,
+          create: createAttachment,
+          update: updateAttachment,
         },
         panelActions,
       },
@@ -437,6 +507,8 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       historyLoading,
       subIssues,
       subIssuesLoading,
+      attachments,
+      attachmentsLoading,
     ],
   );
 

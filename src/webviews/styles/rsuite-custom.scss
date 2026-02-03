@@ -33,6 +33,8 @@
   --rs-carousel-bg: transparent;
   --rs-segmented-control-bg: transparent;
   --rs-segmented-control-border-color: transparent;
+
+  --rs-menuitem-padding-block: 1px !important;
 }
 
 .rs-picker-toggle-indicator {
@@ -156,4 +158,8 @@
 
 .rs-loader {
   display: flex;
+}
+
+.rs-menu-item {
+  padding: 6px 10px !important;
 }

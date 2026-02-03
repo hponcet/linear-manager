@@ -1,10 +1,10 @@
-type ReplyIconProps = {
+type EditIconProps = {
   style?: React.CSSProperties;
   className?: string;
   size?: number;
 };
 
-export function EditIcon(props: ReplyIconProps) {
+export function EditIcon(props: EditIconProps) {
   const { style, className, size = 16 } = props;
 
   return (

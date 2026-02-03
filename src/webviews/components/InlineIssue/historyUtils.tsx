@@ -15,6 +15,7 @@ import { PriorityIcon } from "../PriorityPicker/PriorityIcon";
 import { ProjectIcon } from "../ProjectPicker/ProjectIcon";
 import { WorkflowStateIcon } from "../WorklfowStatePicker/WorkflowStateIcon";
 import { LabelIcon } from "../LabelsPicker/LabelIcon";
+import { LinkIcon } from "../Icons/LinkIcon";
 
 const historyFieldsOfInterest = [
   "addedLabels",
@@ -55,7 +56,7 @@ const historyFieldsOfInterest = [
 type PossibleHistoryType = (typeof historyFieldsOfInterest)[number];
 
 export function getHistoryType(
-  key: (typeof historyFieldsOfInterest)[number]
+  key: (typeof historyFieldsOfInterest)[number],
 ): string {
   return key.replace(/^(from|to)/, "");
 }
@@ -70,7 +71,7 @@ export function getFirstHistoryType(history: IssueHistory): string | null {
 }
 
 export function getAllHistoryTypes(
-  history: IssueHistory
+  history: IssueHistory,
 ): PossibleHistoryType[] {
   return historyFieldsOfInterest.filter((field) => {
     if (!!history[field]) {
@@ -90,10 +91,10 @@ export function getAllHistoryTypes(
 
 export function getActivity(
   contextValues: IssueContextValueData,
-  activity: IssueHistory
+  activity: IssueHistory,
 ): [ReactNode[], ReactNode | null] {
   const activityTypes = getAllHistoryTypes(activity).sort((a, b) =>
-    getHistoryType(a).localeCompare(getHistoryType(b))
+    getHistoryType(a).localeCompare(getHistoryType(b)),
   );
   const activitiesCount = activityTypes.reduce(
     (activitiesCount, activityType) => {
@@ -104,7 +105,7 @@ export function getActivity(
       activitiesCount[type].push(activityType);
       return activitiesCount;
     },
-    {} as Record<string, (typeof historyFieldsOfInterest)[number][]>
+    {} as Record<string, (typeof historyFieldsOfInterest)[number][]>,
   );
 
   let icon = null;
@@ -115,7 +116,7 @@ export function getActivity(
       contextValues,
       type,
       activity[from],
-      activity[to]
+      activity[to],
     );
 
     if (!content) {
@@ -135,7 +136,7 @@ function getHistoryContent(
   contextValues: IssueContextValueData,
   type: string,
   from: any,
-  to: any
+  to: any,
 ): [ReactNode, ReactNode | null] | null {
   const {
     users,
@@ -171,7 +172,7 @@ function getHistoryContent(
       ];
     }
     case "attachmentId": {
-      return [<span>added an attachment</span>, null];
+      return [<span>updated an attachment</span>, <LinkIcon size={13} />];
     }
     case "autoArchived": {
       return [<span>Issue was automatically archived</span>, null];

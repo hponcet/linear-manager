@@ -1,0 +1,51 @@
+.attachmentContainer {
+  background-color: var(--bg-color);
+  border: 1px solid var(--rs-border-primary);
+  border-radius: 4px;
+  height: 44px;
+  padding: 0px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition-property: background-color;
+  transition-duration: 0.15s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--rs-bg-hover);
+  }
+}
+
+.attachmentIcon {
+  display: flex;
+  align-items: center;
+}
+
+.attachmentTitle {
+  line-height: 22px;
+  color: var(--rs-text-primary);
+  font-style: normal;
+  text-align: left;
+  white-space: nowrap;
+  line-height: normal;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.attachmentSubtitle {
+  line-height: 18px;
+  font-style: normal;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: normal;
+  font-size: var(--font-size-xsmall);
+  color: var(--rs-text-secondary);
+}
+
+.attachmentUpdatedAt {
+  display: table;
+  margin-left: auto;
+  white-space: nowrap;
+}

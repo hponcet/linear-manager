@@ -1,5 +1,6 @@
 import {
   Disposable,
+  env,
   Event,
   EventEmitter,
   ExtensionContext,
@@ -279,6 +280,11 @@ export abstract class AbstractWebview<
         case "props": {
           this._propsSent = true;
           return this.postMessage(msg.type, await this.getProps(), msg);
+        }
+        case "openExternalUrl": {
+          const url = (msg as Ipc<"req", "openExternalUrl">).url;
+          await env.openExternal(Uri.parse(url));
+          return this.postMessage(msg.type, undefined, msg);
         }
         case "getState": {
           const key = msg.key;

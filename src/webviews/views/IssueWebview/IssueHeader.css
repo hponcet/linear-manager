@@ -23,6 +23,11 @@
   flex-wrap: wrap;
 }
 
+.issueHeaderBottomRow {
+  display: flex;
+  align-items: center;
+}
+
 .issueTrashedLabel {
   background-color: var(--vscode-activityErrorBadge-background);
   color: var(--rs-text-primary);

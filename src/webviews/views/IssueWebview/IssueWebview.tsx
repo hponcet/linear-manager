@@ -6,8 +6,10 @@ import { IssueContent } from "./IssueContent";
 import { IssueActivity } from "src/webviews/components/IssueActivity/IssueActivity";
 import { CommentInput } from "src/webviews/components/Comment/CommentInput";
 import { SubIssues } from "src/webviews/components/SubIssues/SubIssues";
+import { Attachments } from "src/webviews/components/Attachments/Attachments";
 
 import "./IssueWebview.scss";
+import { ModalsContextProvider } from "src/webviews/contexts/ModalsContext";
 
 export default function IssueWebview() {
   const [props, loaded] = useProps();
@@ -23,15 +25,18 @@ export default function IssueWebview() {
       issueId={issueId}
       linearAccessToken={linearAccessToken}
     >
-      <Container>
-        <IssueHeader />
-        <div className="issueBody">
-          <IssueContent />
-          <SubIssues />
-          <IssueActivity />
-          <CommentInput />
-        </div>
-      </Container>
+      <ModalsContextProvider>
+        <Container>
+          <IssueHeader />
+          <div className="issueBody">
+            <IssueContent />
+            <SubIssues />
+            <Attachments />
+            <IssueActivity />
+            <CommentInput />
+          </div>
+        </Container>
+      </ModalsContextProvider>
     </IssueContextProvider>
   );
 }

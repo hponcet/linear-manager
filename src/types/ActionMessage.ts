@@ -55,6 +55,7 @@ export type Message<K extends keyof Props = any> =
   | Action<"props", void, Props[K]>
   | Action<"closePanel">
   | Action<"openExternal">
+  | Action<"openExternalUrl", { url: string }>
   | Action<"updateIssue", { issueId: Issue["id"] }>
   | Action<"openIssue", { issueId: Issue["id"] }>
   | Action<

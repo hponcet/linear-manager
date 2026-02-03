@@ -81,6 +81,7 @@ export class MyIssuesView
 
   public async initialize(context: ExtensionContext): Promise<void> {
     await this.fetchDatas();
+
     this._startAutoRefresh();
 
     context.subscriptions.push(
@@ -98,7 +99,7 @@ export class MyIssuesView
       ),
       commands.registerCommand(
         Commands.openIssueExternal,
-        async (issueIdentifier: Issue["identifier"]) =>
+        async (issueIdentifier: Issue["identifier"] | Issue) =>
           await this.openIssueExternal(issueIdentifier),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) =>
@@ -127,10 +128,15 @@ export class MyIssuesView
     await webview.open(issue, ViewColumn.Active);
   }
 
-  public async openIssueExternal(issueIdentifier: Issue["identifier"]) {
+  public async openIssueExternal(issueIdentifier: Issue["identifier"] | Issue) {
+    const identififer =
+      typeof issueIdentifier === "string"
+        ? issueIdentifier
+        : issueIdentifier.identifier;
+
     const organisation = await this.#me?.organization;
     if (organisation?.urlKey) {
-      const url = `https://linear.app/${organisation.urlKey}/issue/${issueIdentifier}`;
+      const url = `https://linear.app/${organisation.urlKey}/issue/${identififer}`;
       await commands.executeCommand("vscode.open", Uri.parse(url));
     }
   }

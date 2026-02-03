@@ -3,7 +3,6 @@ import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { Button } from "../Button/Button";
 import { Animation } from "rsuite";
 import { CaretIcon } from "../Icons/CaretIcon";
-import { Separator } from "../Separator/Separator";
 import { Attachment } from "./Attachment";
 import { PlusIcon } from "../Icons/PlusIcon";
 import { useModalsContext } from "src/webviews/contexts/ModalsContext";
@@ -79,7 +78,6 @@ export function Attachments(props: AttachmentsProps) {
           )}
         </Animation.Collapse>
       </div>
-      <Separator />
     </>
   );
 }

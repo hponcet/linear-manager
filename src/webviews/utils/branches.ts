@@ -1,4 +1,4 @@
-import { Issue, IssueLabel } from "@linear/sdk";
+import { Issue } from "@linear/sdk";
 import { Ref } from "src/types/GitAPI";
 import { SettingsVscState } from "src/vscStates";
 
@@ -101,7 +101,7 @@ export function validateBranchName(
 export function getDefaultBranchName(
   issue: Issue,
   branchesSettings: SettingsVscState,
-  issueLabels: IssueLabel[],
+  labelIds: string[],
 ): string {
   let prefix = issue.branchName.split("/")[0];
 
@@ -110,9 +110,7 @@ export function getDefaultBranchName(
     branchesSettings.prefixByLabelList?.length
   ) {
     const prefixByLabelList = branchesSettings.prefixByLabelList || [];
-    const label = prefixByLabelList.find((l) =>
-      issueLabels.some((il) => il.id === l.label.id),
-    );
+    const label = prefixByLabelList.find((l) => labelIds.includes(l.label.id));
     if (label) {
       prefix = label.prefix;
     }

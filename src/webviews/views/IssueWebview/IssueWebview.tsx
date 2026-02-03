@@ -10,6 +10,7 @@ import { Attachments } from "src/webviews/components/Attachments/Attachments";
 
 import "./IssueWebview.scss";
 import { ModalsContextProvider } from "src/webviews/contexts/ModalsContext";
+import { Separator } from "src/webviews/components/Separator/Separator";
 
 export default function IssueWebview() {
   const [props, loaded] = useProps();
@@ -32,6 +33,7 @@ export default function IssueWebview() {
             <IssueContent />
             <SubIssues />
             <Attachments />
+            <Separator />
             <IssueActivity />
             <CommentInput />
           </div>

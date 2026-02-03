@@ -34,7 +34,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
     updateIssueSettings,
   } = props;
 
-  const { issue, issueLabels, issueLabelsLoading } = useIssueContext();
+  const { issue, issueLabelsLoading } = useIssueContext();
   const { hasUncommittedChanges } = useIssueBranches({ issueId: issue.id });
   const { branchesSettings, branchesSettingsAreLoading } = useSettings();
 
@@ -56,7 +56,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
   const initialBranchName = useMemo(() => {
     return (
       issueSettings.branch?.name ||
-      getDefaultBranchName(issue, branchesSettings, issueLabels)
+      getDefaultBranchName(issue, branchesSettings, issue.labelIds)
     );
   }, [
     issueSettings.branch,
@@ -64,8 +64,6 @@ export function StartWorkContent(props: StartWorkContentProps) {
     branchesSettingsAreLoading,
     issueLabelsLoading,
   ]);
-
-  console.log(initialBranchName);
 
   if (branchesSettingsAreLoading || issueLabelsLoading) {
     return null;

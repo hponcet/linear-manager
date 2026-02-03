@@ -11,7 +11,7 @@ import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { validateBranchName } from "src/webviews/utils/branches";
 import { FormQueueAsync } from "src/webviews/components/FormQueueAsync/FormQueueAsync";
 import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField";
-import { BranchNameInput } from "src/webviews/components/BranchNameInput/BranchNameInput+";
+import { BranchNameInput } from "src/webviews/components/BranchNameInput/BranchNameInput";
 import { BranchPicker } from "src/webviews/components/BranchPicker/BranchPicker";
 import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker";
 import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker";

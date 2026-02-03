@@ -3,12 +3,10 @@ import { IssueVscState, VscStateKeys } from "src/vscStates";
 import { ExtensionContext, Memento } from "vscode";
 
 export class Stores {
-  // private _global: Memento;
   #workspace: Memento;
 
   constructor(context: ExtensionContext) {
-    // this._global = context.globalState;
-    this.#workspace = context.workspaceState;
+    this.#workspace = context.globalState;
   }
 
   issuesStore() {

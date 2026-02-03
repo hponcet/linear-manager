@@ -18,6 +18,7 @@ export type FormQueueFieldProps = {
   onEnable?: () => void;
   onDisable?: () => void;
   onProcess?: () => Promise<void>;
+  onToggleChange?: (enabled: boolean) => void;
   errors?: any[];
 };
 
@@ -29,6 +30,7 @@ export function FormQueueField(props: FormQueueFieldProps) {
     loading,
     onEnable,
     onDisable,
+    onToggleChange,
     required,
     validated,
     executed,
@@ -104,6 +106,7 @@ export function FormQueueField(props: FormQueueFieldProps) {
                     onChange={(checked) => {
                       if (checked) onEnable?.();
                       else onDisable?.();
+                      onToggleChange?.(checked);
                     }}
                   />
                 ) : null}

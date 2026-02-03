@@ -1,11 +1,14 @@
-.startWorkContentTitle {
+.startWorkHeader {
   display: flex;
-  align-items: center;
-  align-content: center;
-  flex-wrap: wrap;
-  font-weight: 600;
+  flex-direction: column;
   margin-bottom: 32px;
+  flex: 1;
+}
+
+.startWorkContentTitle {
+  font-weight: 600;
   cursor: pointer;
+  flex: 1;
 
   p {
     margin: 0;
@@ -24,8 +27,13 @@
   margin-left: 10px;
 }
 
+.startWorkContentActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .startWorkContentLeftActions {
   display: flex;
   align-items: center;
-  margin-left: auto;
 }

@@ -49,55 +49,56 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
       switch (msg.type) {
         case "updateIssue": {
           await this.issueActions.updateIssue(msg.issueId);
-          return this.postMessage(msg.type, void 0);
+          return this.postMessage(msg.type, void 0, msg);
         }
         case "openIssue": {
           await this.issueActions.openIssue(msg.issueId);
-          return this.postMessage(msg.type, void 0);
+          return this.postMessage(msg.type, void 0, msg);
         }
         case "openExternal": {
           if (!this.issue?.identifier) {
             throw new Error("Issue identifier is not available");
           }
           await this.issueActions.openIssueExternal(this.issue.identifier);
-          return this.postMessage(msg.type, undefined);
+          return this.postMessage(msg.type, void 0, msg);
         }
         case "startWork": {
           await this.issueActions.startWork(msg.issueId);
-          return this.postMessage(msg.type, void 0);
+          return this.postMessage(msg.type, void 0, msg);
         }
         case "getGitStatus": {
           const gitStatus = await Controller.git.getGitStatus();
-          return this.postMessage(msg.type, gitStatus);
+          return this.postMessage(msg.type, gitStatus, msg);
         }
         case "getAllBranches": {
           const branches = await Controller.git.getBranches({ remote: true });
-          return this.postMessage(msg.type, branches);
+          return this.postMessage(msg.type, branches, msg);
         }
         case "getCurrentBranch": {
           const branch = Controller.git.getCurrentBranch();
-          return this.postMessage(msg.type, branch);
+          return this.postMessage(msg.type, branch, msg);
         }
         case "createBranch": {
           const branch = await Controller.git.createBranch(
             msg.branchName,
             msg.from,
           );
-          return this.postMessage(msg.type, branch);
+          return this.postMessage(msg.type, branch, msg);
         }
         case "checkout": {
           await Controller.git.checkout(msg.branch);
-          return this.postMessage(msg.type, void 0);
+          return this.postMessage(msg.type, void 0, msg);
         }
         case "hasUncommittedChanges": {
           const hasChanges = await Controller.git.hasUncommittedChanges();
-          return this.postMessage(msg.type, hasChanges);
+          return this.postMessage(msg.type, hasChanges, msg);
         }
       }
     } catch (error) {
       return this.postMessage(
         msg.type,
         (error as Error).message || String(error) || "Unknown error",
+        msg,
         true,
       );
     }

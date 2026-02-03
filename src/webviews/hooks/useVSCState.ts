@@ -1,9 +1,10 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { vscApi } from "./useRequestDataUpdate";
+import { VscStateKeys } from "src/vscStates";
 import { GlobalListenerMessage } from "src/types/ActionMessage";
 
 export function useVSCState<T>(
-  key: string,
+  key: VscStateKeys,
   defaultValue: T,
 ): [T, Dispatch<SetStateAction<T>>, boolean] {
   const [state, setState] = useState<T>(defaultValue);
@@ -14,7 +15,11 @@ export function useVSCState<T>(
   useEffect(() => {
     vscApi
       .postMessage({ type: "getState", key })
-      .then((data) => setState(data || defaultValue))
+      .then((data) => {
+        if (data.key === key) {
+          setState(data?.value || defaultValue);
+        }
+      })
       .finally(() => setIsLoading(false));
   }, [key]);
 
@@ -40,6 +45,7 @@ export function useVSCState<T>(
     setState((oldState) => {
       const newValue =
         (value instanceof Function ? value(oldState) : value) || defaultValue;
+
       vscApi.postMessage({
         type: "setState",
         key,

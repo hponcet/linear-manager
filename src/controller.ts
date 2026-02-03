@@ -20,7 +20,6 @@ export class Controller {
     repoActive: boolean;
     apiActive: boolean;
   }) {
-    console.log(gitStatus.repoActive);
     setCommandContext(CommandContext.gitExtensionLoaded, gitStatus.repoActive);
     this._issueViewer?.changeGitStatus(gitStatus);
   }

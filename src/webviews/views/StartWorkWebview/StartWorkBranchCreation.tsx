@@ -17,11 +17,13 @@ import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker
 import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker";
 import { Branch } from "src/webviews/components/BranchPicker/Branch";
 import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton";
+import { useSettings } from "src/webviews/hooks/useSettings";
 
 type StartWorkContentProps = {
   issue: Issue;
   branches?: Ref[];
   currentBranch?: Ref | null;
+  initialBranchName: string;
   issueSettings: IssueVscState[Issue["id"]];
   updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void;
   style?: React.CSSProperties;
@@ -33,6 +35,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
     issue,
     branches,
     currentBranch,
+    initialBranchName,
     issueSettings,
     updateIssueSettings,
     style,
@@ -49,10 +52,13 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
     cyclesLoading,
   } = useIssueContext();
 
+  const {
+    branchesSettings: { updateCycle },
+    branchesSettingsAreLoading,
+  } = useSettings();
+
   const [isLoading, setIsLoading] = useState(false);
-  const [branchName, setBranchName] = useState(
-    issueSettings.branch?.name || issue.branchName || "",
-  );
+  const [branchName, setBranchName] = useState(initialBranchName);
   const [fromBranch, setFromBranch] = useState<Ref | null>(
     currentBranch || null,
   );
@@ -90,7 +96,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
   }, [workflowStatesLoading, cyclesLoading]);
 
   function onReset() {
-    setBranchName(issue.branchName || "");
+    setBranchName(initialBranchName);
     setFromBranch(currentBranch || null);
     setStateId(getFirstStateOfType(workflowStates, "started")?.id || undefined);
     setCycleId(cycles.find((c) => c.isActive)?.id || undefined);
@@ -107,7 +113,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
     }
   }, [issueSettings.branch]);
 
-  if (isLoading) {
+  if (isLoading || branchesSettingsAreLoading) {
     return null;
   }
 
@@ -268,21 +274,22 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
         }
         onProcess={() => update.issue(issue.id, { stateId: stateId })}
       />
-
-      <FormQueueField
-        key="issue-cycle"
-        indexKey="issue-cycle"
-        label="Update cycle to"
-        disabled={cycleId === issue.cycleId || undefined}
-        input={
-          <ProjectCyclePicker
-            issue={{ cycleId } as Issue}
-            onChange={(cycleId) => setCycleId(cycleId || undefined)}
-            size={16}
-          />
-        }
-        onProcess={() => update.issue(issue.id, { cycleId })}
-      />
+      {!!updateCycle ? (
+        <FormQueueField
+          key="issue-cycle"
+          indexKey="issue-cycle"
+          label="Update cycle to"
+          disabled={cycleId === issue.cycleId || undefined}
+          input={
+            <ProjectCyclePicker
+              issue={{ cycleId } as Issue}
+              onChange={(cycleId) => setCycleId(cycleId || undefined)}
+              size={16}
+            />
+          }
+          onProcess={() => update.issue(issue.id, { cycleId })}
+        />
+      ) : null}
     </FormQueueAsync>
   );
 }

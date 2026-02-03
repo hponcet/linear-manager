@@ -1,11 +1,10 @@
-import { useVSCState } from "./useVSCState";
-import { IssueVscState, VscStateKeys } from "src/vscStates";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Ref } from "src/types/GitAPI";
 import { useAsyncEffect } from "./useAsyncEffect";
 import { Issue } from "@linear/sdk";
 import { useRequestDataUpdate } from "./useRequestDataUpdate";
 import { GlobalListenerMessage } from "src/types/ActionMessage";
+import { useIssueSettings } from "./useIssueSettings";
 
 type UseIssueBranchesParams = {
   issueId: Issue["id"];
@@ -78,32 +77,8 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
     };
   }, []);
 
-  const [issuesSettings, setIssueSettings, issueSettingsAreLoading] =
-    useVSCState<IssueVscState>(VscStateKeys.issueSettings, {
-      [issueId]: {
-        branch: undefined,
-        branchInitialized: false,
-        ignoredBranches: [],
-      },
-    });
-
-  const issueSettings = useMemo(
-    () =>
-      issuesSettings[issueId] || {
-        branch: undefined,
-        branchInitialized: false,
-        ignoredBranches: [],
-      },
-    [issuesSettings, issueId],
-  );
-
-  function updateIssueSettings(value: Partial<IssueVscState[string]>) {
-    if (!issueId) return;
-    setIssueSettings((s) => ({
-      ...s,
-      [issueId]: { ...s[issueId], ...value },
-    }));
-  }
+  const { issueSettings, updateIssueSettings, issueSettingsAreLoading } =
+    useIssueSettings({ issueId });
 
   async function checkoutBranch() {
     try {

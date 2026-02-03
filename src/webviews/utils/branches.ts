@@ -1,5 +1,6 @@
-import { Issue } from "@linear/sdk";
+import { Issue, IssueLabel } from "@linear/sdk";
 import { Ref } from "src/types/GitAPI";
+import { SettingsVscState } from "src/vscStates";
 
 const issueKeyRegex = (projectKey: string, issueNumber: string) =>
   new RegExp(`(${projectKey}|${projectKey.toUpperCase()})(-|_|)${issueNumber}`);
@@ -95,4 +96,41 @@ export function validateBranchName(
     throw new Error("Branch name already exists");
   }
   return Promise.resolve();
+}
+
+export function getDefaultBranchName(
+  issue: Issue,
+  branchesSettings: SettingsVscState,
+  issueLabels: IssueLabel[],
+): string {
+  let prefix = issue.branchName.split("/")[0];
+
+  if (
+    branchesSettings.prefixByLabel &&
+    branchesSettings.prefixByLabelList?.length
+  ) {
+    const prefixByLabelList = branchesSettings.prefixByLabelList || [];
+    const label = prefixByLabelList.find((l) =>
+      issueLabels.some((il) => il.id === l.label.id),
+    );
+    if (label) {
+      prefix = label.prefix;
+    }
+  }
+
+  const sanitizedTitle = issue.branchName.split("/")[1];
+  let title = `${prefix}/${sanitizedTitle}`;
+
+  if (branchesSettings.uppercaseIssueIdentifier) {
+    const [projectKey, issueNumber] = issue.identifier.split("-");
+    const issueNumberRegex = new RegExp(
+      `(${projectKey.toLowerCase()}|${projectKey.toUpperCase()})(-|_|)${issueNumber}`,
+    );
+    title = title.replace(
+      issueNumberRegex,
+      `${projectKey.toUpperCase()}-${issueNumber}`,
+    );
+  }
+
+  return title;
 }

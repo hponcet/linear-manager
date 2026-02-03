@@ -1,5 +1,6 @@
 import { Issue } from "@linear/sdk";
 import { Branch, Ref } from "./GitAPI";
+import { VscStateKeys } from "src/vscStates";
 
 export type Props = {
   issue: {
@@ -18,15 +19,19 @@ export type Props = {
 export type Request<
   T extends Ipc<"req">["type"],
   R extends Record<string, any> | void = void,
-> = R extends void ? { type: T } : { type: T } & R;
+> = R extends void
+  ? { type: T; resKey?: string }
+  : { type: T; resKey?: string } & R;
 
 export type Response<T extends Ipc<"req">["type"], R = void> = {
   type: `${T}_response`;
+  resKey?: string;
   payload: R extends void ? void : R;
 };
 
 export type ResponseError<T extends Ipc<"req">["type"]> = {
   type: `${T}_error`;
+  resKey?: string;
   error: string;
 };
 
@@ -63,8 +68,8 @@ export type Message<K extends keyof Props = any> =
   | Action<"startWork", { issueId: Issue["id"] }>
   | Action<"hasUncommittedChanges", void, boolean>
   | Action<"checkout", { branch: Ref }>
-  | Action<"getState", { key: string }, any>
-  | Action<"setState", { key: string; value: any; timestamp: number }>;
+  | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>
+  | Action<"setState", { key: VscStateKeys; value: any; timestamp: number }>;
 
 export type GlobalListenerMessage =
   | Listener<"updateIssue", number | undefined>

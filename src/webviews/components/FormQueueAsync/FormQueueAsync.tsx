@@ -14,6 +14,7 @@ export type FormQueueAsyncProps = {
   startButtonLabel?: string;
   endButtonLabel?: string;
   continueOnError?: boolean;
+  noActions?: boolean;
   canRestart?: boolean;
   canRetry?: boolean;
   actions?: ReactNode[];
@@ -39,6 +40,7 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
     continueOnError,
     canRestart,
     canRetry,
+    noActions,
     onComplete,
     onReset,
     actions,
@@ -209,57 +211,59 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
             : undefined,
         }),
       )}
-      <div style={{ marginLeft: "auto", display: "table", marginTop: 20 }}>
-        {!executed && !processing && actions}
-        {canRestart && !processing && executed ? (
+      {!noActions ? (
+        <div style={{ marginLeft: "auto", display: "table", marginTop: 20 }}>
+          {!executed && !processing && actions}
+          {canRestart && !processing && executed ? (
+            <Button
+              onClick={() => {
+                onReset?.();
+                executeQueue("restart");
+              }}
+              style={{
+                marginRight: 8,
+                padding: "0 16px",
+              }}
+            >
+              Reset
+            </Button>
+          ) : null}
           <Button
-            onClick={() => {
-              onReset?.();
-              executeQueue("restart");
-            }}
-            style={{
-              marginRight: 8,
-              padding: "0 16px",
-            }}
-          >
-            Reset
-          </Button>
-        ) : null}
-        <Button
-          disabled={
-            processLoading || (executed && !canRetry) || processHasErrors
-          }
-          tooltip={
-            executed && !canRestart && !canRetry
-              ? "All actions have been processed"
-              : Object.values(queue).every((item) => item.validated)
-                ? "All actions are already validated"
-                : undefined
-          }
-          loading={processing}
-          onClick={() => {
-            if (processDone && onComplete) {
-              onComplete();
-            } else if (executed) {
-              if (processCanRetry) {
-                executeQueue("retry");
-              }
-            } else {
-              executeQueue();
+            disabled={
+              processLoading || (executed && !canRetry) || processHasErrors
             }
-          }}
-          style={{ padding: "0 16px" }}
-          color={processCanRetry ? "#a21a24" : "#353333"}
-        >
-          {processDone
-            ? endButtonLabel || "Done"
-            : processing
-              ? "Processing..."
-              : processCanRetry
-                ? "Retry failed steps"
-                : startButtonLabel || "Execute"}
-        </Button>
-      </div>
+            tooltip={
+              executed && !canRestart && !canRetry
+                ? "All actions have been processed"
+                : Object.values(queue).every((item) => item.validated)
+                  ? "All actions are already validated"
+                  : undefined
+            }
+            loading={processing}
+            onClick={() => {
+              if (processDone && onComplete) {
+                onComplete();
+              } else if (executed) {
+                if (processCanRetry) {
+                  executeQueue("retry");
+                }
+              } else {
+                executeQueue();
+              }
+            }}
+            style={{ padding: "0 16px" }}
+            color={processCanRetry ? "#a21a24" : "#353333"}
+          >
+            {processDone
+              ? endButtonLabel || "Done"
+              : processing
+                ? "Processing..."
+                : processCanRetry
+                  ? "Retry failed steps"
+                  : startButtonLabel || "Execute"}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

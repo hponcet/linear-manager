@@ -7,11 +7,7 @@ import { useIssueBranches } from "src/webviews/hooks/useGitBranches";
 export function StartWorkWebview() {
   const [props, loaded] = useProps<"startWork">();
 
-  const {
-    issueId,
-    linearAccessToken,
-    fromCheckout,
-  } = props;
+  const { issueId, linearAccessToken, fromCheckout } = props;
 
   const {
     branches,
@@ -39,7 +35,7 @@ export function StartWorkWebview() {
           currentBranch={currentBranch}
           fromCheckout={fromCheckout}
           repoInitialized={repoInitialized}
-          gitInitialized={gitApiInitialized }
+          gitInitialized={gitApiInitialized}
           issueSettings={issueSettings}
           updateIssueSettings={updateIssueSettings}
         />

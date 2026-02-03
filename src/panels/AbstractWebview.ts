@@ -245,6 +245,7 @@ export abstract class AbstractWebview<
   >(
     type: T,
     payload: E extends true ? string : IpcResponse<T>["payload"],
+    msg: Ipc<"req", T>,
     error?: boolean,
   ): Thenable<boolean> {
     if (this._panel === undefined) {
@@ -255,12 +256,14 @@ export abstract class AbstractWebview<
       return this._panel!.webview.postMessage({
         type: `${type}_error`,
         error: payload,
+        resKey: msg.resKey,
       });
     }
 
     return this._panel!.webview.postMessage({
       type: `${type}_response`,
       payload,
+      resKey: msg.resKey,
     });
   }
 
@@ -271,22 +274,23 @@ export abstract class AbstractWebview<
       switch (msg.type) {
         case "closePanel": {
           this.dispose();
-          return this.postMessage(msg.type, undefined);
+          return this.postMessage(msg.type, undefined, msg);
         }
         case "props": {
           this._propsSent = true;
-          return this.postMessage(msg.type, await this.getProps());
+          return this.postMessage(msg.type, await this.getProps(), msg);
         }
         case "getState": {
           const key = msg.key;
           const value = this._context.globalState.get(key);
-          return this.postMessage(msg.type, value);
+          return this.postMessage(msg.type, { key, value }, msg);
         }
         case "setState": {
           const { key, value, timestamp } = msg;
           await this._context.globalState.update(key, value);
+
           this.postListenerMessage("stateUpdate", { value, timestamp, key });
-          return this.postMessage(msg.type, undefined);
+          return this.postMessage(msg.type, undefined, msg);
         }
         default:
           return false;
@@ -295,6 +299,7 @@ export abstract class AbstractWebview<
       return this.postMessage(
         msg.type,
         error.message || String(error) || "Unknown error",
+        msg,
         true,
       );
     }

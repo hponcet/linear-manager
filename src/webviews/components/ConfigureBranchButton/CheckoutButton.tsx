@@ -66,7 +66,7 @@ export function CheckoutButton(props: CheckoutButtonProps) {
       }
       {...buttonProps}
     >
-      {inline === "icon" ? null : "Checkout Branch"}
+      {inline === "icon" ? null : "Switch to branch"}
     </Button>
   );
 }

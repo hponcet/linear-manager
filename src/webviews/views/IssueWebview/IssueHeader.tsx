@@ -15,10 +15,14 @@ import { useModalsContext } from "src/webviews/contexts/ModalsContext";
 import { LinkIcon } from "src/webviews/components/Icons/LinkIcon";
 
 import "./IssueHeader.css";
+import { useDialog } from "rsuite";
 
 export function IssueHeader() {
   const { issue, update } = useIssueContext();
+
   const { setIsCreatingAttachment } = useModalsContext();
+
+  const dialog = useDialog();
 
   return (
     <>
@@ -99,6 +103,28 @@ export function IssueHeader() {
                 label: "Add an attachment",
                 action: () => setIsCreatingAttachment({}),
                 icon: <LinkIcon size={14} />,
+              },
+              {
+                label: "Copy issue link",
+                action: () => window.navigator.clipboard.writeText(issue.url),
+                icon: <LinkIcon size={14} />,
+              },
+              {
+                label: "Delete issue",
+                icon: <TrashIcon size={14} />,
+                action: async () => {
+                  const shouldDeleteIssue = await dialog.confirm(
+                    `Are you sure you want to delete issue ${issue.identifier}? This action cannot be undone.`,
+                    {
+                      title: `Delete Issue ${issue.identifier}`,
+                      okText: "Delete",
+                      severity: "error",
+                    },
+                  );
+                  if (shouldDeleteIssue) {
+                    await update.subIssues.deleteSubIssue(issue.id);
+                  }
+                },
               },
             ]}
           />

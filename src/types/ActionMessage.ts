@@ -54,7 +54,7 @@ export type Listener<Type extends string, Payload> = {
 export type Message<K extends keyof Props = any> =
   | Action<"props", void, Props[K]>
   | Action<"closePanel">
-  | Action<"openExternal">
+  | Action<"openExternal", { issueIdentifier?: Issue["identifier"] }>
   | Action<"openExternalUrl", { url: string }>
   | Action<"updateIssue", { issueId: Issue["id"] }>
   | Action<"openIssue", { issueId: Issue["id"] }>

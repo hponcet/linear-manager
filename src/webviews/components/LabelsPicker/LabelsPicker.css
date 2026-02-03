@@ -3,9 +3,20 @@
   background-color: transparent !important;
   border-color: transparent !important;
   outline: none !important;
+
+  &[is-empty="true"] {
+    max-width: 106px !important;
+  }
 }
 
 .pickerListOption {
   display: flex;
   align-items: center;
+}
+
+.labelPickerPlaceholder {
+  display: flex;
+  align-items: center;
+  color: var(--rs-text-secondary);
+  opacity: 0.5;
 }

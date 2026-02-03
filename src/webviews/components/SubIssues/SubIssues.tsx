@@ -4,9 +4,10 @@ import { Button } from "../Button/Button";
 import { Animation } from "rsuite";
 import { CaretIcon } from "../Icons/CaretIcon";
 import { InlineIssue } from "../InlineIssue/InlineIssue";
+import { PlusIcon } from "../Icons/PlusIcon";
+import { CreateSubIssue } from "./CreateSubIssue";
 
 import "./SubIssues.scss";
-import { Separator } from "../Separator/Separator";
 
 type SubIssuesProps = {
   style?: React.CSSProperties;
@@ -19,44 +20,77 @@ export function SubIssues(props: SubIssuesProps) {
   const { subIssues } = useIssueContext();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [createIssueCollapsed, setCreateIssueCollapsed] = useState(true);
 
-  if (!subIssues || subIssues.length === 0) {
-    return null;
-  }
+  const noSubIssues = !subIssues || subIssues.length === 0;
 
   return (
-    <>
-      <div className={`subIssuesContainer ${className || ""}`} style={style}>
-        <div>
+    <div className={`subIssuesContainer ${className || ""}`} style={style}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingBottom: 10,
+        }}
+      >
+        <Button
+          onClick={() =>
+            noSubIssues
+              ? setCreateIssueCollapsed(!createIssueCollapsed)
+              : setCollapsed(!collapsed)
+          }
+          disabled={noSubIssues && !createIssueCollapsed}
+          className="subIssuesButton"
+        >
+          {noSubIssues ? (
+            <>
+              <PlusIcon style={{ marginRight: 6 }} />
+              <span>Add sub-issues</span>
+            </>
+          ) : (
+            <>
+              <CaretIcon
+                style={{
+                  transform: collapsed ? "rotate(0deg)" : "rotate(90deg)",
+                  transition: "transform 0.3s",
+                  marginRight: 6,
+                }}
+              />
+              <span>Sub-issues</span>
+            </>
+          )}
+        </Button>
+        {!noSubIssues && (
           <Button
-            onClick={() => setCollapsed(!collapsed)}
-            className="subIssuesButton"
-          >
-            <CaretIcon
-              style={{
-                transform: collapsed ? "rotate(0deg)" : "rotate(90deg)",
-                transition: "transform 0.3s",
-                marginRight: 6,
-              }}
-            />
-            <span>Sub-issues</span>
-          </Button>
-        </div>
-        <Animation.Collapse in={!collapsed}>
-          {(props, ref) => (
-            <div
-              ref={ref}
-              {...props}
-              className={`subIssuesList ${props.className || ""}`}
-            >
-              {subIssues.map((issue) => (
+            onClick={() => setCreateIssueCollapsed(!createIssueCollapsed)}
+            disabled={noSubIssues && !createIssueCollapsed}
+            className="attachmentsAddButton"
+            icon={<PlusIcon size={14} />}
+          />
+        )}
+      </div>
+      <Animation.Collapse in={!collapsed}>
+        {(props, ref) => (
+          <div ref={ref} {...props}>
+            <div className="subIssuesList">
+              {subIssues?.map((issue) => (
                 <InlineIssue key={issue.id} issue={issue} />
               ))}
             </div>
-          )}
-        </Animation.Collapse>
-      </div>
-      <Separator />
-    </>
+          </div>
+        )}
+      </Animation.Collapse>
+      <Animation.Collapse in={!createIssueCollapsed} unmountOnExit>
+        {(props, ref) => (
+          <div ref={ref} {...props}>
+            <CreateSubIssue
+              className="subIssuesCreateSubIssue"
+              onCancel={() => setCreateIssueCollapsed(true)}
+            />
+          </div>
+        )}
+      </Animation.Collapse>
+    </div>
   );
 }

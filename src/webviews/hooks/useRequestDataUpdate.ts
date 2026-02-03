@@ -73,8 +73,11 @@ export function useRequestDataUpdate(
 
   return {
     closePanel: async () => vscApi.postMessage({ type: "closePanel" }),
-    openExternal: () =>
-      vscApi.postMessage<"openExternal">({ type: "openExternal" }),
+    openExternal: (issueIdentifier?: Issue["identifier"]) =>
+      vscApi.postMessage<"openExternal">({
+        type: "openExternal",
+        issueIdentifier,
+      }),
     openExternalUrl: (url: string) =>
       vscApi.postMessage({ type: "openExternalUrl", url }),
     updateIssue: (issueId: Issue["id"]) =>

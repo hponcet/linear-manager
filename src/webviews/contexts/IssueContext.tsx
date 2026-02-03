@@ -70,6 +70,13 @@ export type IssueContextValueData = {
         title?: string,
       ) => Promise<void>;
     };
+    subIssues: {
+      createSubIssue: (
+        parentId: Issue["id"],
+        fields: Parameters<LinearClient["updateIssue"]>[1],
+      ) => Promise<void>;
+      deleteSubIssue: (issueId: Issue["id"]) => Promise<void>;
+    };
   };
   priorities: IssuePriorityValue[];
   prioritiesLoading: boolean;
@@ -131,6 +138,10 @@ const IssueContextValue = createContext<IssueContextValueData>({
       delete: async () => Promise.reject(),
       create: async () => Promise.reject(),
       update: async () => Promise.reject(),
+    },
+    subIssues: {
+      createSubIssue: async () => Promise.reject(),
+      deleteSubIssue: async () => Promise.reject(),
     },
   },
   priorities: [],
@@ -316,6 +327,23 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     setHistoryRefetch((r) => r + 1);
   }
 
+  async function createSubIssue(
+    parentId: Issue["id"],
+    fields: Parameters<LinearClient["updateIssue"]>[1],
+  ) {
+    await linearClient?.createIssue({
+      ...fields,
+      parentId,
+      teamId: issue!.teamId!,
+    });
+    setSubIssuesRefetch((r) => r + 1);
+  }
+
+  async function deleteSubIssue(issueId: Issue["id"]) {
+    await linearClient?.deleteIssue(issueId);
+    setSubIssuesRefetch((r) => r + 1);
+  }
+
   const [me, meLoading] = useAsyncMemo(async () => {
     const me = await linearClient?.viewer;
     return me || null;
@@ -479,6 +507,10 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
           delete: deleteAttachment,
           create: createAttachment,
           update: updateAttachment,
+        },
+        subIssues: {
+          createSubIssue,
+          deleteSubIssue,
         },
         panelActions,
       },

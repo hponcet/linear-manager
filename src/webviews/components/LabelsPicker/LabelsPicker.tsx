@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { TagPicker, TagPickerProps } from "rsuite";
 import { Issue } from "@linear/sdk";
-
 import { useIssueContext } from "src/webviews/contexts/IssueContext";
 import { Label } from "./Label";
+import { LabelIcon } from "./LabelIcon";
 
 import "./LabelsPicker.css";
 
@@ -33,8 +33,8 @@ export function LabelsPicker(props: LabelsPickerProps) {
           issueLabel: label,
         }))
         .sort((a, b) => a.label.localeCompare(b.label))
-        .sort((a, b) => (issue?.labelIds.includes(a.value) ? -1 : 1)) || [],
-    [issueLabels, issue.labelIds]
+        .sort((a, b) => (issue?.labelIds?.includes(a.value) ? -1 : 1)) || [],
+    [issueLabels, issue.labelIds],
   );
 
   return (
@@ -45,9 +45,18 @@ export function LabelsPicker(props: LabelsPickerProps) {
       loading={issueLabelsLoading}
       data={cacheData}
       value={issue?.labelIds || []}
-      onChange={(labelIds) => onChange(labelIds)}
-      placeholder="No labels"
+      onChange={onChange}
+      is-empty={String(!issue?.labelIds || issue.labelIds.length === 0)}
+      placeholder={
+        <div
+          className="labelPickerPlaceholder"
+          style={{ cursor: !props.disabled ? "pointer" : "default" }}
+        >
+          <LabelIcon size={14} style={{ marginRight: 6 }} /> Labels
+        </div>
+      }
       cleanable={false}
+      searchable
       renderOption={(_, item) => (
         <Label key={item.value} issueLabel={item.issueLabel} inline />
       )}

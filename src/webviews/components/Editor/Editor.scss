@@ -97,3 +97,9 @@
     border-radius: 0.125rem;
   }
 }
+
+.is-empty:not(.with-slash)[data-placeholder]:has(
+    > .ProseMirror-trailingBreak:only-child
+  )::before {
+  color: var(--rs-placeholder-color);
+}

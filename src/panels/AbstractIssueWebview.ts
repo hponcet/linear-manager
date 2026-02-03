@@ -59,7 +59,9 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
           if (!this.issue?.identifier) {
             throw new Error("Issue identifier is not available");
           }
-          await this.issueActions.openIssueExternal(this.issue.identifier);
+          await this.issueActions.openIssueExternal(
+            msg.issueIdentifier || this.issue.identifier,
+          );
           return this.postMessage(msg.type, void 0, msg);
         }
         case "startWork": {

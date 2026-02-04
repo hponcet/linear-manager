@@ -3,7 +3,7 @@
   "displayName": "Linear Manager",
   "description": "Unofficial Linear extension for VS Code to manage issues within the editor.",
   "icon": "resources/images/linear_dark.png",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "hpon",
   "repository": "https://github.com/hponcet/linear-manager",
   "engines": {
@@ -166,7 +166,7 @@
     "vscode.git"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "devDependencies": {
     "@eslint/compat": "^2.0.2",
@@ -186,6 +186,7 @@
     "@vscode/test-electron": "^2.5.2",
     "autoprefixer": "^10.4.23",
     "buffer": "^6.0.3",
+    "cross-env": "^10.1.0",
     "crypto-browserify": "^3.3.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.4",
@@ -238,18 +239,13 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@tiptap/core": "^3.15.3",
     "@tiptap/extension-bubble-menu": "^3.15.3",
-    "@tiptap/extension-details": "^3.15.3",
     "@tiptap/extension-highlight": "^3.15.3",
     "@tiptap/extension-horizontal-rule": "^3.15.3",
     "@tiptap/extension-image": "^3.15.3",
     "@tiptap/extension-list": "^3.15.3",
-    "@tiptap/extension-mathematics": "^3.15.3",
-    "@tiptap/extension-mention": "^3.15.3",
     "@tiptap/extension-subscript": "^3.15.3",
     "@tiptap/extension-superscript": "^3.15.3",
-    "@tiptap/extension-table": "^3.15.3",
     "@tiptap/extension-text-align": "^3.15.3",
-    "@tiptap/extension-typography": "^3.15.3",
     "@tiptap/extensions": "^3.15.3",
     "@tiptap/markdown": "^3.15.3",
     "@tiptap/pm": "^3.15.3",
@@ -257,7 +253,6 @@
     "@tiptap/starter-kit": "^3.15.3",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
-    "cross-env": "^10.1.0",
     "emoji-picker-react": "^4.16.1",
     "lodash.throttle": "^4.1.1",
     "moment": "^2.30.1",

@@ -182,27 +182,6 @@
 
 /* Text colors */
 :root {
-  --tt-color-text-gray: hsl(45deg 2% 46%);
-  --tt-color-text-brown: hsl(19deg 31% 47%);
-  --tt-color-text-orange: hsl(30deg 89% 45%);
-  --tt-color-text-yellow: hsl(38deg 62% 49%);
-  --tt-color-text-green: hsl(148deg 32% 39%);
-  --tt-color-text-blue: hsl(202deg 54% 43%);
-  --tt-color-text-purple: hsl(274deg 32% 54%);
-  --tt-color-text-pink: hsl(328deg 49% 53%);
-  --tt-color-text-red: hsl(2deg 62% 55%);
-  --tt-color-text-gray-contrast: hsl(39deg 26% 26% / 15%);
-  --tt-color-text-brown-contrast: hsl(18deg 43% 69% / 35%);
-  --tt-color-text-orange-contrast: hsl(24deg 73% 55% / 27%);
-  --tt-color-text-yellow-contrast: hsl(44deg 82% 59% / 39%);
-  --tt-color-text-green-contrast: hsl(126deg 29% 60% / 27%);
-  --tt-color-text-blue-contrast: hsl(202deg 54% 59% / 27%);
-  --tt-color-text-purple-contrast: hsl(274deg 37% 64% / 27%);
-  --tt-color-text-pink-contrast: hsl(331deg 60% 71% / 27%);
-  --tt-color-text-red-contrast: hsl(8deg 79% 79% / 40%);
-}
-
-.dark {
   --tt-color-text-gray: hsl(0deg 0% 61%);
   --tt-color-text-brown: hsl(18deg 35% 58%);
   --tt-color-text-orange: hsl(25deg 53% 53%);
@@ -223,8 +202,49 @@
   --tt-color-text-red-contrast: hsl(0deg 67% 60% / 25%);
 }
 
+.light {
+  --tt-color-text-gray: hsl(45deg 2% 46%);
+  --tt-color-text-brown: hsl(19deg 31% 47%);
+  --tt-color-text-orange: hsl(30deg 89% 45%);
+  --tt-color-text-yellow: hsl(38deg 62% 49%);
+  --tt-color-text-green: hsl(148deg 32% 39%);
+  --tt-color-text-blue: hsl(202deg 54% 43%);
+  --tt-color-text-purple: hsl(274deg 32% 54%);
+  --tt-color-text-pink: hsl(328deg 49% 53%);
+  --tt-color-text-red: hsl(2deg 62% 55%);
+  --tt-color-text-gray-contrast: hsl(39deg 26% 26% / 15%);
+  --tt-color-text-brown-contrast: hsl(18deg 43% 69% / 35%);
+  --tt-color-text-orange-contrast: hsl(24deg 73% 55% / 27%);
+  --tt-color-text-yellow-contrast: hsl(44deg 82% 59% / 39%);
+  --tt-color-text-green-contrast: hsl(126deg 29% 60% / 27%);
+  --tt-color-text-blue-contrast: hsl(202deg 54% 59% / 27%);
+  --tt-color-text-purple-contrast: hsl(274deg 37% 64% / 27%);
+  --tt-color-text-pink-contrast: hsl(331deg 60% 71% / 27%);
+  --tt-color-text-red-contrast: hsl(8deg 79% 79% / 40%);
+}
+
 /* Highlight colors */
 :root {
+  --tt-color-highlight-green: #509568;
+  --tt-color-highlight-blue: #6e92aa;
+  --tt-color-highlight-purple: #583e74;
+  --tt-color-highlight-red: #743e42;
+  --tt-color-highlight-gray: rgb(47 47 47);
+  --tt-color-highlight-brown: rgb(74 50 40);
+  --tt-color-highlight-orange: rgb(92 59 35);
+  --tt-color-highlight-pink: rgb(78 44 60);
+  --tt-color-highlight-yellow-contrast: #58531e;
+  --tt-color-highlight-green-contrast: #47855d;
+  --tt-color-highlight-blue-contrast: #5e86a1;
+  --tt-color-highlight-purple-contrast: #4c3564;
+  --tt-color-highlight-red-contrast: #643539;
+  --tt-color-highlight-gray-contrast: rgb(255 255 255 / 9.4%);
+  --tt-color-highlight-brown-contrast: rgb(184 101 69 / 25%);
+  --tt-color-highlight-orange-contrast: rgb(233 126 37 / 20%);
+  --tt-color-highlight-pink-contrast: rgb(220 76 145 / 22%);
+}
+
+.light {
   --tt-color-highlight-yellow: #fef9c3;
   --tt-color-highlight-green: #dcfce7;
   --tt-color-highlight-blue: #e0f2fe;
@@ -243,24 +263,4 @@
   --tt-color-highlight-brown-contrast: rgb(210 162 141 / 35%);
   --tt-color-highlight-orange-contrast: rgb(224 124 57 / 27%);
   --tt-color-highlight-pink-contrast: rgb(225 136 179 / 27%);
-}
-
-.dark {
-  --tt-color-highlight-green: #509568;
-  --tt-color-highlight-blue: #6e92aa;
-  --tt-color-highlight-purple: #583e74;
-  --tt-color-highlight-red: #743e42;
-  --tt-color-highlight-gray: rgb(47 47 47);
-  --tt-color-highlight-brown: rgb(74 50 40);
-  --tt-color-highlight-orange: rgb(92 59 35);
-  --tt-color-highlight-pink: rgb(78 44 60);
-  --tt-color-highlight-yellow-contrast: #58531e;
-  --tt-color-highlight-green-contrast: #47855d;
-  --tt-color-highlight-blue-contrast: #5e86a1;
-  --tt-color-highlight-purple-contrast: #4c3564;
-  --tt-color-highlight-red-contrast: #643539;
-  --tt-color-highlight-gray-contrast: rgb(255 255 255 / 9.4%);
-  --tt-color-highlight-brown-contrast: rgb(184 101 69 / 25%);
-  --tt-color-highlight-orange-contrast: rgb(233 126 37 / 20%);
-  --tt-color-highlight-pink-contrast: rgb(220 76 145 / 22%);
 }

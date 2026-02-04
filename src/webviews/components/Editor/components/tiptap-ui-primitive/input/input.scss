@@ -1,11 +1,11 @@
 /* stylelint-disable selector-class-pattern */
 
 :root {
-  --tiptap-input-placeholder: var(--tt-gray-light-a-400);
+  --tiptap-input-placeholder: var(--tt-gray-dark-a-400);
 }
 
-.dark {
-  --tiptap-input-placeholder: var(--tt-gray-dark-a-400);
+.light {
+  --tiptap-input-placeholder: var(--tt-gray-light-a-400);
 }
 
 .tiptap-input {

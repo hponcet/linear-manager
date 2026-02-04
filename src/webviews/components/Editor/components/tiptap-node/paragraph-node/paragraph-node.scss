@@ -1,21 +1,21 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable selector-class-pattern */
 .tiptap.ProseMirror {
-  --tt-collaboration-carets-label: var(--tt-gray-light-900);
-  --link-text-color: var(--tt-brand-color-500);
-  --thread-text: var(--tt-gray-light-900);
-  --placeholder-color: var(--tt-gray-light-a-400);
-  --thread-bg-color: var(--tt-color-yellow-inc-2);
-  --tiptap-ai-insertion-color: var(--tt-brand-color-600);
-}
-
-.dark {
   --tt-collaboration-carets-label: var(--tt-gray-dark-100);
   --link-text-color: var(--tt-brand-color-400);
   --thread-text: var(--tt-gray-dark-900);
   --placeholder-color: var(--tt-gray-dark-a-400);
   --thread-bg-color: var(--tt-color-yellow-dec-2);
   --tiptap-ai-insertion-color: var(--tt-brand-color-400);
+}
+
+.light {
+  --tt-collaboration-carets-label: var(--tt-gray-light-900);
+  --link-text-color: var(--tt-brand-color-500);
+  --thread-text: var(--tt-gray-light-900);
+  --placeholder-color: var(--tt-gray-light-a-400);
+  --thread-bg-color: var(--tt-color-yellow-inc-2);
+  --tiptap-ai-insertion-color: var(--tt-brand-color-600);
 }
 
 /* Ensure each top-level node has relative positioning 

@@ -1,15 +1,15 @@
 /* stylelint-disable selector-class-pattern */
 
 .tiptap-dropdown-menu {
-  --tt-dropdown-menu-bg-color: var(--white);
-  --tt-dropdown-menu-border-color: var(--tt-gray-light-a-100);
-  --tt-dropdown-menu-text-color: var(--tt-gray-light-a-600);
-}
-
-.dark {
   --tt-dropdown-menu-border-color: var(--tt-gray-dark-a-50);
   --tt-dropdown-menu-bg-color: var(--tt-gray-dark-50);
   --tt-dropdown-menu-text-color: var(--tt-gray-dark-a-600);
+}
+
+.light {
+  --tt-dropdown-menu-bg-color: var(--white);
+  --tt-dropdown-menu-border-color: var(--tt-gray-light-a-100);
+  --tt-dropdown-menu-text-color: var(--tt-gray-light-a-600);
 }
 
 /* --------------------------------------------

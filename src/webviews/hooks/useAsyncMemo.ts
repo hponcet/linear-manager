@@ -1,33 +1,33 @@
-import { useState } from "react";
-import { useAsyncEffect } from "./useAsyncEffect";
+import { useState } from "react"
+
+import { useAsyncEffect } from "./useAsyncEffect"
 
 export function useAsyncMemo<T>(
   asyncFunction: (currentValue: T | null) => Promise<T>,
-  dependencies: React.DependencyList
+  dependencies: React.DependencyList,
 ): [T | null, boolean] {
-  const [value, setValue] = useState<T | null>(null);
-  const [isLoading, setLoading] = useState<boolean>(true);
+  const [value, setValue] = useState<T | null>(null)
+  const [isLoading, setLoading] = useState<boolean>(true)
 
   useAsyncEffect(async () => {
-    let isMounted = true;
+    let isMounted = true
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const result = await asyncFunction(value);
+      const result = await asyncFunction(value)
       if (isMounted) {
-        setValue(result);
+        setValue(result)
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
 
     return () => {
-      isMounted = false;
-    };
-  }, dependencies);
+      isMounted = false
+    }
+  }, dependencies)
 
-  return [value, isLoading];
+  return [value, isLoading]
 }

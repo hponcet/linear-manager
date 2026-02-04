@@ -1,0 +1,37 @@
+# Deps
+
+**/node_modules
+
+# ext
+
+_.yaml
+_.md
+_.log
+_.eot
+_.ico
+_.lock
+_.log
+_.png
+_.snap
+_.svg
+_.ttf
+_.woff
+_.woff2
+.editorconfig
+_.env
+_.sh
+_.yml
+
+# files
+
+**/.DS_Store
+.lint-ignore
+**/*.md
+
+# Directories
+
+**/.cache
+**/.vscode-test
+dist
+out
+coverage-ts

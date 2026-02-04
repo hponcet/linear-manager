@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands } from "vscode"
 
 export enum CommandContext {
   linearAccountConnected = "linearManager:isLinearAuthenticated",
@@ -7,5 +7,5 @@ export enum CommandContext {
 }
 
 export function setCommandContext(key: CommandContext | string, value: any) {
-  return commands.executeCommand("setContext", key, value);
+  return commands.executeCommand("setContext", key, value)
 }

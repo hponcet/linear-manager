@@ -1,11 +1,11 @@
 type ReplyIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function DeleteIcon(props: ReplyIconProps) {
-  const { style, className, size = 14 } = props;
+  const { style, className, size = 14 } = props
 
   return (
     <svg
@@ -28,5 +28,5 @@ export function DeleteIcon(props: ReplyIconProps) {
       <path d="M5.5 2.5A1.5 1.5 0 0 1 7 1h2a1.5 1.5 0 0 1 1.5 1.5v1h-5v-1Z"></path>
       <path d="M1 3.75A.75.75 0 0 1 1.75 3h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 3.75Z"></path>
     </svg>
-  );
+  )
 }

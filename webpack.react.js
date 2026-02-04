@@ -1,15 +1,16 @@
-const path = require("path");
-const fs = require("fs");
-const webpack = require("webpack");
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CSSMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
+const fs = require("fs")
+const path = require("path")
 
-const appDirectory = fs.realpathSync(process.cwd());
-const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
-const isProduction = process.env.NODE_ENV === "production";
+const CSSMinimizerPlugin = require("css-minimizer-webpack-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const TerserPlugin = require("terser-webpack-plugin")
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
+const webpack = require("webpack")
+
+const appDirectory = fs.realpathSync(process.cwd())
+const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath)
+const isProduction = process.env.NODE_ENV === "production"
 
 module.exports = {
   mode: isProduction ? "production" : "development",
@@ -60,9 +61,7 @@ module.exports = {
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js", ".json"],
-    plugins: [
-      new TsconfigPathsPlugin({ configFile: resolveApp("./tsconfig.json") }),
-    ],
+    plugins: [new TsconfigPathsPlugin({ configFile: resolveApp("./tsconfig.json") })],
     fallback: {
       path: require.resolve("path-browserify"),
       crypto: require.resolve("crypto-browserify"),
@@ -159,4 +158,4 @@ module.exports = {
       },
     ],
   },
-};
+}

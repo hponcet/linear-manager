@@ -1,17 +1,18 @@
-import type { Editor } from "@tiptap/react";
-import { useWindowSize } from "src/webviews/components/Editor/hooks/use-window-size";
-import { useBodyRect } from "src/webviews/components/Editor/hooks/use-element-rect";
-import { useEffect } from "react";
+import { useEffect } from "react"
+import { useBodyRect } from "src/webviews/components/Editor/hooks/use-element-rect"
+import { useWindowSize } from "src/webviews/components/Editor/hooks/use-window-size"
+
+import type { Editor } from "@tiptap/react"
 
 export interface CursorVisibilityOptions {
   /**
    * The Tiptap editor instance
    */
-  editor?: Editor | null;
+  editor?: Editor | null
   /**
    * Reference to the toolbar element that may obscure the cursor
    */
-  overlayHeight?: number;
+  overlayHeight?: number
 }
 
 /**
@@ -22,48 +23,45 @@ export interface CursorVisibilityOptions {
  * @param options.overlayHeight Toolbar height to account for
  * @returns The bounding rect of the body
  */
-export function useCursorVisibility({
-  editor,
-  overlayHeight = 0,
-}: CursorVisibilityOptions) {
-  const { height: windowHeight } = useWindowSize();
+export function useCursorVisibility({ editor, overlayHeight = 0 }: CursorVisibilityOptions) {
+  const { height: windowHeight } = useWindowSize()
   const rect = useBodyRect({
     enabled: true,
     throttleMs: 100,
     useResizeObserver: true,
-  });
+  })
 
   useEffect(() => {
     const ensureCursorVisibility = () => {
-      if (!editor) return;
+      if (!editor) return
 
-      const { state, view } = editor;
-      if (!view.hasFocus()) return;
+      const { state, view } = editor
+      if (!view.hasFocus()) return
 
       // Get current cursor position coordinates
-      const { from } = state.selection;
-      const cursorCoords = view.coordsAtPos(from);
+      const { from } = state.selection
+      const cursorCoords = view.coordsAtPos(from)
 
       if (windowHeight < rect.height && cursorCoords) {
-        const availableSpace = windowHeight - cursorCoords.top;
+        const availableSpace = windowHeight - cursorCoords.top
 
         // If the cursor is hidden behind the overlay or offscreen, scroll it into view
         if (availableSpace < overlayHeight) {
-          const targetCursorY = Math.max(windowHeight / 2, overlayHeight);
-          const currentScrollY = window.scrollY;
-          const cursorAbsoluteY = cursorCoords.top + currentScrollY;
-          const newScrollY = cursorAbsoluteY - targetCursorY;
+          const targetCursorY = Math.max(windowHeight / 2, overlayHeight)
+          const currentScrollY = window.scrollY
+          const cursorAbsoluteY = cursorCoords.top + currentScrollY
+          const newScrollY = cursorAbsoluteY - targetCursorY
 
           window.scrollTo({
             top: Math.max(0, newScrollY),
             behavior: "smooth",
-          });
+          })
         }
       }
-    };
+    }
 
-    ensureCursorVisibility();
-  }, [editor, overlayHeight, windowHeight, rect.height]);
+    ensureCursorVisibility()
+  }, [editor, overlayHeight, windowHeight, rect.height])
 
-  return rect;
+  return rect
 }

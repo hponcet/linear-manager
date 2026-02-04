@@ -1,12 +1,12 @@
 type SendIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-  color?: string;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+  color?: string
+}
 
 export function SendIcon(props: SendIconProps) {
-  const { style, className, size = 16, color = "currentColor" } = props;
+  const { style, className, size = 16, color = "currentColor" } = props
 
   return (
     <svg
@@ -26,5 +26,5 @@ export function SendIcon(props: SendIconProps) {
         d="M11.48 5.674a.75.75 0 1 1-.96 1.152L8.75 5.351v6.899a.75.75 0 0 1-1.5 0V5.351L5.48 6.826a.75.75 0 0 1-.96-1.152l3-2.5a.75.75 0 0 1 .96 0l3 2.5Z"
       ></path>
     </svg>
-  );
+  )
 }

@@ -1,75 +1,68 @@
-import { Issue } from "@linear/sdk";
-import { useEffect } from "react";
-import { Ref } from "src/types/GitAPI";
-import {
-  GlobalListenerMessage,
-  Ipc,
-  IpcType,
-  VsCodeApi,
-} from "src/types/ActionMessage";
+import { Issue } from "@linear/sdk"
+import { useEffect } from "react"
+import { GlobalListenerMessage, Ipc, IpcType, VsCodeApi } from "src/types/ActionMessage"
+import { Ref } from "src/types/GitAPI"
 
-// @ts-expect-error
+// @ts-expect-error no-undef
 const acquireVsCodeApi = (window.acquireVsCodeApi ||
   (() => ({
-    postMessage: () => {},
-  }))) as () => VsCodeApi;
+    postMessage: () => undefined,
+  }))) as () => VsCodeApi
 
-const VsCodeApi = acquireVsCodeApi();
+const VsCodeApi = acquireVsCodeApi()
 
 const vscApi = {
   postMessage<T extends IpcType<"req">>(
     msg: { type: T } & Ipc<"req", T>,
   ): Promise<Ipc<"res", T>["payload"]> {
-    const resKey = Math.random().toString(36).substring(2, 15);
-    VsCodeApi.postMessage({ ...msg, resKey });
+    const resKey = Math.random().toString(36).substring(2, 15)
+    VsCodeApi.postMessage({ ...msg, resKey })
     return new Promise((resolve, reject) => {
       function handleMessage(e: MessageEvent<Ipc<"res">>) {
         const timeout = setTimeout(() => {
-          reject(new Error("Timeout waiting for response"));
-          window.removeEventListener("message", handleMessage);
-        }, 30000);
+          reject(new Error("Timeout waiting for response"))
+          window.removeEventListener("message", handleMessage)
+        }, 30000)
 
-        const { type, payload } = e.data;
+        const { type, payload } = e.data
 
         if (type === `${msg.type}_response` && e.data.resKey === resKey) {
-          clearTimeout(timeout);
-          resolve(payload);
-          window.removeEventListener("message", handleMessage);
+          clearTimeout(timeout)
+          resolve(payload)
+          window.removeEventListener("message", handleMessage)
         }
 
         if (type === `${msg.type}_error` && e.data.resKey === resKey) {
-          clearTimeout(timeout);
-          reject(new Error(payload));
-          window.removeEventListener("message", handleMessage);
+          clearTimeout(timeout)
+          reject(new Error(payload))
+          window.removeEventListener("message", handleMessage)
         }
       }
-      window.addEventListener("message", handleMessage);
-    });
+      window.addEventListener("message", handleMessage)
+    })
   },
-};
+}
 
 type RequestDataUpdateParams = {
-  updateIssue?: (updatedAt?: number) => void;
-};
+  updateIssue?: (updatedAt?: number) => void
+}
 
-export function useRequestDataUpdate(
-  params?: Partial<RequestDataUpdateParams>,
-) {
-  const { updateIssue } = params || {};
+export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) {
+  const { updateIssue } = params || {}
 
   function handleGlobalMessages(e: MessageEvent<GlobalListenerMessage>) {
-    const msg = e.data;
-    if (msg.action === "updateIssue") updateIssue?.(msg.payload);
+    const msg = e.data
+    if (msg.action === "updateIssue") updateIssue?.(msg.payload)
   }
 
   useEffect(() => {
-    if (!updateIssue) return;
+    if (!updateIssue) return
 
-    window.addEventListener("message", handleGlobalMessages);
+    window.addEventListener("message", handleGlobalMessages)
     return () => {
-      window.removeEventListener("message", handleGlobalMessages);
-    };
-  }, [!!updateIssue]);
+      window.removeEventListener("message", handleGlobalMessages)
+    }
+  }, [!!updateIssue])
 
   return {
     closePanel: async () => vscApi.postMessage({ type: "closePanel" }),
@@ -78,24 +71,18 @@ export function useRequestDataUpdate(
         type: "openExternal",
         issueIdentifier,
       }),
-    openExternalUrl: (url: string) =>
-      vscApi.postMessage({ type: "openExternalUrl", url }),
-    updateIssue: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ type: "updateIssue", issueId }),
-    openIssue: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ type: "openIssue", issueId }),
-    startWork: (issueId: Issue["id"]) =>
-      vscApi.postMessage({ type: "startWork", issueId }),
-    getGitStatus: () =>
-      vscApi.postMessage({ type: "getGitStatus", key: "gitStatus" }),
+    openExternalUrl: (url: string) => vscApi.postMessage({ type: "openExternalUrl", url }),
+    updateIssue: (issueId: Issue["id"]) => vscApi.postMessage({ type: "updateIssue", issueId }),
+    openIssue: (issueId: Issue["id"]) => vscApi.postMessage({ type: "openIssue", issueId }),
+    startWork: (issueId: Issue["id"]) => vscApi.postMessage({ type: "startWork", issueId }),
+    getGitStatus: () => vscApi.postMessage({ type: "getGitStatus", key: "gitStatus" }),
     getAllBranches: () => vscApi.postMessage({ type: "getAllBranches" }),
     getCurrentBranch: () => vscApi.postMessage({ type: "getCurrentBranch" }),
     createBranch: (branchName: string, from: Ref) =>
       vscApi.postMessage({ type: "createBranch", branchName, from }),
-    hasUncommittedChanges: () =>
-      vscApi.postMessage({ type: "hasUncommittedChanges" }),
+    hasUncommittedChanges: () => vscApi.postMessage({ type: "hasUncommittedChanges" }),
     checkout: (branch: Ref) => vscApi.postMessage({ type: "checkout", branch }),
-  };
+  }
 }
 
-export { vscApi };
+export { vscApi }

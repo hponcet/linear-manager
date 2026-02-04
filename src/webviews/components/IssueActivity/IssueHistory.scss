@@ -11,7 +11,7 @@ $icon-size: 13px;
   position: relative;
   font-size: 12px;
 
-  &:last-of-type .issueHistoryIcon:after {
+  &:last-of-type .issueHistoryIcon::after {
     content: "";
     height: calc(100% - 2px);
     width: 100%;

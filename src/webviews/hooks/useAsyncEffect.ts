@@ -1,23 +1,22 @@
-import { useEffect } from "react";
+import { useEffect } from "react"
 
 export function useAsyncEffect(
   effect: () => Promise<void | (() => void)>,
-  deps: React.DependencyList = []
+  deps: React.DependencyList = [],
 ) {
   useEffect(() => {
-    let isMounted = true;
-    let cleanup: void | (() => void);
-
-    (async () => {
+    let isMounted = true
+    let cleanup: void | (() => void)
+    ;(async () => {
       if (!isMounted) {
-        return;
+        return
       }
-      cleanup = await effect();
-    })();
+      cleanup = await effect()
+    })()
 
     return () => {
-      isMounted = false;
-      cleanup?.();
-    };
-  }, deps);
+      isMounted = false
+      cleanup?.()
+    }
+  }, deps)
 }

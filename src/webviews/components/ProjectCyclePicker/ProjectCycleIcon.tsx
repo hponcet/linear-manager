@@ -1,14 +1,14 @@
-import { Cycle } from "@linear/sdk";
+import { Cycle } from "@linear/sdk"
 
 type CycleIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  cycle?: Cycle | null;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  cycle?: Cycle | null
+  size?: number
+}
 
 export function ProjectCycleIcon(props: CycleIconProps) {
-  const { style, className, cycle, size = 16 } = props;
+  const { style, className, cycle, size = 16 } = props
 
   if (!cycle) {
     return (
@@ -31,7 +31,7 @@ export function ProjectCycleIcon(props: CycleIconProps) {
           strokeDashoffset="0.818123086872342"
         ></circle>
       </svg>
-    );
+    )
   }
 
   if (cycle.isActive) {
@@ -82,7 +82,7 @@ export function ProjectCycleIcon(props: CycleIconProps) {
           d="M6.95588 5.28329L10.6901 7.43926C11.0235 7.63171 11.0235 8.11283 10.6901 8.30528L6.95588 10.4612C6.62255 10.6537 6.20588 10.4131 6.20588 10.0282L6.20588 5.71631C6.20588 5.33141 6.62255 5.09084 6.95588 5.28329Z"
         ></path>
       </svg>
-    );
+    )
   }
 
   if (cycle.isNext) {
@@ -112,7 +112,7 @@ export function ProjectCycleIcon(props: CycleIconProps) {
           d="M6.95588 5.28329L10.6901 7.43926C11.0235 7.63171 11.0235 8.11283 10.6901 8.30528L6.95588 10.4612C6.62255 10.6537 6.20588 10.4131 6.20588 10.0282L6.20588 5.71631C6.20588 5.33141 6.62255 5.09084 6.95588 5.28329Z"
         ></path>
       </svg>
-    );
+    )
   }
 
   return (
@@ -140,5 +140,5 @@ export function ProjectCycleIcon(props: CycleIconProps) {
         d="M6.95588 5.28329L10.6901 7.43926C11.0235 7.63171 11.0235 8.11283 10.6901 8.30528L6.95588 10.4612C6.62255 10.6537 6.20588 10.4131 6.20588 10.0282L6.20588 5.71631C6.20588 5.33141 6.62255 5.09084 6.95588 5.28329Z"
       ></path>
     </svg>
-  );
+  )
 }

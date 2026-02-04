@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { memo } from "react"
 
 type SvgProps = React.ComponentPropsWithoutRef<"svg"> & {
-  size?: number;
-};
+  size?: number
+}
 
 export const TrashIcon = memo(({ className, ...props }: SvgProps) => {
   return (
@@ -22,7 +22,7 @@ export const TrashIcon = memo(({ className, ...props }: SvgProps) => {
         fill="currentColor"
       />
     </svg>
-  );
-});
+  )
+})
 
-TrashIcon.displayName = "TrashIcon";
+TrashIcon.displayName = "TrashIcon"

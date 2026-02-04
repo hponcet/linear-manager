@@ -1,28 +1,30 @@
-import { useState } from "react";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Button } from "../Button/Button";
-import { Animation } from "rsuite";
-import { CaretIcon } from "../Icons/CaretIcon";
-import { InlineIssue } from "../InlineIssue/InlineIssue";
-import { PlusIcon } from "../Icons/PlusIcon";
-import { CreateSubIssue } from "./CreateSubIssue";
+import { useState } from "react"
+import { Animation } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import "./SubIssues.scss";
+import { CreateSubIssue } from "./CreateSubIssue"
+
+import { Button } from "../Button/Button"
+import { CaretIcon } from "../Icons/CaretIcon"
+import { PlusIcon } from "../Icons/PlusIcon"
+import { InlineIssue } from "../InlineIssue/InlineIssue"
+
+import "./SubIssues.scss"
 
 type SubIssuesProps = {
-  style?: React.CSSProperties;
-  className?: string;
-};
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function SubIssues(props: SubIssuesProps) {
-  const { style, className } = props;
+  const { style, className } = props
 
-  const { subIssues } = useIssueContext();
+  const { subIssues } = useIssueContext()
 
-  const [collapsed, setCollapsed] = useState(false);
-  const [createIssueCollapsed, setCreateIssueCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false)
+  const [createIssueCollapsed, setCreateIssueCollapsed] = useState(true)
 
-  const noSubIssues = !subIssues || subIssues.length === 0;
+  const noSubIssues = !subIssues || subIssues.length === 0
 
   return (
     <div className={`subIssuesContainer ${className || ""}`} style={style}>
@@ -36,9 +38,7 @@ export function SubIssues(props: SubIssuesProps) {
       >
         <Button
           onClick={() =>
-            noSubIssues
-              ? setCreateIssueCollapsed(!createIssueCollapsed)
-              : setCollapsed(!collapsed)
+            noSubIssues ? setCreateIssueCollapsed(!createIssueCollapsed) : setCollapsed(!collapsed)
           }
           disabled={noSubIssues && !createIssueCollapsed}
           className="subIssuesButton"
@@ -92,5 +92,5 @@ export function SubIssues(props: SubIssuesProps) {
         )}
       </Animation.Collapse>
     </div>
-  );
+  )
 }

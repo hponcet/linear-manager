@@ -1,3 +1,6 @@
+/* stylelint-disable selector-class-pattern */
+
+/* stylelint-disable no-descending-specificity */
 .tiptap-button {
   font-size: 0.875rem;
   font-weight: 500;
@@ -154,8 +157,9 @@
 
   /* button only has 2 icons and one of them is dropdown small */
   &:has(> svg:nth-of-type(2)):has(> .tiptap-button-dropdown-small):not(
-      :has(> svg:nth-of-type(3))
-    ):not(:has(> .tiptap-button-text)) {
+      :has(> svg:nth-of-type(3)),
+      :has(> .tiptap-button-text)
+    ) {
     gap: 0;
     padding-right: 0.25rem;
 
@@ -209,9 +213,9 @@
   }
 
   /* hover state of a button */
-  &:hover:not([data-active-item="true"]):not([disabled]),
+  &:hover:not([data-active-item="true"], [disabled]),
   &[data-active-item="true"]:not([disabled]),
-  &[data-highlighted]:not([disabled]):not([data-highlighted="false"]) {
+  &[data-highlighted]:not([disabled], [data-highlighted="false"]) {
     background-color: var(--tt-button-hover-bg-color);
     color: var(--tt-button-hover-text-color);
 

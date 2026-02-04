@@ -1,23 +1,23 @@
-import { Issue } from "@linear/sdk";
-import { useMemo, useState } from "react";
-import { Ref } from "src/types/GitAPI";
-import { IssueVscState } from "src/vscStates";
-import { Banner } from "src/webviews/components/Banner/Banner";
-import { Branch } from "src/webviews/components/BranchPicker/Branch";
-import { Button } from "src/webviews/components/Button/Button";
+import { Issue } from "@linear/sdk"
+import { useMemo, useState } from "react"
+import { Ref } from "src/types/GitAPI"
+import { IssueVscState } from "src/vscStates"
+import { Banner } from "src/webviews/components/Banner/Banner"
+import { Branch } from "src/webviews/components/BranchPicker/Branch"
+import { Button } from "src/webviews/components/Button/Button"
 
 type StartWorkBannerProps = {
-  issue: Issue;
-  repoInitialized: boolean;
-  gitInitialized: boolean;
-  fromCheckout: boolean;
-  existingBranch?: Ref | null;
-  hasUncommittedChanges: boolean;
-  matchingBranches?: Ref[];
-  issueSettings: IssueVscState[Issue["id"]];
-  updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void;
-  children: React.ReactNode;
-};
+  issue: Issue
+  repoInitialized: boolean
+  gitInitialized: boolean
+  fromCheckout: boolean
+  existingBranch?: Ref | null
+  hasUncommittedChanges: boolean
+  matchingBranches?: Ref[]
+  issueSettings: IssueVscState[Issue["id"]]
+  updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void
+  children: React.ReactNode
+}
 
 export function StartWorkBanner(props: StartWorkBannerProps) {
   const {
@@ -31,25 +31,24 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
     children,
     issueSettings,
     updateIssueSettings,
-  } = props;
+  } = props
 
-  const [askUseBranchAsDefault, setAskUseBranchAsDefault] =
-    useState(!!existingBranch);
+  const [askUseBranchAsDefault, setAskUseBranchAsDefault] = useState(!!existingBranch)
 
   const filteredMatchingBranches = useMemo(
     () =>
       matchingBranches.filter((b) => {
-        const ignoredBranches = issueSettings?.ignoredBranches || [];
-        return !ignoredBranches.includes(b.name || "");
+        const ignoredBranches = issueSettings?.ignoredBranches || []
+        return !ignoredBranches.includes(b.name || "")
       }),
     [matchingBranches, issueSettings],
-  );
+  )
 
   function setBranchAsUsed(branch: Ref) {
     updateIssueSettings({
       branch,
       branchInitialized: true,
-    });
+    })
   }
 
   function setBranchAsUnused(branch: Ref | Ref[]) {
@@ -57,42 +56,40 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
       ignoredBranches: Array.isArray(branch)
         ? [
             ...(issueSettings?.ignoredBranches || []),
-            ...branch
-              .map((b) => b.name)
-              .filter((name): name is string => !!name),
+            ...branch.map((b) => b.name).filter((name): name is string => !!name),
           ]
         : issueSettings?.ignoredBranches
           ? branch.name
             ? [...(issueSettings?.ignoredBranches || []), branch.name]
             : issueSettings?.ignoredBranches
           : undefined,
-    });
+    })
   }
 
   if (issueSettings.branchInitialized && issueSettings.branch) {
-    return children;
+    return children
   }
 
   if (!gitInitialized) {
     return (
       <div className="startWorkBannerError">
         <Banner type="error">
-          Git is not initialized in this workspace. Please initialize Git to
-          enable branch management features.
+          Git is not initialized in this workspace. Please initialize Git to enable branch
+          management features.
         </Banner>
       </div>
-    );
+    )
   }
 
   if (!repoInitialized) {
     return (
       <div className="startWorkBannerError">
         <Banner type="error">
-          No Git repository found in this workspace. Please initialize a Git
-          repository to enable branch management features.
+          No Git repository found in this workspace. Please initialize a Git repository to enable
+          branch management features.
         </Banner>
       </div>
-    );
+    )
   }
 
   if (askUseBranchAsDefault && existingBranch) {
@@ -103,8 +100,8 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
           <b>
             <Branch branch={existingBranch} inline="text" />
           </b>{" "}
-          already exists for the issue {issue.identifier}. Would you like to use
-          this branch as the default branch for this issue?
+          already exists for the issue {issue.identifier}. Would you like to use this branch as the
+          default branch for this issue?
           <div style={{ marginTop: 15, marginLeft: "auto", display: "table" }}>
             <Button
               color="var(--banner-info-text)"
@@ -113,8 +110,8 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
                 fontWeight: "bolder",
               }}
               onClick={() => {
-                setAskUseBranchAsDefault(false);
-                setBranchAsUnused(existingBranch);
+                setAskUseBranchAsDefault(false)
+                setBranchAsUnused(existingBranch)
               }}
             >
               No, create a new branch
@@ -126,8 +123,8 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
                 fontWeight: "bolder",
               }}
               onClick={() => {
-                setAskUseBranchAsDefault(false);
-                setBranchAsUsed(existingBranch);
+                setAskUseBranchAsDefault(false)
+                setBranchAsUsed(existingBranch)
               }}
             >
               Yes, use existing branch
@@ -135,18 +132,18 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
           </div>
         </Banner>
       </div>
-    );
+    )
   }
 
   if (hasUncommittedChanges) {
     return (
       <div className="startWorkBannerError">
         <Banner type="warning" style={{ marginBottom: 30 }}>
-          You have uncommitted changes in your working directory. Please commit
-          or stash your changes before starting work on this issue.
+          You have uncommitted changes in your working directory. Please commit or stash your
+          changes before starting work on this issue.
         </Banner>
       </div>
-    );
+    )
   }
 
   return (
@@ -154,17 +151,14 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
       <div className="startWorkBannerContainer">
         {fromCheckout && (
           <Banner type="info" style={{ marginBottom: 30 }}>
-            No branch found the issue {issue.identifier}. Please configure the
-            branch settings below to start working on this issue.
+            No branch found the issue {issue.identifier}. Please configure the branch settings below
+            to start working on this issue.
           </Banner>
         )}
 
         {!hasUncommittedChanges && filteredMatchingBranches.length > 0 && (
           <Banner type="warning" style={{ marginBottom: 30 }}>
-            <p>
-              We have detected several branches that are likely to originate
-              from this issue:
-            </p>
+            <p>We have detected several branches that are likely to originate from this issue:</p>
             <ul>
               {filteredMatchingBranches.map((branch) => (
                 <div
@@ -179,8 +173,8 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
                   <div style={{ marginLeft: "auto", display: "flex" }}>
                     <Button
                       onClick={() => {
-                        setAskUseBranchAsDefault(false);
-                        setBranchAsUsed(branch);
+                        setAskUseBranchAsDefault(false)
+                        setBranchAsUsed(branch)
                       }}
                       style={{ padding: "0 6px" }}
                     >
@@ -192,8 +186,8 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
             </ul>
             <Button
               onClick={() => {
-                setAskUseBranchAsDefault(false);
-                setBranchAsUnused(filteredMatchingBranches);
+                setAskUseBranchAsDefault(false)
+                setBranchAsUnused(filteredMatchingBranches)
               }}
               style={{ padding: "0 6px", display: "table", marginLeft: "auto" }}
             >
@@ -204,5 +198,5 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
       </div>
       {children}
     </>
-  );
+  )
 }

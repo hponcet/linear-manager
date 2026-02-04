@@ -1,10 +1,10 @@
 type SeparatorProps = {
-  style?: React.CSSProperties;
-  className?: string;
-};
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function Separator(props: SeparatorProps) {
-  const { style, className } = props;
+  const { style, className } = props
 
   return (
     <hr
@@ -15,5 +15,5 @@ export function Separator(props: SeparatorProps) {
       }}
       className={className || ""}
     />
-  );
+  )
 }

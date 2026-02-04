@@ -1,29 +1,31 @@
-import { useState } from "react";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Button } from "../Button/Button";
-import { Animation } from "rsuite";
-import { CaretIcon } from "../Icons/CaretIcon";
-import { Attachment } from "./Attachment";
-import { PlusIcon } from "../Icons/PlusIcon";
-import { useModalsContext } from "src/webviews/contexts/ModalsContext";
+import { useState } from "react"
+import { Animation } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useModalsContext } from "src/webviews/contexts/ModalsContext"
 
-import "./Attachments.scss";
+import { Attachment } from "./Attachment"
+
+import { Button } from "../Button/Button"
+import { CaretIcon } from "../Icons/CaretIcon"
+import { PlusIcon } from "../Icons/PlusIcon"
+
+import "./Attachments.scss"
 
 type AttachmentsProps = {
-  style?: React.CSSProperties;
-  className?: string;
-};
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function Attachments(props: AttachmentsProps) {
-  const { style, className } = props;
+  const { style, className } = props
 
-  const { attachments } = useIssueContext();
-  const { setIsCreatingAttachment } = useModalsContext();
+  const { attachments } = useIssueContext()
+  const { setIsCreatingAttachment } = useModalsContext()
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false)
 
   if (!attachments || attachments.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -37,10 +39,7 @@ export function Attachments(props: AttachmentsProps) {
             paddingBottom: 10,
           }}
         >
-          <Button
-            onClick={() => setCollapsed(!collapsed)}
-            className="attachmentsButton"
-          >
+          <Button onClick={() => setCollapsed(!collapsed)} className="attachmentsButton">
             <CaretIcon
               style={{
                 transform: collapsed ? "rotate(0deg)" : "rotate(90deg)",
@@ -79,5 +78,5 @@ export function Attachments(props: AttachmentsProps) {
         </Animation.Collapse>
       </div>
     </>
-  );
+  )
 }

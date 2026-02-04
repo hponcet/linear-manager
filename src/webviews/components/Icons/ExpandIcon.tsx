@@ -1,11 +1,11 @@
 type ExpandIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function ExpandIcon(props: ExpandIconProps) {
-  const { style, className, size = 16 } = props;
+  const { style, className, size = 16 } = props
 
   return (
     <svg
@@ -31,5 +31,5 @@ export function ExpandIcon(props: ExpandIconProps) {
         d="M7.64645 11.4392C7.84171 11.6344 8.15829 11.6344 8.35355 11.4392L10.6464 9.14629C10.8417 8.95103 11.1583 8.95103 11.3536 9.14629C11.5488 9.34156 11.5488 9.65814 11.3536 9.8534L9.06066 12.1463C8.47487 12.7321 7.52513 12.7321 6.93934 12.1463L4.64645 9.8534C4.45118 9.65814 4.45118 9.34156 4.64645 9.14629C4.84171 8.95103 5.15829 8.95103 5.35355 9.14629L7.64645 11.4392Z"
       ></path>
     </svg>
-  );
+  )
 }

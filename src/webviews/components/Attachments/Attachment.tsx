@@ -1,32 +1,33 @@
-import { Attachment as LinearAttachment } from "@linear/sdk";
-import { LinkIcon } from "../Icons/LinkIcon";
-import { Menu } from "../Menu/Menu";
-import { OpenExternalIcon } from "../Icons/OpenExternalIcon";
-import moment from "moment";
-import { EditIcon } from "../Icons/EditIcon";
-import { TrashIcon } from "../Icons/TrashIcon";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
+import { Attachment as LinearAttachment } from "@linear/sdk"
+import moment from "moment"
+import { useState } from "react"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import "./Attachment.scss";
-import { useState } from "react";
+import { EditIcon } from "../Icons/EditIcon"
+import { LinkIcon } from "../Icons/LinkIcon"
+import { OpenExternalIcon } from "../Icons/OpenExternalIcon"
+import { TrashIcon } from "../Icons/TrashIcon"
+import { Menu } from "../Menu/Menu"
+
+import "./Attachment.scss"
 
 type AttachmentProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  attachment: LinearAttachment;
-  editAttachment: () => void;
-};
+  style?: React.CSSProperties
+  className?: string
+  attachment: LinearAttachment
+  editAttachment: () => void
+}
 
 export function Attachment(props: AttachmentProps) {
-  const { style, className, attachment, editAttachment } = props;
+  const { style, className, attachment, editAttachment } = props
 
-  const { update } = useIssueContext();
+  const { update } = useIssueContext()
 
-  const [brokenIcon, setBrokenIcon] = useState(false);
+  const [brokenIcon, setBrokenIcon] = useState(false)
 
   function getIcon() {
     if (brokenIcon || !attachment.url) {
-      return <LinkIcon size={16} />;
+      return <LinkIcon size={16} />
     }
 
     return (
@@ -36,7 +37,7 @@ export function Attachment(props: AttachmentProps) {
         alt="icon"
         className="attachmentFavicon"
       />
-    );
+    )
   }
 
   return (
@@ -48,9 +49,7 @@ export function Attachment(props: AttachmentProps) {
       <div className="attachmentIcon">{getIcon()}</div>
       <div className="attachmentTitle">{attachment.title}</div>
       <div className="attachmentSubtitle">{attachment.subtitle}</div>
-      <div className="attachmentUpdatedAt">
-        {moment(attachment.createdAt).fromNow()}
-      </div>
+      <div className="attachmentUpdatedAt">{moment(attachment.createdAt).fromNow()}</div>
       <div className="attachmentActions" onClick={(e) => e.stopPropagation()}>
         <Menu
           items={[
@@ -80,5 +79,5 @@ export function Attachment(props: AttachmentProps) {
         />
       </div>
     </div>
-  );
+  )
 }

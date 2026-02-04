@@ -1,11 +1,11 @@
 type TrashIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function TrashIcon(props: TrashIconProps) {
-  const { style, className, size = 16 } = props;
+  const { style, className, size = 16 } = props
 
   return (
     <svg
@@ -27,5 +27,5 @@ export function TrashIcon(props: TrashIconProps) {
         fill="currentColor"
       />
     </svg>
-  );
+  )
 }

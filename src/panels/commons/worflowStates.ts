@@ -1,5 +1,5 @@
-import { WorkflowState } from "@linear/sdk";
-import { WorkflowStateWithStateProgress } from "src/types/Linear";
+import { WorkflowState } from "@linear/sdk"
+import { WorkflowStateWithStateProgress } from "src/types/Linear"
 
 const workflowStateTypes = [
   "backlog",
@@ -8,50 +8,46 @@ const workflowStateTypes = [
   "completed",
   "canceled",
   "triage",
-] as const;
+] as const
 
 export function filterWorkflowStatesByType(
-  workflowStates: WorkflowState[]
+  workflowStates: WorkflowState[],
 ): WorkflowStateWithStateProgress[] {
-  let stateProgress = 0;
-  let lastType = "";
+  let stateProgress = 0
+  let lastType = ""
   return workflowStates
     .sort((a, b) => a.position - b.position)
     .sort(
       (a, b) =>
-        workflowStateTypes.indexOf(
-          a.type as (typeof workflowStateTypes)[number]
-        ) -
-        workflowStateTypes.indexOf(
-          b.type as (typeof workflowStateTypes)[number]
-        )
+        workflowStateTypes.indexOf(a.type as (typeof workflowStateTypes)[number]) -
+        workflowStateTypes.indexOf(b.type as (typeof workflowStateTypes)[number]),
     )
     .map((state, index, array) => {
-      const sameTypeStates = array.filter((s) => s.type === state.type);
+      const sameTypeStates = array.filter((s) => s.type === state.type)
       if (state.type !== lastType) {
-        lastType = state.type;
-        stateProgress = 0;
+        lastType = state.type
+        stateProgress = 0
       } else {
-        stateProgress += 1;
+        stateProgress += 1
       }
       return {
         ...state,
         stateProgress,
         stateTypeLength: sameTypeStates.length,
         type: state.type as (typeof workflowStateTypes)[number],
-      };
-    });
+      }
+    })
 }
 
 export function getFirstStateOfType(
   workflowStates: WorkflowStateWithStateProgress[],
-  type: (typeof workflowStateTypes)[number]
+  type: (typeof workflowStateTypes)[number],
 ): WorkflowStateWithStateProgress | null {
   const filteredStates = workflowStates
     .filter((state) => state.type === type)
-    .sort((a, b) => a.position - b.position);
+    .sort((a, b) => a.position - b.position)
   if (filteredStates.length === 0) {
-    return null;
+    return null
   }
-  return filteredStates[0];
+  return filteredStates[0]
 }

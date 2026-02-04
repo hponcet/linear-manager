@@ -1,3 +1,6 @@
+import { IS_PRODUCTION } from "src/constants"
+import { Props, Ipc, IpcResponse, GlobalListenerMessage } from "src/types/ActionMessage"
+import { makeid } from "src/utils/makeid"
 import {
   Disposable,
   env,
@@ -10,64 +13,51 @@ import {
   WebviewPanel,
   WebviewPanelOnDidChangeViewStateEvent,
   window,
-} from "vscode";
-
-import { makeid } from "src/utils/makeid";
-import {
-  Props,
-  Ipc,
-  IpcResponse,
-  GlobalListenerMessage,
-} from "src/types/ActionMessage";
-import { IS_PRODUCTION } from "src/constants";
+} from "vscode"
 
 export type ContextMenuCommandData = {
-  action: string;
-  data: Record<string, string | boolean>;
-};
-
-export interface ReactWebview<K extends keyof Props> extends Disposable {
-  hide(): void;
-  open(...params: any[]): Promise<WebviewPanel>;
-  onDidPanelDispose(): Event<void>;
-  getProps(): Promise<Props[K]>;
-  updateWebview(issue: any): void;
-  onMessageReceived<T extends Ipc<"req">["type"]>(
-    msg: Ipc<"req", T>,
-  ): Promise<boolean>;
+  action: string
+  data: Record<string, string | boolean>
 }
 
-export abstract class AbstractWebview<
-  K extends keyof Props,
-> implements ReactWebview<K> {
-  private static readonly viewType = "webview";
+export interface ReactWebview<K extends keyof Props> extends Disposable {
+  hide(): void
+  open(...params: any[]): Promise<WebviewPanel>
+  onDidPanelDispose(): Event<void>
+  getProps(): Promise<Props[K]>
+  updateWebview(issue: any): void
+  onMessageReceived<T extends Ipc<"req">["type"]>(msg: Ipc<"req", T>): Promise<boolean>
+}
 
-  private _visible: boolean = false;
+export abstract class AbstractWebview<K extends keyof Props> implements ReactWebview<K> {
+  private static readonly viewType = "webview"
 
-  private _disposablePanel: Disposable | undefined;
-  protected _panel: WebviewPanel | undefined;
-  protected _context: ExtensionContext;
-  private _onDidPanelDispose = new EventEmitter<void>();
+  private _visible: boolean = false
 
-  protected _propsSent: boolean = false;
-  protected _storage: Memento;
+  private _disposablePanel: Disposable | undefined
+  protected _panel: WebviewPanel | undefined
+  protected _context: ExtensionContext
+  private _onDidPanelDispose = new EventEmitter<void>()
 
-  abstract get title(): string;
-  abstract get viewId(): string;
-  abstract getProps(): Promise<Props[K]>;
-  abstract open(...params: any[]): Promise<WebviewPanel>;
-  abstract onVisibilityChange(visible: boolean): void;
-  abstract updateWebview(issue: any): void;
+  protected _propsSent: boolean = false
+  protected _storage: Memento
+
+  abstract get title(): string
+  abstract get viewId(): string
+  abstract getProps(): Promise<Props[K]>
+  abstract open(...params: any[]): Promise<WebviewPanel>
+  abstract onVisibilityChange(visible: boolean): void
+  abstract updateWebview(issue: any): void
 
   constructor(context: ExtensionContext) {
-    this._context = context;
-    this._storage = context.globalState;
+    this._context = context
+    this._storage = context.globalState
   }
 
   public async createOrShow(column?: ViewColumn) {
     if (this._panel) {
-      this._panel.reveal(ViewColumn.One);
-      return this._panel;
+      this._panel.reveal(ViewColumn.One)
+      return this._panel
     }
 
     this._panel = window.createWebviewPanel(
@@ -82,61 +72,52 @@ export abstract class AbstractWebview<
           Uri.joinPath(this._context.extensionUri, "resources"),
         ],
       },
-    );
+    )
 
-    this.getWebviewContent(this._panel);
+    this.getWebviewContent(this._panel)
 
-    this._setTitle();
+    this._setTitle()
 
     this._disposablePanel = Disposable.from(
       this._panel,
       this._panel.onDidDispose(this.onPanelDisposed, this),
       this._panel.onDidChangeViewState(this.onViewStateChanged, this),
-    );
+    )
 
     this._panel.webview.onDidReceiveMessage(
       this.onMessageReceived,
       this,
       this._context.subscriptions,
-    );
+    )
 
-    return this._panel;
+    return this._panel
   }
 
   protected _setTitle() {
     if (!this._panel || !this.title) {
-      return;
+      return
     }
-    this._panel.title =
-      this.title.length > 30 ? this.title.substring(0, 30) + "..." : this.title;
+    this._panel.title = this.title.length > 30 ? this.title.substring(0, 30) + "..." : this.title
   }
 
   private getWebviewContent(panel: WebviewPanel) {
     const scriptSrc = panel.webview.asWebviewUri(
       Uri.joinPath(this._context.extensionUri, "dist", "main.js"),
-    );
+    )
 
     const styleSrc = panel.webview.asWebviewUri(
       Uri.joinPath(this._context.extensionUri, "dist", "main.css"),
-    );
+    )
 
     const font = panel.webview.asWebviewUri(
-      Uri.joinPath(
-        this._context.extensionUri,
-        "resources",
-        "Inter-VariableFont.ttf",
-      ),
-    );
+      Uri.joinPath(this._context.extensionUri, "resources", "Inter-VariableFont.ttf"),
+    )
 
     const fontItalic = panel.webview.asWebviewUri(
-      Uri.joinPath(
-        this._context.extensionUri,
-        "resources",
-        "Inter-Italic-VariableFont.ttf",
-      ),
-    );
+      Uri.joinPath(this._context.extensionUri, "resources", "Inter-Italic-VariableFont.ttf"),
+    )
 
-    const nonce = makeid(16);
+    const nonce = makeid(16)
 
     panel.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -177,10 +158,7 @@ export abstract class AbstractWebview<
             font-display: swap;
           }
         </style>
-        <base href="${Uri.joinPath(
-          this._context.extensionUri,
-          "resources",
-        ).toString()}/" />
+        <base href="${Uri.joinPath(this._context.extensionUri, "resources").toString()}/" />
       </head>
       <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -188,46 +166,46 @@ export abstract class AbstractWebview<
         <script src="${scriptSrc}" nonce="${nonce}"></script>
       </body>
     </html>
-    `;
+    `
   }
 
   onDidPanelDispose(): Event<void> {
-    return this._onDidPanelDispose.event;
+    return this._onDidPanelDispose.event
   }
 
   private onViewStateChanged(e: WebviewPanelOnDidChangeViewStateEvent) {
     if (e.webviewPanel.visible) {
-      this._visible = true;
+      this._visible = true
     } else {
-      this._visible = false;
+      this._visible = false
     }
-    this.onVisibilityChange(this._visible);
+    this.onVisibilityChange(this._visible)
   }
 
   protected onPanelDisposed() {
     if (this._disposablePanel) {
-      this._disposablePanel.dispose();
+      this._disposablePanel.dispose()
     }
-    this._panel = undefined;
-    this._onDidPanelDispose.fire();
+    this._panel = undefined
+    this._onDidPanelDispose.fire()
   }
 
   get visible() {
-    return this._panel === undefined ? false : this._visible;
+    return this._panel === undefined ? false : this._visible
   }
 
   hide() {
     if (this._panel !== undefined) {
-      this._panel.dispose();
+      this._panel.dispose()
     }
   }
 
   public dispose() {
     if (this._disposablePanel) {
-      this._disposablePanel.dispose();
+      this._disposablePanel.dispose()
     }
 
-    this._onDidPanelDispose.dispose();
+    this._onDidPanelDispose.dispose()
   }
 
   public postListenerMessage<T extends GlobalListenerMessage["action"]>(
@@ -235,22 +213,19 @@ export abstract class AbstractWebview<
     payload: Extract<GlobalListenerMessage, { action: T }>["payload"],
   ): void {
     if (this._panel === undefined) {
-      return;
+      return
     }
-    this._panel!.webview.postMessage({ action, payload });
+    this._panel!.webview.postMessage({ action, payload })
   }
 
-  public postMessage<
-    T extends Ipc<"req">["type"],
-    E extends true | void = void,
-  >(
+  public postMessage<T extends Ipc<"req">["type"], E extends true | void = void>(
     type: T,
     payload: E extends true ? string : IpcResponse<T>["payload"],
     msg: Ipc<"req", T>,
     error?: boolean,
   ): Thenable<boolean> {
     if (this._panel === undefined) {
-      return Promise.resolve(false);
+      return Promise.resolve(false)
     }
 
     if (error) {
@@ -258,48 +233,46 @@ export abstract class AbstractWebview<
         type: `${type}_error`,
         error: payload,
         resKey: msg.resKey,
-      });
+      })
     }
 
     return this._panel!.webview.postMessage({
       type: `${type}_response`,
       payload,
       resKey: msg.resKey,
-    });
+    })
   }
 
-  async onMessageReceived<T extends Ipc<"req">["type"]>(
-    msg: Ipc<"req", T>,
-  ): Promise<boolean> {
+  async onMessageReceived<T extends Ipc<"req">["type"]>(msg: Ipc<"req", T>): Promise<boolean> {
     try {
       switch (msg.type) {
         case "closePanel": {
-          this.dispose();
-          return this.postMessage(msg.type, undefined, msg);
+          this.dispose()
+          return this.postMessage(msg.type, undefined, msg)
         }
         case "props": {
-          this._propsSent = true;
-          return this.postMessage(msg.type, await this.getProps(), msg);
+          this._propsSent = true
+          return this.postMessage(msg.type, await this.getProps(), msg)
         }
         case "openExternalUrl": {
-          const url = (msg as Ipc<"req", "openExternalUrl">).url;
-          await env.openExternal(Uri.parse(url));
-          return this.postMessage(msg.type, undefined, msg);
+          const url = (msg as Ipc<"req", "openExternalUrl">).url
+          await env.openExternal(Uri.parse(url))
+          return this.postMessage(msg.type, undefined, msg)
         }
         case "getState": {
-          const key = msg.key;
-          const value = this._context.globalState.get(key);
-          return this.postMessage(msg.type, { key, value }, msg);
+          const key = msg.key
+          const value = this._context.globalState.get(key)
+          return this.postMessage(msg.type, { key, value }, msg)
         }
         case "setState": {
-          const { key, value, timestamp } = msg;
-          await this._context.globalState.update(key, value);
+          const { key, value, timestamp } = msg
+          await this._context.globalState.update(key, value)
 
-          this.postListenerMessage("stateUpdate", { value, timestamp, key });
-          return this.postMessage(msg.type, undefined, msg);
+          this.postListenerMessage("stateUpdate", { value, timestamp, key })
+          return this.postMessage(msg.type, undefined, msg)
         }
         default:
-          return false;
+          return false
       }
     } catch (error) {
       return this.postMessage(
@@ -307,7 +280,7 @@ export abstract class AbstractWebview<
         error.message || String(error) || "Unknown error",
         msg,
         true,
-      );
+      )
     }
   }
 }

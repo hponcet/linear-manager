@@ -1,37 +1,34 @@
-import { Attachment, Issue } from "@linear/sdk";
-import { Button, Input, Modal } from "rsuite";
-import { LinkIcon } from "../Icons/LinkIcon";
-import { useEffect, useState } from "react";
+import { Attachment, Issue } from "@linear/sdk"
+import { useEffect, useState } from "react"
+import { Button, Input, Modal } from "rsuite"
+
+import { LinkIcon } from "../Icons/LinkIcon"
 
 type AttachmentCreationModalProps = {
-  issue: Issue;
-  attachmentId?: Attachment["id"];
-  title?: string;
-  url?: string;
-  open?: boolean;
-  onClose: () => void;
-  onChange: (data: {
-    attachmentId: string;
-    title: string;
-    url: string;
-  }) => void;
-};
+  issue: Issue
+  attachmentId?: Attachment["id"]
+  title?: string
+  url?: string
+  open?: boolean
+  onClose: () => void
+  onChange: (data: { attachmentId: string; title: string; url: string }) => void
+}
 
 export function AttachmentCreationModal(props: AttachmentCreationModalProps) {
-  const { attachmentId, issue, title, url, open, onClose, onChange } = props;
+  const { attachmentId, issue, title, url, open, onClose, onChange } = props
 
-  const [titleValue, setTitleValue] = useState(title || "");
-  const [urlValue, setUrlValue] = useState(url || "");
+  const [titleValue, setTitleValue] = useState(title || "")
+  const [urlValue, setUrlValue] = useState(url || "")
 
   useEffect(() => {
     if (open) {
-      setTitleValue(title || "");
-      setUrlValue(url || "");
+      setTitleValue(title || "")
+      setUrlValue(url || "")
     } else {
-      setTitleValue("");
-      setUrlValue("");
+      setTitleValue("")
+      setUrlValue("")
     }
-  }, [title, url, open]);
+  }, [title, url, open])
 
   return (
     <Modal open={open} onClose={onClose} size="sm" backdrop="static">
@@ -98,13 +95,13 @@ export function AttachmentCreationModal(props: AttachmentCreationModalProps) {
               attachmentId: attachmentId || "",
               title: titleValue || "",
               url: urlValue || "",
-            });
-            onClose();
+            })
+            onClose()
           }}
         >
           {attachmentId ? "Update Link" : "Add Link"}
         </Button>
       </Modal.Footer>
     </Modal>
-  );
+  )
 }

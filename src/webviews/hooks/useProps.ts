@@ -1,22 +1,19 @@
-import { useEffect, useState } from "react";
-import { Props } from "src/types/ActionMessage";
-import { vscApi } from "./useRequestDataUpdate";
+import { useEffect, useState } from "react"
+import { Props } from "src/types/ActionMessage"
 
-export function useProps<k extends keyof Props>(
-  defaults?: Partial<Props[k]>,
-): [Props[k], boolean] {
-  const [loaded, setLoaded] = useState(false);
+import { vscApi } from "./useRequestDataUpdate"
 
-  const [props, setProps] = useState<Props[k]>(
-    (defaults as Props[k]) || ({} as Props[k]),
-  );
+export function useProps<k extends keyof Props>(defaults?: Partial<Props[k]>): [Props[k], boolean] {
+  const [loaded, setLoaded] = useState(false)
+
+  const [props, setProps] = useState<Props[k]>((defaults as Props[k]) || ({} as Props[k]))
 
   useEffect(() => {
     vscApi.postMessage({ type: "props" }).then((props) => {
-      setProps(props);
-      setLoaded(true);
-    });
-  }, []);
+      setProps(props)
+      setLoaded(true)
+    })
+  }, [])
 
-  return [props, loaded];
+  return [props, loaded]
 }

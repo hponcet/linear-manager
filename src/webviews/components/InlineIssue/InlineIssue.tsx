@@ -1,33 +1,32 @@
-import { Issue } from "@linear/sdk";
+import { Issue } from "@linear/sdk"
+import { useDialog } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import { WorkflowStatePicker } from "../WorklfowStatePicker/WorkflowStatePicker";
-import { AssigneePicker } from "../Assignee/AssigneePicker";
-import { ProjectCyclePicker } from "../ProjectCyclePicker/ProjectCyclePicker";
-import { IssueProjectPicker } from "../ProjectPicker/ProjectPicker";
-import { PriorityPicker } from "../PriorityPicker/PriorityPicker";
-import { EstimatePicker } from "../EstimatePicker/EstimatePicker";
+import { AssigneePicker } from "../Assignee/AssigneePicker"
+import { EstimatePicker } from "../EstimatePicker/EstimatePicker"
+import { LinkIcon } from "../Icons/LinkIcon"
+import { OpenExternalIcon } from "../Icons/OpenExternalIcon"
+import { TrashIcon } from "../Icons/TrashIcon"
+import { Menu } from "../Menu/Menu"
+import { PriorityPicker } from "../PriorityPicker/PriorityPicker"
+import { ProjectCyclePicker } from "../ProjectCyclePicker/ProjectCyclePicker"
+import { IssueProjectPicker } from "../ProjectPicker/ProjectPicker"
+import { WorkflowStatePicker } from "../WorklfowStatePicker/WorkflowStatePicker"
 
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-
-import "./InlineIssue.scss";
-import { Menu } from "../Menu/Menu";
-import { OpenExternalIcon } from "../Icons/OpenExternalIcon";
-import { LinkIcon } from "../Icons/LinkIcon";
-import { useDialog } from "rsuite";
-import { TrashIcon } from "../Icons/TrashIcon";
+import "./InlineIssue.scss"
 
 export type InlineIssueProps = {
-  issue: Issue;
-  className?: string;
-  style?: React.CSSProperties;
-};
+  issue: Issue
+  className?: string
+  style?: React.CSSProperties
+}
 
 export function InlineIssue(props: InlineIssueProps) {
-  const { issue, className, style } = props;
+  const { issue, className, style } = props
 
-  const { update } = useIssueContext();
+  const { update } = useIssueContext()
 
-  const dialog = useDialog();
+  const dialog = useDialog()
 
   return (
     <div className={`inlineIssueContainer ${className || ""}`} style={style}>
@@ -110,9 +109,9 @@ export function InlineIssue(props: InlineIssueProps) {
                     okText: "Delete",
                     severity: "error",
                   },
-                );
+                )
                 if (shouldDeleteIssue) {
-                  await update.subIssues.deleteSubIssue(issue.id);
+                  await update.subIssues.deleteSubIssue(issue.id)
                 }
               },
             },
@@ -120,5 +119,5 @@ export function InlineIssue(props: InlineIssueProps) {
         />
       </div>
     </div>
-  );
+  )
 }

@@ -8,99 +8,87 @@ import {
   PaginationOrderBy,
   Project,
   User,
-} from "@linear/sdk";
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
-import { useLinearClient } from "../hooks/useLinearClient";
-import { useAsyncEffect } from "../hooks/useAsyncEffect";
-import { Container } from "../components/Container/Container";
-import { useAsyncMemo } from "../hooks/useAsyncMemo";
-import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates";
-import { WorkflowStateWithStateProgress } from "src/types/Linear";
+} from "@linear/sdk"
+import { createContext, ReactNode, useContext, useMemo, useState } from "react"
+import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
+import { WorkflowStateWithStateProgress } from "src/types/Linear"
+
+import { Container } from "../components/Container/Container"
+import { useAsyncEffect } from "../hooks/useAsyncEffect"
+import { useAsyncMemo } from "../hooks/useAsyncMemo"
+import { useIssueHistory } from "../hooks/useIssueHistory"
+import { useLinearClient } from "../hooks/useLinearClient"
+import { useRequestDataUpdate } from "../hooks/useRequestDataUpdate"
+import { Comment, orderComments } from "../utils/comments"
+import { History } from "../utils/history"
 import {
   createEstimateDataItems,
   EstimateDataItem,
   issueEstimationByType,
-} from "../utils/issueEstimateByType";
-import { Comment, orderComments } from "../utils/comments";
-import { History } from "../utils/history";
-import { useRequestDataUpdate } from "../hooks/useRequestDataUpdate";
-import { useIssueHistory } from "../hooks/useIssueHistory";
+} from "../utils/issueEstimateByType"
 
 type IssueContextProviderProps = {
-  issueId: string;
-  linearAccessToken: string;
-  isLoading?: boolean;
-  children: ReactNode;
-};
+  issueId: string
+  linearAccessToken: string
+  isLoading?: boolean
+  children: ReactNode
+}
 
 export type IssueContextValueData = {
-  me: User | null;
-  meLoading: boolean;
-  issue: Issue;
+  me: User | null
+  meLoading: boolean
+  issue: Issue
   update: {
-    issue: (
-      issueId: string,
-      issue: Parameters<LinearClient["updateIssue"]>[1],
-    ) => Promise<void>;
+    issue: (issueId: string, issue: Parameters<LinearClient["updateIssue"]>[1]) => Promise<void>
     comments: {
-      addComment: (body: string) => Promise<void>;
-      updateComment: (commentId: string, body: string) => Promise<void>;
-      deleteComment: (commentId: string) => Promise<void>;
-      sendCommentReply: (commentId: string, body: string) => Promise<void>;
-      resolveComment: (
-        commentId: string,
-        parentCommentId?: string,
-      ) => Promise<void>;
-      unresolveComment: (commentId: string) => Promise<void>;
-    };
+      addComment: (body: string) => Promise<void>
+      updateComment: (commentId: string, body: string) => Promise<void>
+      deleteComment: (commentId: string) => Promise<void>
+      sendCommentReply: (commentId: string, body: string) => Promise<void>
+      resolveComment: (commentId: string, parentCommentId?: string) => Promise<void>
+      unresolveComment: (commentId: string) => Promise<void>
+    }
     reactions: {
-      addReaction: (
-        reaction: Parameters<LinearClient["createReaction"]>[0],
-      ) => Promise<void>;
-      removeReaction: (id: string) => Promise<void>;
-    };
-    panelActions: ReturnType<typeof useRequestDataUpdate>;
+      addReaction: (reaction: Parameters<LinearClient["createReaction"]>[0]) => Promise<void>
+      removeReaction: (id: string) => Promise<void>
+    }
+    panelActions: ReturnType<typeof useRequestDataUpdate>
     attachments: {
-      delete: (attachmentId: string) => Promise<void>;
-      create: (issueId: string, url: string, title?: string) => Promise<void>;
-      update: (
-        attachmentId: string,
-        issueId: string,
-        url: string,
-        title?: string,
-      ) => Promise<void>;
-    };
+      delete: (attachmentId: string) => Promise<void>
+      create: (issueId: string, url: string, title?: string) => Promise<void>
+      update: (attachmentId: string, issueId: string, url: string, title?: string) => Promise<void>
+    }
     subIssues: {
       createSubIssue: (
         parentId: Issue["id"],
         fields: Parameters<LinearClient["updateIssue"]>[1],
-      ) => Promise<void>;
-      deleteSubIssue: (issueId: Issue["id"]) => Promise<void>;
-    };
-  };
-  priorities: IssuePriorityValue[];
-  prioritiesLoading: boolean;
-  issueLabels: IssueLabel[];
-  issueLabelsLoading: boolean;
-  projects: Project[];
-  projectsLoading: boolean;
-  cycles: Cycle[];
-  cyclesLoading: boolean;
-  workflowStates: WorkflowStateWithStateProgress[];
-  workflowStatesLoading: boolean;
-  users: User[];
-  usersLoading: boolean;
-  issueEstimations: EstimateDataItem[] | null;
-  issueEstimationsLoading: boolean;
-  comments: Comment[] | null;
-  commentsLoading: boolean;
-  history: History[] | null;
-  historyLoading: boolean;
-  subIssues: Issue[] | null;
-  subIssuesLoading: boolean;
-  attachments: Attachment[] | null;
-  attachmentsLoading: boolean;
-};
+      ) => Promise<void>
+      deleteSubIssue: (issueId: Issue["id"]) => Promise<void>
+    }
+  }
+  priorities: IssuePriorityValue[]
+  prioritiesLoading: boolean
+  issueLabels: IssueLabel[]
+  issueLabelsLoading: boolean
+  projects: Project[]
+  projectsLoading: boolean
+  cycles: Cycle[]
+  cyclesLoading: boolean
+  workflowStates: WorkflowStateWithStateProgress[]
+  workflowStatesLoading: boolean
+  users: User[]
+  usersLoading: boolean
+  issueEstimations: EstimateDataItem[] | null
+  issueEstimationsLoading: boolean
+  comments: Comment[] | null
+  commentsLoading: boolean
+  history: History[] | null
+  historyLoading: boolean
+  subIssues: Issue[] | null
+  subIssuesLoading: boolean
+  attachments: Attachment[] | null
+  attachmentsLoading: boolean
+}
 
 const IssueContextValue = createContext<IssueContextValueData>({
   me: null,
@@ -166,73 +154,68 @@ const IssueContextValue = createContext<IssueContextValueData>({
   subIssuesLoading: false,
   attachments: null,
   attachmentsLoading: false,
-});
+})
 
 export function IssueContextProvider(props: IssueContextProviderProps) {
-  const {
-    children,
-    issueId,
-    linearAccessToken,
-    isLoading: externalLoading,
-  } = props;
+  const { children, issueId, linearAccessToken, isLoading: externalLoading } = props
 
-  const linearClient = useLinearClient(linearAccessToken);
+  const linearClient = useLinearClient(linearAccessToken)
 
-  const [issue, setIssue] = useState<Issue | null>(null);
-  const [commentRefetch, setCommentRefetch] = useState(0);
-  const [historyRefetch, setHistoryRefetch] = useState(0);
-  const [subIssuesRefetch, setSubIssuesRefetch] = useState(0);
-  const [attachmentsRefetch, setIssueResourcesRefetch] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [issue, setIssue] = useState<Issue | null>(null)
+  const [commentRefetch, setCommentRefetch] = useState(0)
+  const [historyRefetch, setHistoryRefetch] = useState(0)
+  const [subIssuesRefetch, setSubIssuesRefetch] = useState(0)
+  const [attachmentsRefetch, setIssueResourcesRefetch] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   async function fetchIssue(updatedAt?: number) {
     if (updatedAt && issue && issue.updatedAt.getTime() >= updatedAt) {
-      return;
+      return
     }
 
     if (linearClient && issueId) {
-      const issue = await linearClient?.issue(issueId || "");
-      setIssue(issue || null);
+      const issue = await linearClient?.issue(issueId || "")
+      setIssue(issue || null)
     }
   }
 
   const panelActions = useRequestDataUpdate({
     updateIssue: fetchIssue,
-  });
+  })
 
   useAsyncEffect(async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await fetchIssue();
+      await fetchIssue()
     } catch (error) {
-      console.error("Failed to load issue:", error);
+      console.error("Failed to load issue:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [issueId, !!linearClient]);
+  }, [issueId, !!linearClient])
 
   async function updateIssue(
     id: string,
     updatedFields: Parameters<LinearClient["updateIssue"]>[1],
   ) {
     try {
-      const result = await linearClient?.updateIssue(id, updatedFields);
-      const updatedIssue = await result?.issue;
+      const result = await linearClient?.updateIssue(id, updatedFields)
+      const updatedIssue = await result?.issue
 
       if (result?.success) {
         if (id === issueId) {
-          setIssue(updatedIssue || null);
+          setIssue(updatedIssue || null)
         } else {
-          setSubIssuesRefetch((r) => r + 1);
-          setIssueResourcesRefetch((r) => r + 1);
+          setSubIssuesRefetch((r) => r + 1)
+          setIssueResourcesRefetch((r) => r + 1)
         }
 
         if (updatedIssue?.id) {
-          panelActions.updateIssue(updatedIssue.id);
+          panelActions.updateIssue(updatedIssue.id)
         }
       }
     } catch (error) {
-      console.error("Failed to update issue:", error);
+      console.error("Failed to update issue:", error)
     }
   }
 
@@ -240,18 +223,18 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     await linearClient?.createComment({
       issueId: issueId,
       body,
-    });
-    setCommentRefetch((r) => r + 1);
+    })
+    setCommentRefetch((r) => r + 1)
   }
 
   async function updateComment(commentId: string, body: string) {
-    await linearClient?.updateComment(commentId, { body });
-    setCommentRefetch((r) => r + 1);
+    await linearClient?.updateComment(commentId, { body })
+    setCommentRefetch((r) => r + 1)
   }
 
   async function deleteComment(commentId: string) {
-    await linearClient?.deleteComment(commentId);
-    setCommentRefetch((r) => r + 1);
+    await linearClient?.deleteComment(commentId)
+    setCommentRefetch((r) => r + 1)
   }
 
   async function sendCommentReply(commentId: string, body: string) {
@@ -259,49 +242,42 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       parentId: commentId,
       issueId: issueId,
       body,
-    });
-    setCommentRefetch((r) => r + 1);
+    })
+    setCommentRefetch((r) => r + 1)
   }
 
-  async function addReaction(
-    reaction: Parameters<LinearClient["createReaction"]>[0],
-  ) {
-    await linearClient?.createReaction(reaction);
+  async function addReaction(reaction: Parameters<LinearClient["createReaction"]>[0]) {
+    await linearClient?.createReaction(reaction)
 
     if (reaction.commentId) {
-      setCommentRefetch((r) => r + 1);
+      setCommentRefetch((r) => r + 1)
     } else {
-      fetchIssue();
+      fetchIssue()
     }
   }
 
   async function removeReaction(id: string) {
-    await linearClient?.deleteReaction(id);
-    fetchIssue();
+    await linearClient?.deleteReaction(id)
+    fetchIssue()
   }
 
-  async function resolveComment(
-    commentId: string,
-    resolvingCommentId?: string,
-  ) {
+  async function resolveComment(commentId: string, resolvingCommentId?: string) {
     await linearClient?.commentResolve(
       commentId,
-      resolvingCommentId && commentId !== resolvingCommentId
-        ? { resolvingCommentId }
-        : undefined,
-    );
-    setCommentRefetch((r) => r + 1);
+      resolvingCommentId && commentId !== resolvingCommentId ? { resolvingCommentId } : undefined,
+    )
+    setCommentRefetch((r) => r + 1)
   }
 
   async function unresolveComment(commentId: string) {
-    await linearClient?.commentUnresolve(commentId);
-    setCommentRefetch((r) => r + 1);
+    await linearClient?.commentUnresolve(commentId)
+    setCommentRefetch((r) => r + 1)
   }
 
   async function deleteAttachment(attachmentId: string) {
-    await linearClient?.deleteAttachment(attachmentId);
-    setIssueResourcesRefetch((r) => r + 1);
-    setHistoryRefetch((r) => r + 1);
+    await linearClient?.deleteAttachment(attachmentId)
+    setIssueResourcesRefetch((r) => r + 1)
+    setHistoryRefetch((r) => r + 1)
   }
 
   async function createAttachment(issueId: string, url: string, title: string) {
@@ -310,9 +286,9 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       url,
       title,
       iconUrl: `https://favicone.com/${new URL(url).hostname}?s=32`,
-    });
-    setIssueResourcesRefetch((r) => r + 1);
-    setHistoryRefetch((r) => r + 1);
+    })
+    setIssueResourcesRefetch((r) => r + 1)
+    setHistoryRefetch((r) => r + 1)
   }
 
   async function updateAttachment(
@@ -321,10 +297,10 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     url: string,
     title: string,
   ) {
-    await linearClient?.deleteAttachment(attachmentId);
-    await createAttachment(issueId, url, title);
-    setIssueResourcesRefetch((r) => r + 1);
-    setHistoryRefetch((r) => r + 1);
+    await linearClient?.deleteAttachment(attachmentId)
+    await createAttachment(issueId, url, title)
+    setIssueResourcesRefetch((r) => r + 1)
+    setHistoryRefetch((r) => r + 1)
   }
 
   async function createSubIssue(
@@ -335,132 +311,127 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       ...fields,
       parentId,
       teamId: issue!.teamId!,
-    });
-    setSubIssuesRefetch((r) => r + 1);
+    })
+    setSubIssuesRefetch((r) => r + 1)
   }
 
   async function deleteSubIssue(issueId: Issue["id"]) {
-    await linearClient?.deleteIssue(issueId);
-    setSubIssuesRefetch((r) => r + 1);
+    await linearClient?.deleteIssue(issueId)
+    setSubIssuesRefetch((r) => r + 1)
   }
 
   const [me, meLoading] = useAsyncMemo(async () => {
-    const me = await linearClient?.viewer;
-    return me || null;
-  }, [!!linearClient]);
+    const me = await linearClient?.viewer
+    return me || null
+  }, [!!linearClient])
 
   const [priorities = [], prioritiesLoading] = useAsyncMemo(async () => {
-    const priorities = await linearClient?.issuePriorityValues;
-    return priorities || [];
-  }, [!!linearClient]);
+    const priorities = await linearClient?.issuePriorityValues
+    return priorities || []
+  }, [!!linearClient])
 
   const [issueLabels, issueLabelsLoading] = useAsyncMemo(async () => {
-    if (!issue?.teamId) return [];
+    if (!issue?.teamId) return []
     const labels = await linearClient?.issueLabels({
       filter: {
         team: {
           or: [{ id: { eq: issue?.teamId } }, { null: true }],
         },
       },
-    });
+    })
     while (labels?.pageInfo.hasPreviousPage) {
-      await labels.fetchPrevious();
+      await labels.fetchPrevious()
     }
-    return labels?.nodes || [];
-  }, [!!linearClient, issue?.id]);
+    return labels?.nodes || []
+  }, [!!linearClient, issue?.id])
 
   const [projects = [], projectsLoading] = useAsyncMemo(async () => {
-    if (!issue?.teamId) return [];
+    if (!issue?.teamId) return []
     const projects = await linearClient?.projects({
       filter: { accessibleTeams: { id: { eq: issue.teamId } } },
-    });
+    })
     while (projects?.pageInfo.hasPreviousPage) {
-      await projects.fetchPrevious();
+      await projects.fetchPrevious()
     }
-    return projects?.nodes || [];
-  }, [!!linearClient, issue?.id]);
+    return projects?.nodes || []
+  }, [!!linearClient, issue?.id])
 
   const [cycles = [], cyclesLoading] = useAsyncMemo(async () => {
-    if (!issue?.teamId) return [];
+    if (!issue?.teamId) return []
     const cycles = await linearClient?.cycles({
       filter: { team: { id: { eq: issue.teamId } } },
-    });
+    })
     while (cycles?.pageInfo.hasPreviousPage) {
-      await cycles.fetchPrevious();
+      await cycles.fetchPrevious()
     }
-    return cycles?.nodes || [];
-  }, [!!linearClient, issue?.id]);
+    return cycles?.nodes || []
+  }, [!!linearClient, issue?.id])
 
-  const [issueEstimations, issueEstimationsLoading] =
-    useAsyncMemo(async (): Promise<EstimateDataItem[] | null> => {
-      if (!issue?.teamId) return null;
-      const team = await linearClient?.team(issue.teamId);
-      if (
-        !team?.issueEstimationType ||
-        team.issueEstimationType === "notUsed"
-      ) {
-        return null;
-      }
-      return createEstimateDataItems(
-        team?.issueEstimationType as keyof typeof issueEstimationByType,
-      );
-    }, [!!linearClient, issue?.id]);
+  const [issueEstimations, issueEstimationsLoading] = useAsyncMemo(async (): Promise<
+    EstimateDataItem[] | null
+  > => {
+    if (!issue?.teamId) return null
+    const team = await linearClient?.team(issue.teamId)
+    if (!team?.issueEstimationType || team.issueEstimationType === "notUsed") {
+      return null
+    }
+    return createEstimateDataItems(team?.issueEstimationType as keyof typeof issueEstimationByType)
+  }, [!!linearClient, issue?.id])
 
-  const [workflowStates = [], workflowStatesLoading] =
-    useAsyncMemo(async () => {
-      if (!issue?.teamId) return [];
-      const workflowStates = await linearClient?.workflowStates({
-        filter: { team: { id: { eq: issue.teamId } } },
-      });
-      while (workflowStates?.pageInfo.hasPreviousPage) {
-        await workflowStates.fetchPrevious();
-      }
-      return filterWorkflowStatesByType(workflowStates?.nodes || []);
-    }, [!!linearClient, issue?.id]);
+  const [workflowStates = [], workflowStatesLoading] = useAsyncMemo(async () => {
+    if (!issue?.teamId) return []
+    const workflowStates = await linearClient?.workflowStates({
+      filter: { team: { id: { eq: issue.teamId } } },
+    })
+    while (workflowStates?.pageInfo.hasPreviousPage) {
+      await workflowStates.fetchPrevious()
+    }
+    return filterWorkflowStatesByType(workflowStates?.nodes || [])
+  }, [!!linearClient, issue?.id])
 
   const [users = [], usersLoading] = useAsyncMemo(async () => {
-    const users = await linearClient?.users({ last: 100 });
+    const users = await linearClient?.users({ last: 100 })
     while (users?.pageInfo.hasPreviousPage) {
-      await users.fetchPrevious();
+      await users.fetchPrevious()
     }
-    return users?.nodes || [];
-  }, [!!linearClient]);
+    return users?.nodes || []
+  }, [!!linearClient])
 
   const [comments, commentsLoading] = useAsyncMemo(async () => {
-    if (!issue) return [];
+    if (!issue) return []
     const comments = await linearClient?.comments({
       filter: { issue: { id: { eq: issue.id } } },
       orderBy: PaginationOrderBy.CreatedAt,
-    });
+    })
     while (comments?.pageInfo.hasPreviousPage) {
-      await comments.fetchPrevious();
+      await comments.fetchPrevious()
     }
-    return orderComments(comments?.nodes || []);
-  }, [!!linearClient, issue?.updatedAt.getTime(), commentRefetch]);
+    return orderComments(comments?.nodes || [])
+  }, [!!linearClient, issue?.updatedAt.getTime(), commentRefetch])
 
   const [history, historyLoading] = useIssueHistory({
     issue,
     users,
     historyRefetch,
-  });
+  })
 
   const [subIssues, subIssuesLoading] = useAsyncMemo(async () => {
-    if (!issue) return [];
-    const subIssues = await issue?.children({ last: 100 });
+    if (!issue) return []
+    const subIssues = await issue?.children({ last: 100 })
     while (subIssues?.pageInfo.hasPreviousPage) {
-      await subIssues.fetchPrevious();
+      await subIssues.fetchPrevious()
     }
-    return subIssues?.nodes || [];
-  }, [issue?.updatedAt.getTime(), subIssuesRefetch]);
+    return subIssues?.nodes || []
+  }, [issue?.updatedAt.getTime(), subIssuesRefetch])
 
   const [attachments, attachmentsLoading] = useAsyncMemo(async () => {
-    if (!issue) return [];
-    const attachments = await issue?.attachments({ last: 100 });
+    if (!issue) return []
+    const attachments = await issue?.attachments({ last: 100 })
     while (attachments?.pageInfo.hasPreviousPage) {
-      await attachments.fetchPrevious();
+      await attachments.fetchPrevious()
     }
-    return attachments?.nodes || [];
-  }, [issue?.updatedAt.getTime(), attachmentsRefetch]);
+    return attachments?.nodes || []
+  }, [issue?.updatedAt.getTime(), attachmentsRefetch])
 
   const context = useMemo(
     (): IssueContextValueData => ({
@@ -542,19 +513,15 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       attachments,
       attachmentsLoading,
     ],
-  );
+  )
 
   if (!issue || !linearClient || isLoading || externalLoading) {
-    return <Container loading={true} />;
+    return <Container loading={true} />
   }
 
-  return (
-    <IssueContextValue.Provider value={context}>
-      {children}
-    </IssueContextValue.Provider>
-  );
+  return <IssueContextValue.Provider value={context}>{children}</IssueContextValue.Provider>
 }
 
 export function useIssueContext() {
-  return useContext(IssueContextValue);
+  return useContext(IssueContextValue)
 }

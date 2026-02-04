@@ -1,5 +1,6 @@
-import path from "path";
-import { ExtensionContext, Uri } from "vscode";
+import path from "path"
+
+import { ExtensionContext, Uri } from "vscode"
 
 export enum Icons {
   issue = "issue",
@@ -28,97 +29,91 @@ export enum Icons {
 }
 
 export class Resources {
-  public icons = new Map<string, Uri>();
+  public icons = new Map<string, Uri>()
 
   constructor(context: ExtensionContext) {
-    const imagesPath = path.join("resources", "images");
-    const statuesPath = path.join(imagesPath, "statues");
+    const imagesPath = path.join("resources", "images")
+    const statuesPath = path.join(imagesPath, "statues")
 
     this.icons.set(
       Icons.issue,
       Uri.file(context.asAbsolutePath(path.join(imagesPath, "issue.png"))),
-    );
+    )
     this.icons.set(
       Icons.issue,
       Uri.file(context.asAbsolutePath(path.join(imagesPath, "issue_dark.png"))),
-    );
+    )
     this.icons.set(
       Icons.startWork,
-      Uri.file(
-        context.asAbsolutePath(path.join(imagesPath, "start-work_dark.png")),
-      ),
-    );
+      Uri.file(context.asAbsolutePath(path.join(imagesPath, "start-work_dark.png"))),
+    )
     this.icons.set(
       Icons.treeIssue,
-      Uri.file(
-        context.asAbsolutePath(path.join(imagesPath, "tree-issue_dark.png")),
-      ),
-    );
+      Uri.file(context.asAbsolutePath(path.join(imagesPath, "tree-issue_dark.png"))),
+    )
     this.icons.set(
       Icons.linear,
-      Uri.file(
-        context.asAbsolutePath(path.join(imagesPath, "linear_dark.png")),
-      ),
-    );
+      Uri.file(context.asAbsolutePath(path.join(imagesPath, "linear_dark.png"))),
+    )
 
     this.icons.set(
       Icons.canceled,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "canceled.png"))),
-    );
+    )
     this.icons.set(
       Icons.completed,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "completed.png"))),
-    );
+    )
     this.icons.set(
       Icons.unstarted,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "unstarted.png"))),
-    );
+    )
 
     this.icons.set(
       Icons.started0,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started0.png"))),
-    );
+    )
     this.icons.set(
       Icons.started1,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started1.png"))),
-    );
+    )
     this.icons.set(
       Icons.started2,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started2.png"))),
-    );
+    )
     this.icons.set(
       Icons.started3,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started3.png"))),
-    );
+    )
     this.icons.set(
       Icons.started4,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started4.png"))),
-    );
+    )
     this.icons.set(
       Icons.started5,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started5.png"))),
-    );
+    )
     this.icons.set(
       Icons.started6,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started6.png"))),
-    );
+    )
     this.icons.set(
       Icons.started7,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started7.png"))),
-    );
+    )
     this.icons.set(
       Icons.started8,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started8.png"))),
-    );
+    )
     this.icons.set(
       Icons.started9,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "started9.png"))),
-    );
+    )
 
     this.icons.set(
       Icons.triage,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "triage.png"))),
-    );
+    )
 
     // Light theme icons
     // this.icons.set(

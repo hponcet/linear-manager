@@ -1,7 +1,9 @@
+/* stylelint-disable keyframes-name-pattern */
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -11,6 +13,7 @@
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }
@@ -20,6 +23,7 @@
   from {
     transform: scale(0.95);
   }
+
   to {
     transform: scale(1);
   }
@@ -29,6 +33,7 @@
   from {
     transform: scale(1);
   }
+
   to {
     transform: scale(0.95);
   }
@@ -39,6 +44,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -49,6 +55,7 @@
   from {
     transform: translateY(-0.5rem);
   }
+
   to {
     transform: translateY(0);
   }
@@ -58,6 +65,7 @@
   from {
     transform: translateX(0.5rem);
   }
+
   to {
     transform: translateX(0);
   }
@@ -67,6 +75,7 @@
   from {
     transform: translateX(-0.5rem);
   }
+
   to {
     transform: translateX(0);
   }
@@ -76,6 +85,7 @@
   from {
     transform: translateY(0.5rem);
   }
+
   to {
     transform: translateY(0);
   }
@@ -85,6 +95,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

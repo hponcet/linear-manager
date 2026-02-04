@@ -1,25 +1,20 @@
-import { IssueHistory as LinearHistory, User } from "@linear/sdk";
-import { addKeyOnItem } from "src/utils/addKeyOnItem";
+import { IssueHistory as LinearHistory, User } from "@linear/sdk"
+import { addKeyOnItem } from "src/utils/addKeyOnItem"
 
-export type History = ReturnType<
-  typeof addKeyOnItem<LinearHistory, "history">
-> & {
-  actor: User | null;
-};
+export type History = ReturnType<typeof addKeyOnItem<LinearHistory, "history">> & {
+  actor: User | null
+}
 
-export function orderHistory(
-  allHistory: LinearHistory[],
-  users: User[]
-): History[] {
+export function orderHistory(allHistory: LinearHistory[], users: User[]): History[] {
   return allHistory.map((history) => {
-    let actor = users.find((u) => u.id === history.actorId) || null;
+    let actor = users.find((u) => u.id === history.actorId) || null
 
     if (!actor) {
       actor = {
         id: "linear-bot",
         displayName: "Linear",
         email: "Linear",
-      } as User;
+      } as User
     }
 
     return {
@@ -29,6 +24,6 @@ export function orderHistory(
       actor,
       createdAt: history.createdAt,
       updatedAt: history.updatedAt,
-    } as unknown as History;
-  });
+    } as unknown as History
+  })
 }

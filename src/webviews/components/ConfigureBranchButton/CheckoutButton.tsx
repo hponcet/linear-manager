@@ -1,20 +1,20 @@
-import { Button, ButtonProps } from "../Button/Button";
-import { Issue } from "@linear/sdk";
-import { useIssueBranches } from "src/webviews/hooks/useGitBranches";
-import { Branch } from "../BranchPicker/Branch";
-import { CheckoutIcon } from "../Icons/CheckoutIcon";
+import { Issue } from "@linear/sdk"
+import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
+
+import { Branch } from "../BranchPicker/Branch"
+import { Button, ButtonProps } from "../Button/Button"
+import { CheckoutIcon } from "../Icons/CheckoutIcon"
 
 export type CheckoutButtonProps = ButtonProps & {
-  issue: Issue;
-  size?: number;
-  inline?: "icon";
-  className?: string;
-  style?: React.CSSProperties;
-};
+  issue: Issue
+  size?: number
+  inline?: "icon"
+  className?: string
+  style?: React.CSSProperties
+}
 
 export function CheckoutButton(props: CheckoutButtonProps) {
-  const { issue, className, style, size, inline, onClick, ...buttonProps } =
-    props;
+  const { issue, className, style, size, inline, onClick, ...buttonProps } = props
 
   const {
     checkoutBranch,
@@ -26,18 +26,17 @@ export function CheckoutButton(props: CheckoutButtonProps) {
     hasUncommittedChanges,
   } = useIssueBranches({
     issueId: issue.id,
-  });
+  })
 
   async function handleClick() {
-    await checkoutBranch();
-    await onClick?.();
+    await checkoutBranch()
+    await onClick?.()
   }
 
-  const isOnIssueBranch =
-    issueBranch && currentBranch && issueBranch?.name === currentBranch?.name;
+  const isOnIssueBranch = issueBranch && currentBranch && issueBranch?.name === currentBranch?.name
 
   if (isLoading || isOnIssueBranch || !issueSettings?.branchInitialized) {
-    return null;
+    return null
   }
 
   return (
@@ -53,20 +52,14 @@ export function CheckoutButton(props: CheckoutButtonProps) {
           "You have uncommitted changes"
         ) : (
           <span>
-            <CheckoutIcon /> Checkout on branch{" "}
-            <Branch branch={issueBranch} inline="text" />
+            <CheckoutIcon /> Checkout on branch <Branch branch={issueBranch} inline="text" />
           </span>
         )
       }
-      icon={
-        <CheckoutIcon
-          size={size}
-          style={{ marginRight: inline === "icon" ? 0 : 8 }}
-        />
-      }
+      icon={<CheckoutIcon size={size} style={{ marginRight: inline === "icon" ? 0 : 8 }} />}
       {...buttonProps}
     >
       {inline === "icon" ? null : "Switch to branch"}
     </Button>
-  );
+  )
 }

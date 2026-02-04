@@ -1,42 +1,40 @@
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Comment as CommentType } from "src/webviews/utils/comments";
+import { useState } from "react"
+import { Animation } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { Comment as CommentType } from "src/webviews/utils/comments"
 
-import { Comment } from "./Comment";
+import { Comment } from "./Comment"
+import { CommentExpander } from "./CommentExpander"
 
-import { useState } from "react";
-import { Editor } from "../Editor/Editor";
-import { Button } from "../Button/Button";
-import { SendIcon } from "../Icons/SendIcon";
+import { Button } from "../Button/Button"
+import { Editor } from "../Editor/Editor"
+import { SendIcon } from "../Icons/SendIcon"
 
-import "./CommentGroup.scss";
-import { CommentExpander } from "./CommentExpander";
-import { Animation } from "rsuite";
+import "./CommentGroup.scss"
 
 type CommentGroupProps = {
-  comment: CommentType;
-};
+  comment: CommentType
+}
 
 export function CommentGroup(props: CommentGroupProps) {
-  const { comment } = props;
-  const { id, resolvingCommentId, resolvingUserId, childrenComments } = comment;
+  const { comment } = props
+  const { id, resolvingCommentId, resolvingUserId, childrenComments } = comment
 
-  const { users, update } = useIssueContext();
+  const { users, update } = useIssueContext()
 
-  const [replyValue, setReplyValue] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(
-    !resolvingCommentId && !resolvingUserId,
-  );
+  const [replyValue, setReplyValue] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(!resolvingCommentId && !resolvingUserId)
 
   function onKeyDown(e: KeyboardEvent) {
-    if (childrenComments?.length) return;
+    if (childrenComments?.length) return
 
     if (e.key === "Escape") {
-      setReplyValue(null);
+      setReplyValue(null)
     }
   }
 
-  const threadResolvedByComment = !!resolvingCommentId;
-  const threadResolvedByUser = !threadResolvedByComment && !!resolvingUserId;
+  const threadResolvedByComment = !!resolvingCommentId
+  const threadResolvedByUser = !threadResolvedByComment && !!resolvingUserId
 
   function displayComment(
     c: CommentType,
@@ -44,7 +42,7 @@ export function CommentGroup(props: CommentGroupProps) {
     showSeparator = true,
     isChildren: boolean,
   ) {
-    const user = users.find((u) => u.id === c.userId) || null;
+    const user = users.find((u) => u.id === c.userId) || null
 
     const shouldCollapse = expanded
       ? false
@@ -52,16 +50,12 @@ export function CommentGroup(props: CommentGroupProps) {
         ? true
         : threadResolvedByComment && isChildren && !c.resolver
           ? true
-          : false;
+          : false
 
     return (
       <Animation.Collapse in={!shouldCollapse} key={c.id}>
         {(props, ref) => (
-          <div
-            ref={ref}
-            {...props}
-            className={`issueCommentWrapper ${props.className || ""}`}
-          >
+          <div ref={ref} {...props} className={`issueCommentWrapper ${props.className || ""}`}>
             <Comment
               comment={c}
               user={user}
@@ -71,22 +65,19 @@ export function CommentGroup(props: CommentGroupProps) {
               startReply={
                 index === 0 && !c.childrenComments?.length
                   ? () => {
-                      setReplyValue((r) => (r === "" ? null : r || ""));
+                      setReplyValue((r) => (r === "" ? null : r || ""))
                     }
                   : undefined
               }
               isChildren={isChildren}
             />
             {showSeparator && (
-              <div
-                className="issueCommentSeparator"
-                is-child={isChildren ? "true" : "false"}
-              />
+              <div className="issueCommentSeparator" is-child={isChildren ? "true" : "false"} />
             )}
           </div>
         )}
       </Animation.Collapse>
-    );
+    )
   }
 
   return (
@@ -104,29 +95,18 @@ export function CommentGroup(props: CommentGroupProps) {
         <div className="issueCommentSeparator" is-child={"false"} />
       )}
 
-      <CommentExpander
-        comment={comment}
-        expanded={expanded}
-        setExpanded={setExpanded}
-      />
+      <CommentExpander comment={comment} expanded={expanded} setExpanded={setExpanded} />
 
-      {childrenComments?.map((c, i, a) =>
-        displayComment(c, i, i < a.length - 1, true),
-      )}
+      {childrenComments?.map((c, i, a) => displayComment(c, i, i < a.length - 1, true))}
 
-      {(typeof replyValue === "string" ||
-        (childrenComments && childrenComments.length > 0)) && (
+      {(typeof replyValue === "string" || (childrenComments && childrenComments.length > 0)) && (
         <div
           is-hidden={
-            expanded
-              ? "false"
-              : threadResolvedByUser || threadResolvedByComment
-                ? "true"
-                : "false"
+            expanded ? "false" : threadResolvedByUser || threadResolvedByComment ? "true" : "false"
           }
           className="issueCommentReply"
           ref={(el) => {
-            el?.addEventListener("keydown", onKeyDown);
+            el?.addEventListener("keydown", onKeyDown)
           }}
         >
           <div className="issueCommentReplyEditor">
@@ -137,7 +117,7 @@ export function CommentGroup(props: CommentGroupProps) {
               onChange={setReplyValue}
               getEditor={(editor) => {
                 if (!childrenComments?.length) {
-                  editor?.commands.focus("end");
+                  editor?.commands.focus("end")
                 }
               }}
             />
@@ -146,8 +126,8 @@ export function CommentGroup(props: CommentGroupProps) {
             <Button
               disabled={!(replyValue || "").trim()}
               onClick={async () => {
-                await update.comments.sendCommentReply(id, replyValue || "");
-                setReplyValue("");
+                await update.comments.sendCommentReply(id, replyValue || "")
+                setReplyValue("")
               }}
               className="commentSendButton"
               tooltip="Send Comment"
@@ -159,5 +139,5 @@ export function CommentGroup(props: CommentGroupProps) {
         </div>
       )}
     </div>
-  );
+  )
 }

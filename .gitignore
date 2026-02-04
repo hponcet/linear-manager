@@ -1,5 +1,22 @@
+# Outputs
 out
 dist
-node_modules
-.vscode-test/
 *.vsix
+.vscode-test/
+
+# Dependencies
+node_modules
+
+# Environment files
+.env
+.env.*
+
+# Logs
+logs
+*.log
+
+# OSX
+.DS_Store
+
+# Caches
+**/.cache

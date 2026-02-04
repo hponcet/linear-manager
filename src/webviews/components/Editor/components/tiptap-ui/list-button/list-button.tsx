@@ -1,48 +1,39 @@
-import { forwardRef, useCallback } from "react";
-
-// --- Lib ---
-import { parseShortcutKeys } from "src/webviews/components/Editor/lib/tiptap-utils";
-
-// --- Hooks ---
-import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor";
-
-// --- UI Primitives ---
-import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
-import { Button } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
-import { Badge } from "src/webviews/components/Editor/components/tiptap-ui-primitive/badge";
-
-// --- Tiptap UI ---
-import type {
-  ListType,
-  UseListConfig,
-} from "src/webviews/components/Editor/components/tiptap-ui/list-button";
+import { forwardRef, useCallback } from "react"
 import {
   LIST_SHORTCUT_KEYS,
   useList,
-} from "src/webviews/components/Editor/components/tiptap-ui/list-button";
+} from "src/webviews/components/Editor/components/tiptap-ui/list-button"
+import { Badge } from "src/webviews/components/Editor/components/tiptap-ui-primitive/badge"
+import { Button } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
+import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor"
+import { parseShortcutKeys } from "src/webviews/components/Editor/lib/tiptap-utils"
 
-export interface ListButtonProps
-  extends Omit<ButtonProps, "type">,
-    UseListConfig {
+import type {
+  ListType,
+  UseListConfig,
+} from "src/webviews/components/Editor/components/tiptap-ui/list-button"
+import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
+
+export interface ListButtonProps extends Omit<ButtonProps, "type">, UseListConfig {
   /**
    * Optional text to display alongside the icon.
    */
-  text?: string;
+  text?: string
   /**
    * Optional show shortcut keys in the button.
    * @default false
    */
-  showShortcut?: boolean;
+  showShortcut?: boolean
 }
 
 export function ListShortcutBadge({
   type,
   shortcutKeys = LIST_SHORTCUT_KEYS[type],
 }: {
-  type: ListType;
-  shortcutKeys?: string;
+  type: ListType
+  shortcutKeys?: string
 }) {
-  return <Badge>{parseShortcutKeys({ shortcutKeys })}</Badge>;
+  return <Badge>{parseShortcutKeys({ shortcutKeys })}</Badge>
 }
 
 /**
@@ -63,35 +54,27 @@ export const ListButton = forwardRef<HTMLButtonElement, ListButtonProps>(
       children,
       ...buttonProps
     },
-    ref
+    ref,
   ) => {
-    const { editor } = useTiptapEditor(providedEditor);
-    const {
-      isVisible,
-      canToggle,
-      isActive,
-      handleToggle,
-      label,
-      shortcutKeys,
-      Icon,
-    } = useList({
+    const { editor } = useTiptapEditor(providedEditor)
+    const { isVisible, canToggle, isActive, handleToggle, label, shortcutKeys, Icon } = useList({
       editor,
       type,
       hideWhenUnavailable,
       onToggled,
-    });
+    })
 
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
-        onClick?.(event);
-        if (event.defaultPrevented) return;
-        handleToggle();
+        onClick?.(event)
+        if (event.defaultPrevented) return
+        handleToggle()
       },
-      [handleToggle, onClick]
-    );
+      [handleToggle, onClick],
+    )
 
     if (!isVisible) {
-      return null;
+      return null
     }
 
     return (
@@ -114,14 +97,12 @@ export const ListButton = forwardRef<HTMLButtonElement, ListButtonProps>(
           <>
             <Icon className="tiptap-button-icon" />
             {text && <span className="tiptap-button-text">{text}</span>}
-            {showShortcut && (
-              <ListShortcutBadge type={type} shortcutKeys={shortcutKeys} />
-            )}
+            {showShortcut && <ListShortcutBadge type={type} shortcutKeys={shortcutKeys} />}
           </>
         )}
       </Button>
-    );
-  }
-);
+    )
+  },
+)
 
-ListButton.displayName = "ListButton";
+ListButton.displayName = "ListButton"

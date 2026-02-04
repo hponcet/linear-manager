@@ -1,11 +1,11 @@
-import { WorkflowStateWithStateProgress } from "src/types/Linear";
+import { WorkflowStateWithStateProgress } from "src/types/Linear"
 
 type WorkflowStateIconProps = {
-  workflowState: WorkflowStateWithStateProgress;
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  workflowState: WorkflowStateWithStateProgress
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function WorkflowStateIcon(props: WorkflowStateIconProps) {
   const {
@@ -13,7 +13,7 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
     style,
     className,
     size = 14,
-  } = props;
+  } = props
 
   switch (type) {
     case "backlog":
@@ -35,7 +35,7 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
             stroke="none"
           ></path>
         </svg>
-      );
+      )
     case "unstarted":
       return (
         <svg
@@ -66,7 +66,7 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
             transform="translate(3.5,3.5)"
           ></path>
         </svg>
-      );
+      )
     case "started":
       return (
         <svg
@@ -99,14 +99,12 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
             cy="7"
             r="2.3"
             strokeWidth="4.5"
-            strokeDasharray={`${
-              (14 / stateTypeLength) * (stateProgress + 1)
-            } 26`}
+            strokeDasharray={`${(14 / stateTypeLength) * (stateProgress + 1)} 26`}
             strokeDashoffset="1"
             transform="rotate(-90 7 7)"
           ></circle>
         </svg>
-      );
+      )
     case "completed":
       return (
         <svg
@@ -117,21 +115,14 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
           viewBox="0 0 14 14"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <circle
-            cx="7"
-            cy="7"
-            r="6"
-            fill={color}
-            strokeWidth="6"
-            stroke="none"
-          ></circle>
+          <circle cx="7" cy="7" r="6" fill={color} strokeWidth="6" stroke="none"></circle>
           <path
             d="M10.951 4.24896C11.283 4.58091 11.283 5.11909 10.951 5.45104L5.95104 10.451C5.61909 10.783 5.0809 10.783 4.74896 10.451L2.74896 8.45104C2.41701 8.11909 2.41701 7.5809 2.74896 7.24896C3.0809 6.91701 3.61909 6.91701 3.95104 7.24896L5.35 8.64792L9.74896 4.24896C10.0809 3.91701 10.6191 3.91701 10.951 4.24896Z"
             stroke="none"
             fill="rgb(31 31 31)"
           ></path>
         </svg>
-      );
+      )
     case "canceled":
       return (
         <svg
@@ -153,7 +144,7 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
             stroke="none"
           ></path>
         </svg>
-      );
+      )
     case "triage":
       return (
         <svg
@@ -173,9 +164,9 @@ export function WorkflowStateIcon(props: WorkflowStateIconProps) {
             d="M7 14C10.866 14 14 10.866 14 7C14 3.13403 10.866 0 7 0C3.134 0 0 3.13403 0 7C0 10.866 3.134 14 7 14ZM8.0126 9.50781V7.98224H5.9874V9.50787C5.9874 9.92908 5.4767 10.1549 5.14897 9.8786L2.17419 7.37073C1.94194 7.17493 1.94194 6.82513 2.17419 6.62933L5.14897 4.12146C5.4767 3.84515 5.9874 4.07098 5.9874 4.49219V6.01764H8.0126V4.49213C8.0126 4.07092 8.5233 3.84509 8.85103 4.1214L11.8258 6.62927C12.0581 6.82507 12.0581 7.17487 11.8258 7.37067L8.85103 9.87854C8.5233 10.1548 8.0126 9.92902 8.0126 9.50781Z"
           ></path>
         </svg>
-      );
+      )
 
     default:
-      return <span>❓</span>;
+      return <span>❓</span>
   }
 }

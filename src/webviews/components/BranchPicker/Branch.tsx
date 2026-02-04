@@ -1,33 +1,28 @@
-import { Ref } from "src/types/GitAPI";
-import { BranchIcon } from "../Icons/BranchIcon";
-import { ReactNode } from "react";
+import { ReactNode } from "react"
+import { Ref } from "src/types/GitAPI"
 
-import "./Branch.scss";
-import { Tooltip } from "../Tooltip/Tooltip";
-import { GlobeIcon } from "../Icons/GlobeIcon";
+import { BranchIcon } from "../Icons/BranchIcon"
+import { GlobeIcon } from "../Icons/GlobeIcon"
+import { Tooltip } from "../Tooltip/Tooltip"
+
+import "./Branch.scss"
 
 export type BranchProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  branch?: Ref | null;
-  currentBranch?: Ref | null;
-  inline?: "text" | "icon" | null;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  branch?: Ref | null
+  currentBranch?: Ref | null
+  inline?: "text" | "icon" | null
+  size?: number
+}
 
 export function Branch(props: BranchProps): ReactNode {
-  const { branch, currentBranch, style, className, inline, size } = props;
+  const { branch, currentBranch, style, className, inline, size } = props
 
   if (inline === "text") {
-    return branch?.name || "No branch name";
+    return branch?.name || "No branch name"
   } else if (inline === "icon") {
-    return (
-      <BranchIcon
-        style={{ opacity: branch ? 1 : 0.3 }}
-        className={className}
-        size={size}
-      />
-    );
+    return <BranchIcon style={{ opacity: branch ? 1 : 0.3 }} className={className} size={size} />
   }
 
   return (
@@ -62,5 +57,5 @@ export function Branch(props: BranchProps): ReactNode {
         )}
       </div>
     </div>
-  );
+  )
 }

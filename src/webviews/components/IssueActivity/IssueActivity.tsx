@@ -1,14 +1,15 @@
-import { useMemo } from "react";
+import { useMemo } from "react"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { CommentGroup } from "../Comment/CommentGroup";
-import { IssueHistory } from "./IssueHistory";
-import { getFirstHistoryType } from "../InlineIssue/historyUtils";
+import { IssueHistory } from "./IssueHistory"
 
-import "./IssueActivity.scss";
+import { CommentGroup } from "../Comment/CommentGroup"
+import { getFirstHistoryType } from "../InlineIssue/historyUtils"
+
+import "./IssueActivity.scss"
 
 export function IssueActivity() {
-  const { comments, history } = useIssueContext();
+  const { comments, history } = useIssueContext()
 
   const concatHistory = useMemo(() => {
     const mappedHistory =
@@ -16,58 +17,52 @@ export function IssueActivity() {
         Object.fromEntries(
           Object.entries(h).filter(([k, v], i, arr) => {
             if (!!v) {
-              return true;
+              return true
             }
             if (k.startsWith("from") || k.startsWith("to")) {
               const correspondingKey = `${
                 k.startsWith("from") ? "to" : "from"
-              }${k.replace(/^(from|to)/, "")}`;
-              const correspondingEntry = arr.find(
-                ([key]) => key === correspondingKey
-              );
+              }${k.replace(/^(from|to)/, "")}`
+              const correspondingEntry = arr.find(([key]) => key === correspondingKey)
               if (correspondingEntry?.[1] !== undefined) {
-                return true;
+                return true
               }
             }
-            return false;
-          })
-        )
-      ) as NonNullable<typeof history>[number][]) || [];
+            return false
+          }),
+        ),
+      ) as NonNullable<typeof history>[number][]) || []
 
     return (
-      mappedHistory.reduce((acc, curr) => {
-        const prevGroup = acc[acc.length - 1];
-        const prevItem = prevGroup?.[prevGroup?.length - 1];
+      mappedHistory.reduce(
+        (acc, curr) => {
+          const prevGroup = acc[acc.length - 1]
+          const prevItem = prevGroup?.[prevGroup?.length - 1]
 
-        if (
-          prevItem &&
-          getFirstHistoryType(prevItem) === getFirstHistoryType(curr)
-        ) {
-          acc[acc.length - 1].push(curr);
-        } else {
-          acc.push([curr]);
-        }
-        return acc;
-      }, [] as NonNullable<typeof history>[number][][]) || []
-    );
-  }, [history, comments]);
+          if (prevItem && getFirstHistoryType(prevItem) === getFirstHistoryType(curr)) {
+            acc[acc.length - 1].push(curr)
+          } else {
+            acc.push([curr])
+          }
+          return acc
+        },
+        [] as NonNullable<typeof history>[number][][],
+      ) || []
+    )
+  }, [history, comments])
 
   const activity = useMemo(() => {
-    const combined = [...(comments || []), ...concatHistory];
+    const combined = [...(comments || []), ...concatHistory]
     combined.sort((a, b) => {
-      const dateA = new Date(
-        Array.isArray(a) ? a[a.length - 1].createdAt : a.createdAt
-      ).getTime();
-      const dateB = new Date(
-        Array.isArray(b) ? b[b.length - 1].createdAt : b.createdAt
-      ).getTime();
-      return dateA - dateB;
-    });
-    return combined;
-  }, [comments, concatHistory]);
+      const dateA = new Date(Array.isArray(a) ? a[a.length - 1].createdAt : a.createdAt).getTime()
+      const dateB = new Date(Array.isArray(b) ? b[b.length - 1].createdAt : b.createdAt).getTime()
+      return dateA - dateB
+    })
+    return combined
+  }, [comments, concatHistory])
 
   if (!comments || !history) {
-    return <div>Loading comments...</div>;
+    return <div>Loading comments...</div>
   }
 
   return (
@@ -81,16 +76,16 @@ export function IssueActivity() {
           <>
             {activity.map((item) => {
               if (Array.isArray(item)) {
-                return <IssueHistory key={item[0].id} history={item} />;
+                return <IssueHistory key={item[0].id} history={item} />
               } else if (item.__key === "comment") {
-                return <CommentGroup key={item.id} comment={item} />;
+                return <CommentGroup key={item.id} comment={item} />
               } else {
-                return null;
+                return null
               }
             })}
           </>
         )}
       </div>
     </div>
-  );
+  )
 }

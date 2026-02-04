@@ -1,11 +1,11 @@
-import "./Banner.scss";
+import "./Banner.scss"
 
 type BannerProps = {
-  type: "info" | "warning" | "error" | "success";
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-  className?: string;
-};
+  type: "info" | "warning" | "error" | "success"
+  children: React.ReactNode
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function Banner(props: BannerProps) {
   return (
@@ -16,5 +16,5 @@ export function Banner(props: BannerProps) {
     >
       {props.children}
     </div>
-  );
+  )
 }

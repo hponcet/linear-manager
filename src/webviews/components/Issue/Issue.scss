@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-width: 0px;
+  min-width: 0;
   flex-shrink: 1;
   height: 16px;
   padding: 5px;
@@ -13,8 +13,8 @@
   cursor: pointer;
 
   &:hover {
-    background: lch(10.633 3.033 272);
-    border: 1px solid lch(16.16 3.54 272);
+    background: lch(10.633% 3.033 272deg);
+    border: 1px solid lch(16.16% 3.54 272deg);
   }
 }
 

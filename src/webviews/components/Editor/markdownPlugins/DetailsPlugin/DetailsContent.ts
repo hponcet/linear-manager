@@ -1,16 +1,12 @@
-import {
-  defaultBlockAt,
-  findParentNode,
-  mergeAttributes,
-  Node,
-} from "@tiptap/core";
-import { Selection } from "@tiptap/pm/state";
-import type { ViewMutationRecord } from "@tiptap/pm/view";
+import { defaultBlockAt, findParentNode, mergeAttributes, Node } from "@tiptap/core"
+import { Selection } from "@tiptap/pm/state"
+
+import type { ViewMutationRecord } from "@tiptap/pm/view"
 
 export interface DetailsContentOptions {
   HTMLAttributes: {
-    [key: string]: any;
-  };
+    [key: string]: any
+  }
 }
 
 export const DetailsContent = Node.create<DetailsContentOptions>({
@@ -21,7 +17,7 @@ export const DetailsContent = Node.create<DetailsContentOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
-    };
+    }
   },
 
   parseHTML() {
@@ -29,7 +25,7 @@ export const DetailsContent = Node.create<DetailsContentOptions>({
       {
         tag: `div[data-type="${this.name}"]`,
       },
-    ];
+    ]
   },
 
   renderHTML({ HTMLAttributes }) {
@@ -39,134 +35,122 @@ export const DetailsContent = Node.create<DetailsContentOptions>({
         "data-type": this.name,
       }),
       0,
-    ];
+    ]
   },
 
   addNodeView() {
     return ({ HTMLAttributes }) => {
-      const dom = document.createElement("div");
-      const attributes = mergeAttributes(
-        this.options.HTMLAttributes,
-        HTMLAttributes,
-        {
-          "data-type": this.name,
-          hidden: "hidden",
-        }
-      );
+      const dom = document.createElement("div")
+      const attributes = mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        "data-type": this.name,
+        hidden: "hidden",
+      })
 
-      Object.entries(attributes).forEach(([key, value]) =>
-        dom.setAttribute(key, value)
-      );
+      Object.entries(attributes).forEach(([key, value]) => dom.setAttribute(key, value))
 
       dom.addEventListener("toggleDetailsContent", () => {
-        dom.toggleAttribute("hidden");
-      });
+        dom.toggleAttribute("hidden")
+      })
 
       return {
         dom,
         contentDOM: dom,
         ignoreMutation(mutation: ViewMutationRecord) {
           if (mutation.type === "selection") {
-            return false;
+            return false
           }
 
-          return !dom.contains(mutation.target) || dom === mutation.target;
+          return !dom.contains(mutation.target) || dom === mutation.target
         },
         update: (updatedNode) => {
           if (updatedNode.type !== this.type) {
-            return false;
+            return false
           }
 
-          return true;
+          return true
         },
-      };
-    };
+      }
+    }
   },
 
   addKeyboardShortcuts() {
     return {
       // Escape node on double enter
       Enter: ({ editor }) => {
-        const { state, view } = editor;
-        const { selection } = state;
-        const { $from, empty } = selection;
-        const detailsContent = findParentNode(
-          (node) => node.type === this.type
-        )(selection);
+        const { state, view } = editor
+        const { selection } = state
+        const { $from, empty } = selection
+        const detailsContent = findParentNode((node) => node.type === this.type)(selection)
 
         if (!empty || !detailsContent || !detailsContent.node.childCount) {
-          return false;
+          return false
         }
 
-        const fromIndex = $from.index(detailsContent.depth);
-        const { childCount } = detailsContent.node;
-        const isAtEnd = childCount === fromIndex + 1;
+        const fromIndex = $from.index(detailsContent.depth)
+        const { childCount } = detailsContent.node
+        const isAtEnd = childCount === fromIndex + 1
 
         if (!isAtEnd) {
-          return false;
+          return false
         }
 
-        const defaultChildType =
-          detailsContent.node.type.contentMatch.defaultType;
-        const defaultChildNode = defaultChildType?.createAndFill();
+        const defaultChildType = detailsContent.node.type.contentMatch.defaultType
+        const defaultChildNode = defaultChildType?.createAndFill()
 
         if (!defaultChildNode) {
-          return false;
+          return false
         }
 
-        const $childPos = state.doc.resolve(detailsContent.pos + 1);
-        const lastChildIndex = childCount - 1;
-        const lastChildNode = detailsContent.node.child(lastChildIndex);
-        const lastChildPos = $childPos.posAtIndex(
-          lastChildIndex,
-          detailsContent.depth
-        );
-        const lastChildNodeIsEmpty = lastChildNode.eq(defaultChildNode);
+        const $childPos = state.doc.resolve(detailsContent.pos + 1)
+        const lastChildIndex = childCount - 1
+        const lastChildNode = detailsContent.node.child(lastChildIndex)
+        const lastChildPos = $childPos.posAtIndex(lastChildIndex, detailsContent.depth)
+        const lastChildNodeIsEmpty = lastChildNode.eq(defaultChildNode)
 
         if (!lastChildNodeIsEmpty) {
-          return false;
+          return false
         }
 
         // get parent of details node
-        const above = $from.node(-3);
+        const above = $from.node(-3)
 
         if (!above) {
-          return false;
+          return false
         }
 
         // get default node type after details node
-        const after = $from.indexAfter(-3);
-        const type = defaultBlockAt(above.contentMatchAt(after));
+        const after = $from.indexAfter(-3)
+        const type = defaultBlockAt(above.contentMatchAt(after))
 
         if (!type || !above.canReplaceWith(after, after, type)) {
-          return false;
+          return false
         }
 
-        const node = type.createAndFill();
+        const node = type.createAndFill()
 
         if (!node) {
-          return false;
+          return false
         }
 
-        const { tr } = state;
-        const pos = $from.after(-2);
+        const { tr } = state
+        const pos = $from.after(-2)
 
-        tr.replaceWith(pos, pos, node);
+        tr.replaceWith(pos, pos, node)
 
-        const $pos = tr.doc.resolve(pos);
-        const newSelection = Selection.near($pos, 1);
+        const $pos = tr.doc.resolve(pos)
+        const newSelection = Selection.near($pos, 1)
 
-        tr.setSelection(newSelection);
+        tr.setSelection(newSelection)
 
-        const deleteFrom = lastChildPos;
-        const deleteTo = lastChildPos + lastChildNode.nodeSize;
+        const deleteFrom = lastChildPos
+        const deleteTo = lastChildPos + lastChildNode.nodeSize
 
-        tr.delete(deleteFrom, deleteTo);
-        tr.scrollIntoView();
-        view.dispatch(tr);
+        tr.delete(deleteFrom, deleteTo)
+        tr.scrollIntoView()
+        view.dispatch(tr)
 
-        return true;
+        return true
       },
-    };
+    }
   },
-});
+})

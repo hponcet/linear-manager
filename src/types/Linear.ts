@@ -1,4 +1,4 @@
-import { WorkflowState } from "@linear/sdk";
+import { WorkflowState } from "@linear/sdk"
 
 export type WorkflowStateWithStateProgress = Omit<
   WorkflowState,
@@ -13,13 +13,7 @@ export type WorkflowStateWithStateProgress = Omit<
   | "update"
   | "paginate"
 > & {
-  stateProgress: number;
-  stateTypeLength: number;
-  type:
-    | "triage"
-    | "backlog"
-    | "unstarted"
-    | "started"
-    | "completed"
-    | "canceled";
-};
+  stateProgress: number
+  stateTypeLength: number
+  type: "triage" | "backlog" | "unstarted" | "started" | "completed" | "canceled"
+}

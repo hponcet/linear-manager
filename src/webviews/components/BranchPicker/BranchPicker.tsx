@@ -1,18 +1,16 @@
-import { SelectPicker, SelectPickerProps } from "rsuite";
-import { Ref } from "src/types/GitAPI";
-import { Branch } from "./Branch";
+import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { Ref } from "src/types/GitAPI"
 
-type BranchPickerProps = Omit<
-  SelectPickerProps,
-  "data" | "value" | "size" | "onChange"
-> & {
-  branch: Ref | null;
-  branches: Ref[];
-  inline?: "text" | "icon";
-  currentBranch?: Ref | null;
-  size?: number;
-  onChange?: (branch: Ref | null) => void;
-};
+import { Branch } from "./Branch"
+
+type BranchPickerProps = Omit<SelectPickerProps, "data" | "value" | "size" | "onChange"> & {
+  branch: Ref | null
+  branches: Ref[]
+  inline?: "text" | "icon"
+  currentBranch?: Ref | null
+  size?: number
+  onChange?: (branch: Ref | null) => void
+}
 
 export function BranchPicker(props: BranchPickerProps) {
   const {
@@ -24,7 +22,7 @@ export function BranchPicker(props: BranchPickerProps) {
     size,
     onChange,
     ...selectPickerProps
-  } = props;
+  } = props
 
   const data = branches
     .map((b) => ({
@@ -33,7 +31,7 @@ export function BranchPicker(props: BranchPickerProps) {
       type: b.type as number,
       branch: b,
     }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+    .sort((a, b) => a.label.localeCompare(b.label))
 
   return (
     <SelectPicker
@@ -42,14 +40,10 @@ export function BranchPicker(props: BranchPickerProps) {
       placeholder={placeholder || "Select a branch"}
       cleanable={false}
       onChange={(value) => {
-        onChange?.(data.find((d) => d.value === value)!.branch || null);
+        onChange?.(data.find((d) => d.value === value)!.branch || null)
       }}
       renderOption={(_, item) => (
-        <Branch
-          branch={item.branch}
-          currentBranch={currentBranch}
-          style={{ marginRight: 8 }}
-        />
+        <Branch branch={item.branch} currentBranch={currentBranch} style={{ marginRight: 8 }} />
       )}
       renderValue={(_, item) =>
         item ? (
@@ -63,8 +57,8 @@ export function BranchPicker(props: BranchPickerProps) {
         ) : null
       }
       groupBy="type"
-      renderOptionGroup={(title, item) => (title === "1" ? "Origin" : "Local")}
+      renderOptionGroup={(title) => (title === "1" ? "Origin" : "Local")}
       {...selectPickerProps}
     />
-  );
+  )
 }

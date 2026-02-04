@@ -1,18 +1,20 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable selector-class-pattern */
 .tiptap.ProseMirror {
   --tt-collaboration-carets-label: var(--tt-gray-light-900);
   --link-text-color: var(--tt-brand-color-500);
   --thread-text: var(--tt-gray-light-900);
   --placeholder-color: var(--tt-gray-light-a-400);
   --thread-bg-color: var(--tt-color-yellow-inc-2);
-
   --tiptap-ai-insertion-color: var(--tt-brand-color-600);
+}
 
+.dark {
   --tt-collaboration-carets-label: var(--tt-gray-dark-100);
   --link-text-color: var(--tt-brand-color-400);
   --thread-text: var(--tt-gray-dark-900);
   --placeholder-color: var(--tt-gray-dark-a-400);
   --thread-bg-color: var(--tt-color-yellow-dec-2);
-
   --tiptap-ai-insertion-color: var(--tt-brand-color-400);
 }
 
@@ -30,7 +32,7 @@
   outline: none;
   caret-color: var(--tt-cursor-color);
 
-  &:not(.readonly):not(.ProseMirror-hideselection) {
+  &:not(.readonly, .ProseMirror-hideselection) {
     ::selection {
       background-color: var(--tt-selection-color);
     }
@@ -45,9 +47,9 @@
     background-color: var(--tt-selection-color);
   }
 
-  .ProseMirror-selectednode:not(img):not(pre):not(.react-renderer) {
+  .ProseMirror-selectednode:not(img, pre, .react-renderer) {
     border-radius: 2px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgb(255 255 255 / 10%);
   }
 
   .ProseMirror-selectednode {
@@ -152,7 +154,9 @@
      ===================== */
 .tiptap.ProseMirror {
   .tiptap-thread.tiptap-thread--unresolved.tiptap-thread--inline {
-    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    transition:
+      color 0.2s ease-in-out,
+      background-color 0.2s ease-in-out;
     color: var(--thread-text);
     border-bottom: 2px dashed var(--tt-color-yellow-base);
     font-weight: 600;
@@ -210,22 +214,16 @@
 /* =====================
      PLACEHOLDER
      ===================== */
-.is-empty:not(.with-slash)[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  )::before {
+.is-empty:not(.with-slash)[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   content: attr(data-placeholder);
 }
 
-.is-empty.with-slash[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  )::before {
+.is-empty.with-slash[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   content: "Write, type '/' for commands…";
   font-style: italic;
 }
 
-.is-empty[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  ):before {
+.is-empty[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   pointer-events: none;
   height: 0;
   position: absolute;
@@ -235,7 +233,7 @@
   right: 0;
 }
 
-.is-empty[data-placeholder]:has(> .ProseMirror-trailingBreak):before {
+.is-empty[data-placeholder]:has(> .ProseMirror-trailingBreak)::before {
   color: var(--placeholder-color);
 }
 

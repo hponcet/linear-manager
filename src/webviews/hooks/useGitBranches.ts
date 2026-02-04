@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import { Ref } from "src/types/GitAPI";
-import { useAsyncEffect } from "./useAsyncEffect";
-import { Issue } from "@linear/sdk";
-import { useRequestDataUpdate } from "./useRequestDataUpdate";
-import { GlobalListenerMessage } from "src/types/ActionMessage";
-import { useIssueSettings } from "./useIssueSettings";
+import { Issue } from "@linear/sdk"
+import { useEffect, useState } from "react"
+import { GlobalListenerMessage } from "src/types/ActionMessage"
+import { Ref } from "src/types/GitAPI"
+
+import { useAsyncEffect } from "./useAsyncEffect"
+import { useIssueSettings } from "./useIssueSettings"
+import { useRequestDataUpdate } from "./useRequestDataUpdate"
 
 type UseIssueBranchesParams = {
-  issueId: Issue["id"];
-};
+  issueId: Issue["id"]
+}
 
 export function useIssueBranches(params: UseIssueBranchesParams) {
-  const { issueId } = params;
+  const { issueId } = params
 
   const {
     getAllBranches,
@@ -19,75 +20,76 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
     checkout,
     getGitStatus,
     hasUncommittedChanges: checkHasUncommittedChanges,
-  } = useRequestDataUpdate();
+  } = useRequestDataUpdate()
 
-  const [gitApiInitialized, setGitApiInitialized] = useState<boolean>(false);
-  const [repoInitialized, setRepoInitialized] = useState<boolean>(false);
-  const [fetchingBranches, setFetchingBranches] = useState(true);
-  const [branches, setBranches] = useState<Ref[]>([]);
-  const [currentBranch, setCurrentBranch] = useState<Ref | null>(null);
-  const [hasUncommittedChanges, setHasUncommittedChanges] = useState(false);
+  const [gitApiInitialized, setGitApiInitialized] = useState<boolean>(false)
+  const [repoInitialized, setRepoInitialized] = useState<boolean>(false)
+  const [fetchingBranches, setFetchingBranches] = useState(true)
+  const [branches, setBranches] = useState<Ref[]>([])
+  const [currentBranch, setCurrentBranch] = useState<Ref | null>(null)
+  const [hasUncommittedChanges, setHasUncommittedChanges] = useState(false)
 
   async function fetchBranches() {
     try {
-      setBranches(await getAllBranches());
+      setBranches(await getAllBranches())
     } catch (error) {
-      console.error("Failed to fetch branches", error);
+      console.error("Failed to fetch branches", error)
     }
   }
 
   async function fetchCurrentBranch() {
     try {
-      setCurrentBranch(await getCurrentBranch());
+      setCurrentBranch(await getCurrentBranch())
     } catch (error) {
-      console.error("Failed to fetch current branch", error);
+      console.error("Failed to fetch current branch", error)
     }
   }
 
   useAsyncEffect(async () => {
-    await fetchBranches();
-    await fetchCurrentBranch();
-    setFetchingBranches(false);
-  }, []);
+    await fetchBranches()
+    await fetchCurrentBranch()
+    setFetchingBranches(false)
+  }, [])
 
   useAsyncEffect(async () => {
     while (true) {
-      setHasUncommittedChanges(await checkHasUncommittedChanges());
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      setHasUncommittedChanges(await checkHasUncommittedChanges())
+      await new Promise((resolve) => setTimeout(resolve, 5000))
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     function handleGlobalMessages(e: MessageEvent<GlobalListenerMessage>) {
-      const msg = e.data;
+      const msg = e.data
       if (msg.action === "gitActive") {
-        setRepoInitialized(!!msg.payload.repoActive);
-        setGitApiInitialized(!!msg.payload.apiActive);
+        setRepoInitialized(!!msg.payload.repoActive)
+        setGitApiInitialized(!!msg.payload.apiActive)
       }
     }
 
     getGitStatus().then((status) => {
-      setRepoInitialized(!!status.repoActive);
-      setGitApiInitialized(!!status.apiActive);
-    });
+      setRepoInitialized(!!status.repoActive)
+      setGitApiInitialized(!!status.apiActive)
+    })
 
-    window.addEventListener("message", handleGlobalMessages);
+    window.addEventListener("message", handleGlobalMessages)
     return () => {
-      window.removeEventListener("message", handleGlobalMessages);
-    };
-  }, []);
+      window.removeEventListener("message", handleGlobalMessages)
+    }
+  }, [])
 
-  const { issueSettings, updateIssueSettings, issueSettingsAreLoading } =
-    useIssueSettings({ issueId });
+  const { issueSettings, updateIssueSettings, issueSettingsAreLoading } = useIssueSettings({
+    issueId,
+  })
 
   async function checkoutBranch() {
     try {
       if (issueSettings.branch) {
-        await checkout(issueSettings.branch);
-        await fetchCurrentBranch();
+        await checkout(issueSettings.branch)
+        await fetchCurrentBranch()
       }
     } catch (error) {
-      console.error("Failed to checkout branch", error);
+      console.error("Failed to checkout branch", error)
     }
   }
 
@@ -104,5 +106,5 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
     fetchBranches,
     fetchCurrentBranch,
     checkoutBranch,
-  };
+  }
 }

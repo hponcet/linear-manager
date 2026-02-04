@@ -1,31 +1,25 @@
-import { useMemo } from "react";
-import { SelectPicker, SelectPickerProps } from "rsuite";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { WorkflowState } from "./WorkflowState";
-import { Issue } from "@linear/sdk";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { Issue } from "@linear/sdk"
+import { useMemo } from "react"
+import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+
+import { WorkflowState } from "./WorkflowState"
+
+import { Tooltip } from "../Tooltip/Tooltip"
 
 export type WorkflowStatePickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue;
-  onChange: (value: string) => void;
-  inline?: "text" | "icon";
-  size?: number;
-};
+  issue: Issue
+  onChange: (value: string) => void
+  inline?: "text" | "icon"
+  size?: number
+}
 
 export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
-  const {
-    style,
-    className,
-    issue,
-    inline,
-    size,
-    onChange,
-    ...selectPickerProps
-  } = props;
-  const { workflowStates, workflowStatesLoading } = useIssueContext();
+  const { style, className, issue, inline, size, onChange, ...selectPickerProps } = props
+  const { workflowStates, workflowStatesLoading } = useIssueContext()
 
   const data = useMemo(
     () =>
@@ -34,19 +28,15 @@ export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
         value: workflowState.id,
         workflowState,
       })) || [],
-    [workflowStates]
-  );
+    [workflowStates],
+  )
 
-  const workflowState = data.find(
-    (state) => state.value === issue?.stateId
-  )?.workflowState;
+  const workflowState = data.find((state) => state.value === issue?.stateId)?.workflowState
 
   return (
     <Tooltip
       tooltip={
-        inline === "icon" ? (
-          <WorkflowState workflowState={workflowState} size={size} />
-        ) : undefined
+        inline === "icon" ? <WorkflowState workflowState={workflowState} size={size} /> : undefined
       }
       delayOpen={0}
     >
@@ -58,20 +48,14 @@ export function WorkflowStatePicker(props: WorkflowStatePickerProps) {
           className={className}
           value={data.find((state) => state.value === issue?.stateId)?.value}
           onChange={onChange}
-          renderOption={(_, item) => (
-            <WorkflowState workflowState={item.workflowState} />
-          )}
+          renderOption={(_, item) => <WorkflowState workflowState={item.workflowState} />}
           renderValue={(_, item) => (
-            <WorkflowState
-              workflowState={item.workflowState}
-              inline={inline}
-              size={size}
-            />
+            <WorkflowState workflowState={item.workflowState} inline={inline} size={size} />
           )}
           cleanable={false}
           {...selectPickerProps}
         />
       </span>
     </Tooltip>
-  );
+  )
 }

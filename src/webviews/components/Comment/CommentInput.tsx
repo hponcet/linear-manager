@@ -1,34 +1,29 @@
-import { useState } from "react";
-import { Editor } from "../Editor/Editor";
+import { useState } from "react"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import { SendIcon } from "../Icons/SendIcon";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Button } from "../Button/Button";
+import { Button } from "../Button/Button"
+import { Editor } from "../Editor/Editor"
+import { SendIcon } from "../Icons/SendIcon"
 
-import "./CommentInput.scss";
+import "./CommentInput.scss"
 
 export function CommentInput() {
-  const { update } = useIssueContext();
+  const { update } = useIssueContext()
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState("")
 
   async function sendComment() {
     if (!value.trim()) {
-      return;
+      return
     }
-    await update.comments.addComment(value);
+    await update.comments.addComment(value)
 
-    setValue("");
+    setValue("")
   }
 
   return (
     <div className="commentInputContainer">
-      <Editor
-        placeholder="Leave a comment..."
-        value={value}
-        editable
-        onChange={setValue}
-      />
+      <Editor placeholder="Leave a comment..." value={value} editable onChange={setValue} />
       <div className="commentActions">
         <Button
           disabled={!value.trim()}
@@ -41,5 +36,5 @@ export function CommentInput() {
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -1,61 +1,61 @@
-import { mergeAttributes, Node } from "@tiptap/react";
-import { ReactNodeViewRenderer } from "@tiptap/react";
-import { ImageUploadNode as ImageUploadNodeComponent } from "src/webviews/components/Editor/components/tiptap-node/image-upload-node/image-upload-node";
-import type { NodeType } from "@tiptap/pm/model";
+import { mergeAttributes, Node, ReactNodeViewRenderer } from "@tiptap/react"
+import { ImageUploadNode as ImageUploadNodeComponent } from "src/webviews/components/Editor/components/tiptap-node/image-upload-node/image-upload-node"
+
+import type { NodeType } from "@tiptap/pm/model"
 
 export type UploadFunction = (
   file: File,
   onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal
-) => Promise<string>;
+  abortSignal?: AbortSignal,
+) => Promise<string>
 
 export interface ImageUploadNodeOptions {
   /**
    * The type of the node.
    * @default 'image'
    */
-  type?: string | NodeType | undefined;
+  type?: string | NodeType | undefined
   /**
    * Acceptable file types for upload.
    * @default 'image/*'
    */
-  accept?: string;
+  accept?: string
   /**
    * Maximum number of files that can be uploaded.
    * @default 1
    */
-  limit?: number;
+  limit?: number
   /**
    * Maximum file size in bytes (0 for unlimited).
    * @default 0
    */
-  maxSize?: number;
+  maxSize?: number
   /**
    * Function to handle the upload process.
    */
-  upload?: UploadFunction;
+  upload?: UploadFunction
   /**
    * Callback for upload errors.
    */
-  onError?: (error: Error) => void;
+  onError?: (error: Error) => void
   /**
    * Callback for successful uploads.
    */
-  onSuccess?: (url: string) => void;
+  onSuccess?: (url: string) => void
   /**
    * HTML attributes to add to the image element.
    * @default {}
    * @example { class: 'foo' }
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  HTMLAttributes: Record<string, any>;
+
+  HTMLAttributes: Record<string, any>
 }
 
 declare module "@tiptap/react" {
   interface Commands<ReturnType> {
     imageUpload: {
-      setImageUploadNode: (options?: ImageUploadNodeOptions) => ReturnType;
-    };
+      setImageUploadNode: (options?: ImageUploadNodeOptions) => ReturnType
+    }
   }
 }
 
@@ -84,7 +84,7 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
       onError: undefined,
       onSuccess: undefined,
       HTMLAttributes: {},
-    };
+    }
   },
 
   addAttributes() {
@@ -98,22 +98,19 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
       maxSize: {
         default: this.options.maxSize,
       },
-    };
+    }
   },
 
   parseHTML() {
-    return [{ tag: 'div[data-type="image-upload"]' }];
+    return [{ tag: 'div[data-type="image-upload"]' }]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes({ "data-type": "image-upload" }, HTMLAttributes),
-    ];
+    return ["div", mergeAttributes({ "data-type": "image-upload" }, HTMLAttributes)]
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageUploadNodeComponent);
+    return ReactNodeViewRenderer(ImageUploadNodeComponent)
   },
 
   addCommands() {
@@ -124,9 +121,9 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
           return commands.insertContent({
             type: this.name,
             attrs: options,
-          });
+          })
         },
-    };
+    }
   },
 
   /**
@@ -135,28 +132,24 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
   addKeyboardShortcuts() {
     return {
       Enter: ({ editor }) => {
-        const { selection } = editor.state;
-        const { nodeAfter } = selection.$from;
+        const { selection } = editor.state
+        const { nodeAfter } = selection.$from
 
-        if (
-          nodeAfter &&
-          nodeAfter.type.name === "imageUpload" &&
-          editor.isActive("imageUpload")
-        ) {
-          const nodeEl = editor.view.nodeDOM(selection.$from.pos);
+        if (nodeAfter && nodeAfter.type.name === "imageUpload" && editor.isActive("imageUpload")) {
+          const nodeEl = editor.view.nodeDOM(selection.$from.pos)
           if (nodeEl && nodeEl instanceof HTMLElement) {
             // Since NodeViewWrapper is wrapped with a div, we need to click the first child
-            const firstChild = nodeEl.firstChild;
+            const firstChild = nodeEl.firstChild
             if (firstChild && firstChild instanceof HTMLElement) {
-              firstChild.click();
-              return true;
+              firstChild.click()
+              return true
             }
           }
         }
-        return false;
+        return false
       },
-    };
+    }
   },
-});
+})
 
-export default ImageUploadNode;
+export default ImageUploadNode

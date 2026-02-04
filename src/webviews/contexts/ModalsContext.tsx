@@ -1,36 +1,38 @@
-import { Attachment } from "@linear/sdk";
-import { ReactNode, createContext, useContext, useState } from "react";
-import { AttachmentCreationModal } from "../components/Attachments/AttachmentCreationModal";
-import { useIssueContext } from "./IssueContext";
+import { Attachment } from "@linear/sdk"
+import { ReactNode, createContext, useContext, useState } from "react"
+
+import { useIssueContext } from "./IssueContext"
+
+import { AttachmentCreationModal } from "../components/Attachments/AttachmentCreationModal"
 
 type ModalsContextProviderProps = {
-  isLoading?: boolean;
-  children: ReactNode;
-};
+  isLoading?: boolean
+  children: ReactNode
+}
 
 type AttachmentCreationModalProps = {
-  attachmentId?: Attachment["id"];
-  title?: string;
-  url?: string;
-};
+  attachmentId?: Attachment["id"]
+  title?: string
+  url?: string
+}
 
 export type ModalsContextValueData = {
-  isCreatingAttachment: AttachmentCreationModalProps | null;
-  setIsCreatingAttachment: (data: AttachmentCreationModalProps) => void;
-};
+  isCreatingAttachment: AttachmentCreationModalProps | null
+  setIsCreatingAttachment: (data: AttachmentCreationModalProps) => void
+}
 
 const ModalsContextValue = createContext<ModalsContextValueData>({
   isCreatingAttachment: null,
-  setIsCreatingAttachment: () => {},
-});
+  setIsCreatingAttachment: () => undefined,
+})
 
 export function ModalsContextProvider(props: ModalsContextProviderProps) {
-  const { children } = props;
+  const { children } = props
 
-  const { issue, update } = useIssueContext();
+  const { issue, update } = useIssueContext()
 
   const [isCreatingAttachment, setIsCreatingAttachment] =
-    useState<null | AttachmentCreationModalProps>(null);
+    useState<null | AttachmentCreationModalProps>(null)
 
   return (
     <ModalsContextValue.Provider
@@ -49,23 +51,21 @@ export function ModalsContextProvider(props: ModalsContextProviderProps) {
             await update.attachments
               .update(data.attachmentId, issue.id, data.url, data.title)
               .catch((err) => {
-                console.error("Failed to create attachment:", err);
-              });
+                console.error("Failed to create attachment:", err)
+              })
           } else {
-            await update.attachments
-              .create(issue.id, data.url, data.title)
-              .catch((err) => {
-                console.error("Failed to create attachment:", err);
-              });
+            await update.attachments.create(issue.id, data.url, data.title).catch((err) => {
+              console.error("Failed to create attachment:", err)
+            })
           }
-          setIsCreatingAttachment(null);
+          setIsCreatingAttachment(null)
         }}
         {...isCreatingAttachment}
       />
     </ModalsContextValue.Provider>
-  );
+  )
 }
 
 export function useModalsContext() {
-  return useContext(ModalsContextValue);
+  return useContext(ModalsContextValue)
 }

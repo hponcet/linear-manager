@@ -1,13 +1,14 @@
-import { Container } from "src/webviews/components/Container/Container";
-import { IssueContextProvider } from "src/webviews/contexts/IssueContext";
-import { useProps } from "src/webviews/hooks/useProps";
-import { StartWorkContent } from "./StartWorkContent";
-import { useIssueBranches } from "src/webviews/hooks/useGitBranches";
+import { Container } from "src/webviews/components/Container/Container"
+import { IssueContextProvider } from "src/webviews/contexts/IssueContext"
+import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
+import { useProps } from "src/webviews/hooks/useProps"
+
+import { StartWorkContent } from "./StartWorkContent"
 
 export function StartWorkWebview() {
-  const [props, loaded] = useProps<"startWork">();
+  const [props, loaded] = useProps<"startWork">()
 
-  const { issueId, linearAccessToken, fromCheckout } = props;
+  const { issueId, linearAccessToken, fromCheckout } = props
 
   const {
     branches,
@@ -17,10 +18,10 @@ export function StartWorkWebview() {
     repoInitialized,
     gitApiInitialized,
     updateIssueSettings,
-  } = useIssueBranches({ issueId: issueId! });
+  } = useIssueBranches({ issueId: issueId! })
 
   if (!issueId || !linearAccessToken || isLoading) {
-    return <Container loading={true} />;
+    return <Container loading={true} />
   }
 
   return (
@@ -41,5 +42,5 @@ export function StartWorkWebview() {
         />
       </Container>
     </IssueContextProvider>
-  );
+  )
 }

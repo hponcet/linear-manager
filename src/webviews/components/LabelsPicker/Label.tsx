@@ -1,18 +1,18 @@
-import { IssueLabel } from "@linear/sdk";
+import { IssueLabel } from "@linear/sdk"
 
-import "./Label.scss";
+import "./Label.scss"
 
 type LabelProps = {
-  issueLabel?: IssueLabel | null;
-  inline?: boolean;
-  size?: number;
-};
+  issueLabel?: IssueLabel | null
+  inline?: boolean
+  size?: number
+}
 
 export function Label(props: LabelProps) {
-  const { issueLabel, inline, size } = props;
+  const { issueLabel, inline, size } = props
 
   if (!issueLabel) {
-    return null;
+    return null
   }
 
   if (inline) {
@@ -30,7 +30,7 @@ export function Label(props: LabelProps) {
         />
         {issueLabel?.name}
       </span>
-    );
+    )
   }
 
   return (
@@ -46,5 +46,5 @@ export function Label(props: LabelProps) {
       />
       {issueLabel?.name}
     </div>
-  );
+  )
 }

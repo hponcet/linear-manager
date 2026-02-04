@@ -1,25 +1,19 @@
-import { ProjectIcon, ProjectIconProps } from "./ProjectIcon";
-import { Project as LinearProject } from "@linear/sdk";
+import { Project as LinearProject } from "@linear/sdk"
+
+import { ProjectIcon, ProjectIconProps } from "./ProjectIcon"
 
 export type ProjectProps = ProjectIconProps & {
-  style?: React.CSSProperties;
-  className?: string;
-  project: LinearProject | null;
-  inline?: "text" | "icon";
-};
+  style?: React.CSSProperties
+  className?: string
+  project: LinearProject | null
+  inline?: "text" | "icon"
+}
 
 export function Project(props: ProjectProps) {
-  const {
-    style,
-    className,
-    project,
-    size,
-    color = "currentColor",
-    inline,
-  } = props;
+  const { style, className, project, size, color = "currentColor", inline } = props
 
   if (inline === "text") {
-    return project?.name || "No project";
+    return project?.name || "No project"
   } else if (inline === "icon") {
     return (
       <ProjectIcon
@@ -28,7 +22,7 @@ export function Project(props: ProjectProps) {
         style={{ ...style, opacity: project ? 1 : 0.5 }}
         className={className}
       />
-    );
+    )
   }
 
   return (
@@ -54,5 +48,5 @@ export function Project(props: ProjectProps) {
         {project?.name || "No project"}
       </div>
     </div>
-  );
+  )
 }

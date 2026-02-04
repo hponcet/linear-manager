@@ -1,22 +1,22 @@
-import type { Editor, Predicate } from "@tiptap/core";
-import type { Node as ProseMirrorNode, ResolvedPos } from "@tiptap/pm/model";
+import { isNodeVisible } from "./isNodeVisible"
 
-import { isNodeVisible } from "./isNodeVisible";
+import type { Editor, Predicate } from "@tiptap/core"
+import type { Node as ProseMirrorNode, ResolvedPos } from "@tiptap/pm/model"
 
 export const findClosestVisibleNode = (
   $pos: ResolvedPos,
   predicate: Predicate,
-  editor: Editor
+  editor: Editor,
 ): {
-  pos: number;
-  start: number;
-  depth: number;
-  node: ProseMirrorNode;
+  pos: number
+  start: number
+  depth: number
+  node: ProseMirrorNode
 } | void => {
   for (let i = $pos.depth; i > 0; i -= 1) {
-    const node = $pos.node(i);
-    const match = predicate(node);
-    const isVisible = isNodeVisible($pos.start(i), editor);
+    const node = $pos.node(i)
+    const match = predicate(node)
+    const isVisible = isNodeVisible($pos.start(i), editor)
 
     if (match && isVisible) {
       return {
@@ -24,9 +24,9 @@ export const findClosestVisibleNode = (
         start: $pos.start(i),
         depth: i,
         node,
-      };
+      }
     }
 
-    return undefined;
+    return undefined
   }
-};
+}

@@ -1,32 +1,25 @@
-import { useMemo } from "react";
-import { SelectPicker, SelectPickerProps } from "rsuite";
-import { Cycle, Issue } from "@linear/sdk";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
+import { Cycle, Issue } from "@linear/sdk"
+import { useMemo } from "react"
+import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import { ProjectCycle } from "./ProjectCycle";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { ProjectCycle } from "./ProjectCycle"
+
+import { Tooltip } from "../Tooltip/Tooltip"
 
 export type ProjectCyclePickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue;
-  onChange: (value: string | null) => void;
-  size?: number;
-  inline?: "text" | "icon";
-};
+  issue: Issue
+  onChange: (value: string | null) => void
+  size?: number
+  inline?: "text" | "icon"
+}
 
 export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
-  const {
-    issue,
-    style,
-    className,
-    inline,
-    size,
-    onChange,
-    ...selectPickerProps
-  } = props;
-  const { cycles, cyclesLoading } = useIssueContext();
+  const { issue, style, className, inline, size, onChange, ...selectPickerProps } = props
+  const { cycles, cyclesLoading } = useIssueContext()
 
   const data = useMemo(
     () => [
@@ -43,18 +36,15 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
         }))
         .sort((a, b) => a.cycle.number - b.cycle.number) || []),
     ],
-    [cycles]
-  );
+    [cycles],
+  )
 
-  const projectCycle =
-    data.find((c) => c.value === issue.cycleId)?.cycle || null;
+  const projectCycle = data.find((c) => c.value === issue.cycleId)?.cycle || null
 
   return (
     <Tooltip
       tooltip={
-        inline === "icon" ? (
-          <ProjectCycle projectCycle={projectCycle} showDate />
-        ) : undefined
+        inline === "icon" ? <ProjectCycle projectCycle={projectCycle} showDate /> : undefined
       }
       delayOpen={0}
     >
@@ -66,27 +56,19 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
           data={data}
           value={issue.cycleId || null}
           placeholder={<ProjectCycle projectCycle={null} inline={inline} />}
-          onChange={(cycleId) =>
-            onChange?.(cycleId === "no-cycle" ? null : cycleId)
-          }
+          onChange={(cycleId) => onChange?.(cycleId === "no-cycle" ? null : cycleId)}
           renderOption={(_, item: { cycle: Cycle | null }) => (
             <ProjectCycle projectCycle={item.cycle} showDate />
           )}
           renderValue={(_, item) => {
             if (!item) {
-              return null;
+              return null
             }
-            return (
-              <ProjectCycle
-                projectCycle={item.cycle}
-                inline={inline}
-                size={size}
-              />
-            );
+            return <ProjectCycle projectCycle={item.cycle} inline={inline} size={size} />
           }}
           {...selectPickerProps}
         />
       </span>
     </Tooltip>
-  );
+  )
 }

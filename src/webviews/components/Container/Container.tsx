@@ -1,23 +1,23 @@
-import { Suspense } from "react";
+import { Suspense } from "react"
 
-import "./Container.css";
+import "./Container.css"
 
 type ContainerProps = {
-  children?: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-  loading?: boolean;
-};
+  children?: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+  loading?: boolean
+}
 
 export function Container(props: ContainerProps) {
-  const { children, className, style, loading } = props;
+  const { children, className, style, loading } = props
 
   if (loading) {
     return (
       <div className={`container ${className || ""}`} style={style}>
         <div className="loading">Loading...</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -26,5 +26,5 @@ export function Container(props: ContainerProps) {
         <div className="content">{children}</div>
       </div>
     </Suspense>
-  );
+  )
 }

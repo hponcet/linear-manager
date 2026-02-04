@@ -29,6 +29,7 @@
 }
 
 .issueTrashedLabel {
+  /* stylelint-disable-next-line custom-property-pattern */
   background-color: var(--vscode-activityErrorBadge-background);
   color: var(--rs-text-primary);
   border-radius: 4px;

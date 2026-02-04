@@ -1,21 +1,21 @@
-import { User } from "@linear/sdk";
-import { ReactNode } from "react";
-import { UserAvatar } from "src/webviews/components/UserAvatar/UserAvatar";
+import { User } from "@linear/sdk"
+import { ReactNode } from "react"
+import { UserAvatar } from "src/webviews/components/UserAvatar/UserAvatar"
 
 type AssigneeProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  user?: User | null;
-  label?: ReactNode;
-  inline?: "text" | "icon";
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  user?: User | null
+  label?: ReactNode
+  inline?: "text" | "icon"
+  size?: number
+}
 
 export function Assignee(props: AssigneeProps) {
-  const { style, className, user, label, inline, size } = props;
+  const { style, className, user, label, inline, size } = props
 
   if (inline === "text") {
-    return <>{label || user?.name || "No assignee"}</>;
+    return <>{label || user?.name || "No assignee"}</>
   } else if (inline === "icon") {
     return (
       <UserAvatar
@@ -24,7 +24,7 @@ export function Assignee(props: AssigneeProps) {
         style={{ opacity: user ? 1 : 0.5, ...style }}
         className={className}
       />
-    );
+    )
   }
 
   return (
@@ -42,5 +42,5 @@ export function Assignee(props: AssigneeProps) {
       <UserAvatar user={user} size={size || 16} style={{ marginRight: 8 }} />
       <div>{label || user?.name || "No assignee"}</div>
     </div>
-  );
+  )
 }

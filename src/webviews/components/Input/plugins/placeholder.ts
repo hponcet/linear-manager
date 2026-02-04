@@ -1,19 +1,19 @@
-import { Plugin } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { Plugin } from "prosemirror-state"
+import { EditorView } from "prosemirror-view"
 
 export default function placeholderPlugin(text: string) {
   const update = (view: EditorView) => {
     if (view.state.doc.textContent) {
-      view.dom.removeAttribute("data-placeholder");
+      view.dom.removeAttribute("data-placeholder")
     } else {
-      view.dom.setAttribute("data-placeholder", text);
+      view.dom.setAttribute("data-placeholder", text)
     }
-  };
+  }
 
   return new Plugin({
     view(view) {
-      update(view);
-      return { update };
+      update(view)
+      return { update }
     },
-  });
+  })
 }

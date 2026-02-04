@@ -1,8 +1,12 @@
+/* stylelint-disable selector-class-pattern */
+
 :root {
   --tiptap-card-bg-color: var(--white);
   --tiptap-card-border-color: var(--tt-gray-light-a-100);
   --tiptap-card-group-label-color: var(--tt-gray-light-a-800);
+}
 
+.dark {
   --tiptap-card-bg-color: var(--tt-gray-dark-50);
   --tiptap-card-border-color: var(--tt-gray-dark-a-100);
   --tiptap-card-group-label-color: var(--tt-gray-dark-a-800);
@@ -20,10 +24,9 @@
   flex-direction: column;
   outline: none;
   align-items: center;
-
   position: relative;
   min-width: 0;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   background-clip: border-box;
 }
 
@@ -62,11 +65,7 @@
 }
 
 .tiptap-card-group-label {
-  padding-top: 0.75rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  padding-bottom: 0.25rem;
-  line-height: normal;
+  padding: 0.75rem 0.5rem 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
   line-height: normal;

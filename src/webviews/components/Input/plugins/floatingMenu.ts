@@ -1,92 +1,88 @@
-import { Plugin } from "prosemirror-state";
-import { MenuElement, renderGrouped } from "prosemirror-menu";
-import { EditorView } from "prosemirror-view";
-/*import { coordsAtPos } from "../utils/position.js"*/
+import { type MenuElement, renderGrouped } from "prosemirror-menu"
+import { Plugin } from "prosemirror-state"
+import { EditorView } from "prosemirror-view"
 
-export function selectionMenu(options: {
-  content: readonly (readonly MenuElement[])[];
-}) {
+export function selectionMenu(options: { content: readonly (readonly MenuElement[])[] }) {
   return new Plugin({
     view(editorView) {
-      return new SelectionMenu(editorView, options);
+      // eslint-disable-next-line no-use-before-define
+      return new SelectionMenu(editorView, options)
     },
-  });
+  })
 }
 
 class SelectionMenu {
-  editorView: EditorView;
-  options: { content: readonly (readonly MenuElement[])[] };
-  menu: HTMLDivElement;
+  editorView: EditorView
+  options: { content: readonly (readonly MenuElement[])[] }
+  menu: HTMLDivElement
 
-  contentUpdate: (state: any) => void;
+  contentUpdate: (state: any) => void
 
-  constructor(
-    editorView: EditorView,
-    options: { content: readonly (readonly MenuElement[])[] }
-  ) {
-    this.editorView = editorView;
-    this.options = options;
+  constructor(editorView: EditorView, options: { content: readonly (readonly MenuElement[])[] }) {
+    this.editorView = editorView
+    this.options = options
 
-    this.menu = document.createElement("div");
-    this.menu.style.display = "none";
-    this.menu.style.position = "absolute";
-    this.menu.className = "pm-selectionmenu";
+    this.menu = document.createElement("div")
+    this.menu.style.display = "none"
+    this.menu.style.position = "absolute"
+    this.menu.className = "pm-selectionmenu"
 
-    let { dom, update } = renderGrouped(this.editorView, this.options.content);
+    const { dom, update } = renderGrouped(this.editorView, this.options.content)
 
-    this.contentUpdate = update;
-    this.menu.appendChild(dom);
+    this.contentUpdate = update
+    this.menu.appendChild(dom)
 
-    editorView.dom.parentNode?.appendChild(this.menu);
+    editorView.dom.parentNode?.appendChild(this.menu)
 
-    this.update(editorView);
+    this.update(editorView)
   }
 
   update(view: EditorView) {
-    const { state } = view;
+    const { state } = view
 
     if (!state || state.selection.empty) {
       if (this.menu.style.display !== "none") {
-        this.menu.style.display = "none";
+        this.menu.style.display = "none"
       }
-      return;
+      return
     }
 
-    this.menu.style.display = "block";
+    this.menu.style.display = "block"
 
     if (!this.menu.offsetParent) {
       if (this.menu.style.display !== "none") {
-        this.menu.style.display = "none";
+        this.menu.style.display = "none"
       }
-      return;
+      return
     }
     // Update the Content state before calculating the position
-    this.contentUpdate(this.editorView.state);
+    this.contentUpdate(this.editorView.state)
 
-    const { from, to } = state.selection;
+    const { from, to } = state.selection
 
     try {
-      const start = view.coordsAtPos(from);
-      const end = view.coordsAtPos(to);
+      const start = view.coordsAtPos(from)
+      const end = view.coordsAtPos(to)
 
-      let box = this.menu.getBoundingClientRect();
+      const box = this.menu.getBoundingClientRect()
 
-      let offsetParentBox = this.menu.offsetParent.getBoundingClientRect();
-      let left =
-        (start.left + end.left) / 2 - box.width / 2 - offsetParentBox.left;
+      const offsetParentBox = this.menu.offsetParent.getBoundingClientRect()
+      let left = (start.left + end.left) / 2 - box.width / 2 - offsetParentBox.left
 
       if (left < 5) {
-        left = 5;
+        left = 5
       }
 
-      this.menu.style.left = left + "px";
-      this.menu.style.top = start.top - offsetParentBox.top - box.height + "px";
-    } catch (err) {}
+      this.menu.style.left = left + "px"
+      this.menu.style.top = start.top - offsetParentBox.top - box.height + "px"
+    } catch (err) {
+      console.error("Error positioning floating menu", err)
+    }
   }
 
   destroy() {
     if (this.menu) {
-      this.menu.remove();
+      this.menu.remove()
     }
   }
 }

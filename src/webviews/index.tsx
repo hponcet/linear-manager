@@ -1,11 +1,12 @@
-import * as ReactDOM from "react-dom/client";
-import moment from "moment";
-import { CustomProvider } from "rsuite";
+import moment from "moment"
+import * as ReactDOM from "react-dom/client"
+import { CustomProvider } from "rsuite"
 
-import { Webviews } from "../constants";
-import IssueWebview from "./views/IssueWebview/IssueWebview";
-import { StartWorkWebview } from "./views/StartWorkWebview/StartWorkWebview";
-import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
+import IssueWebview from "./views/IssueWebview/IssueWebview"
+import { StartWorkWebview } from "./views/StartWorkWebview/StartWorkWebview"
+
+import { Webviews } from "../constants"
 
 moment.locale("en", {
   relativeTime: {
@@ -23,27 +24,27 @@ moment.locale("en", {
     y: "%dy ago",
     yy: "%dy ago",
   },
-});
+})
 
-import "./styles/index.scss";
+import "./styles/index.scss"
 
-const view = document.getElementById("webview") as HTMLElement;
-const root = document.getElementById("root") as HTMLElement;
-const reactRoot = ReactDOM.createRoot(root);
+const view = document.getElementById("webview") as HTMLElement
+const root = document.getElementById("root") as HTMLElement
+const reactRoot = ReactDOM.createRoot(root)
 
 function getViewContent() {
   switch (view.getAttribute("content")) {
     case Webviews.issueWebview:
-      return <IssueWebview />;
+      return <IssueWebview />
     case Webviews.startWorkWebview:
-      return <StartWorkWebview />;
+      return <StartWorkWebview />
     default:
-      throw new Error("Unknown webview content");
+      throw new Error("Unknown webview content")
   }
 }
 
 reactRoot.render(
   <CustomProvider theme="dark">
     <ErrorBoundary>{getViewContent()}</ErrorBoundary>
-  </CustomProvider>
-);
+  </CustomProvider>,
+)

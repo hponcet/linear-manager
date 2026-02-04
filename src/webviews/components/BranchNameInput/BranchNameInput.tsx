@@ -1,20 +1,17 @@
-import { Input, InputProps } from "rsuite";
-import { BranchIcon } from "../Icons/BranchIcon";
+import { Input, type InputProps } from "rsuite"
 
-type BranchNameInputProps = Omit<
-  InputProps,
-  "data" | "value" | "placeholder" | "size"
-> & {
-  name: string | undefined;
-  placeholder?: string;
-  onChange?: (name: string) => void;
-  size?: number;
-  inline?: "text" | "icon";
-};
+import { BranchIcon } from "../Icons/BranchIcon"
+
+type BranchNameInputProps = Omit<InputProps, "data" | "value" | "placeholder" | "size"> & {
+  name: string | undefined
+  placeholder?: string
+  onChange?: (name: string) => void
+  size?: number
+  inline?: "text" | "icon"
+}
 
 export function BranchNameInput(props: BranchNameInputProps) {
-  const { name, placeholder, style, size, onChange, inline, ...inputProps } =
-    props;
+  const { name, placeholder, style, size, onChange, inline, ...inputProps } = props
 
   if (inline === "text") {
     return (
@@ -26,9 +23,9 @@ export function BranchNameInput(props: BranchNameInputProps) {
         {...inputProps}
         disabled={!onChange}
       />
-    );
+    )
   } else if (inline === "icon") {
-    return <BranchIcon size={size || 14} />;
+    return <BranchIcon size={size || 14} />
   }
 
   return (
@@ -49,5 +46,5 @@ export function BranchNameInput(props: BranchNameInputProps) {
         disabled={!onChange}
       />
     </div>
-  );
+  )
 }

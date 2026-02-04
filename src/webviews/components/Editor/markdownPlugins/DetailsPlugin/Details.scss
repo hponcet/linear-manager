@@ -1,3 +1,7 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable property-no-deprecated */
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
 .details-container {
   display: flex;
   flex-flow: row nowrap;
@@ -9,7 +13,6 @@
 
   summary {
     margin-bottom: 1rem;
-
     position: relative;
     height: 25px;
     line-height: 25px;
@@ -22,7 +25,7 @@
 
       @debug "dataPlaceHolder: #{$dataPlaceHolder}";
 
-      &:has(:only-child):before {
+      &:has(:only-child)::before {
         pointer-events: none;
         height: 0;
         position: absolute;
@@ -50,13 +53,12 @@
 .details-toggle-button {
   display: inline-flex;
   vertical-align: top;
-  -webkit-box-align: center;
   align-items: center;
   -webkit-box-pack: center;
   justify-content: center;
   white-space: nowrap;
   flex-shrink: 0;
-  margin: 0px;
+  margin: 0;
   border-radius: 5px;
   font-weight: 500;
   line-height: normal;
@@ -65,8 +67,8 @@
   user-select: none;
   border: 0.5px solid transparent;
   background-color: transparent;
-  color: lch(90.65 1.35 272);
-  padding: 0px 2px;
+  color: lch(90.65% 1.35 272deg);
+  padding: 0 2px;
   box-shadow: none;
   width: 28px;
   height: 26px;
@@ -74,7 +76,7 @@
   position: relative;
 
   svg {
-    fill: lch(90.65 1.35 272);
+    fill: lch(90.65% 1.35 272deg);
   }
 }
 

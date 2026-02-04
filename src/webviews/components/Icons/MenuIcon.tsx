@@ -1,11 +1,11 @@
 type MenuIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function MenuIcon(props: MenuIconProps) {
-  const { style, className, size = 16 } = props;
+  const { style, className, size = 16 } = props
 
   return (
     <svg
@@ -22,5 +22,5 @@ export function MenuIcon(props: MenuIconProps) {
     >
       <path d="M3 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"></path>
     </svg>
-  );
+  )
 }

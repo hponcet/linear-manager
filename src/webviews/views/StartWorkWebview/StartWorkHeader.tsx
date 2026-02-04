@@ -1,28 +1,28 @@
-import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker";
-import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker";
-import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker";
-import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker";
-import { Menu } from "src/webviews/components/Menu/Menu";
-import { OpenExternalIcon } from "src/webviews/components/Icons/OpenExternalIcon";
-import { ResetIcon } from "src/webviews/components/Icons/ResetIcon";
+import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker"
+import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker"
+import { CogIcon } from "src/webviews/components/Icons/CogIcon"
+import { OpenExternalIcon } from "src/webviews/components/Icons/OpenExternalIcon"
+import { ResetIcon } from "src/webviews/components/Icons/ResetIcon"
+import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker"
+import { Menu } from "src/webviews/components/Menu/Menu"
+import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker"
+import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker"
+import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useIssueSettings } from "src/webviews/hooks/useIssueSettings"
 
-import "./StartWorkHeader.scss";
-import { CogIcon } from "src/webviews/components/Icons/CogIcon";
-import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker";
-import { useIssueSettings } from "src/webviews/hooks/useIssueSettings";
+import "./StartWorkHeader.scss"
 
 export type StartWorkHeaderProps = {
-  setBranchNamingSettingsOpen: (open: boolean) => void;
-};
+  setBranchNamingSettingsOpen: (open: boolean) => void
+}
 
 export function StartWorkHeader(props: StartWorkHeaderProps) {
-  const { setBranchNamingSettingsOpen } = props;
+  const { setBranchNamingSettingsOpen } = props
 
-  const { issue, update } = useIssueContext();
+  const { issue, update } = useIssueContext()
 
-  const { updateIssueSettings } = useIssueSettings({ issueId: issue.id });
+  const { updateIssueSettings } = useIssueSettings({ issueId: issue.id })
 
   return (
     <div className="startWorkHeader">
@@ -34,13 +34,9 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
             inline="icon"
             size={14}
           />
-          <span onClick={() => update.panelActions.openIssue(issue.id)}>
-            {issue.identifier}
-          </span>
+          <span onClick={() => update.panelActions.openIssue(issue.id)}>{issue.identifier}</span>
         </span>
-        <span onClick={() => update.panelActions.openIssue(issue.id)}>
-          {issue?.title}
-        </span>
+        <span onClick={() => update.panelActions.openIssue(issue.id)}>{issue?.title}</span>
       </div>
       <div className="startWorkContentActions">
         <LabelsPicker
@@ -107,5 +103,5 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

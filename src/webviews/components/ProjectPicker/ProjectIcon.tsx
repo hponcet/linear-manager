@@ -1,12 +1,12 @@
 export type ProjectIconProps = {
-  size?: number;
-  color?: string;
-  style?: React.CSSProperties;
-  className?: string;
-};
+  size?: number
+  color?: string
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function ProjectIcon(props: ProjectIconProps) {
-  const { size = 16, color = "currentColor", style, className } = props;
+  const { size = 16, color = "currentColor", style, className } = props
 
   return (
     <svg
@@ -27,5 +27,5 @@ export function ProjectIcon(props: ProjectIconProps) {
         clipRule="evenodd"
       ></path>
     </svg>
-  );
+  )
 }

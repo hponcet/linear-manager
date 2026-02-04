@@ -1,77 +1,62 @@
-import type { Editor } from "@tiptap/core";
-import { findChildren, findParentNode } from "@tiptap/core";
-import { GapCursor } from "@tiptap/pm/gapcursor";
-import type { ResolvedPos } from "@tiptap/pm/model";
-import type { Selection } from "@tiptap/pm/state";
+import { findChildren, findParentNode } from "@tiptap/core"
+import { GapCursor } from "@tiptap/pm/gapcursor"
 
-import { isNodeVisible } from "./isNodeVisible";
+import { isNodeVisible } from "./isNodeVisible"
+
+import type { Editor } from "@tiptap/core"
+import type { ResolvedPos } from "@tiptap/pm/model"
+import type { Selection } from "@tiptap/pm/state"
 
 export const setGapCursor = (editor: Editor, direction: "down" | "right") => {
-  const { state, view, extensionManager } = editor;
-  const { schema, selection } = state;
-  const { empty, $anchor } = selection;
+  const { state, view, extensionManager } = editor
+  const { schema, selection } = state
+  const { empty, $anchor } = selection
   const hasGapCursorExtension = !!extensionManager.extensions.find(
-    (extension) => extension.name === "gapCursor"
-  );
+    (extension) => extension.name === "gapCursor",
+  )
 
-  if (
-    !empty ||
-    $anchor.parent.type !== schema.nodes.detailsSummary ||
-    !hasGapCursorExtension
-  ) {
-    return false;
+  if (!empty || $anchor.parent.type !== schema.nodes.detailsSummary || !hasGapCursorExtension) {
+    return false
   }
 
-  if (
-    direction === "right" &&
-    $anchor.parentOffset !== $anchor.parent.nodeSize - 2
-  ) {
-    return false;
+  if (direction === "right" && $anchor.parentOffset !== $anchor.parent.nodeSize - 2) {
+    return false
   }
 
-  const details = findParentNode((node) => node.type === schema.nodes.details)(
-    selection
-  );
+  const details = findParentNode((node) => node.type === schema.nodes.details)(selection)
 
   if (!details) {
-    return false;
+    return false
   }
 
   const detailsContent = findChildren(
     details.node,
-    (node) => node.type === schema.nodes.detailsContent
-  );
+    (node) => node.type === schema.nodes.detailsContent,
+  )
 
   if (!detailsContent.length) {
-    return false;
+    return false
   }
 
-  const isOpen = isNodeVisible(
-    details.start + detailsContent[0].pos + 1,
-    editor
-  );
+  const isOpen = isNodeVisible(details.start + detailsContent[0].pos + 1, editor)
 
   if (isOpen) {
-    return false;
+    return false
   }
 
-  const $position = state.doc.resolve(details.pos + details.node.nodeSize);
-  const $validPosition = GapCursor.findFrom(
-    $position,
-    1,
-    false
-  ) as unknown as null | ResolvedPos;
+  const $position = state.doc.resolve(details.pos + details.node.nodeSize)
+  const $validPosition = GapCursor.findFrom($position, 1, false) as unknown as null | ResolvedPos
 
   if (!$validPosition) {
-    return false;
+    return false
   }
 
-  const { tr } = state;
-  const gapCursorSelection = new GapCursor($validPosition) as Selection;
+  const { tr } = state
+  const gapCursorSelection = new GapCursor($validPosition) as Selection
 
-  tr.setSelection(gapCursorSelection);
-  tr.scrollIntoView();
-  view.dispatch(tr);
+  tr.setSelection(gapCursorSelection)
+  tr.scrollIntoView()
+  view.dispatch(tr)
 
-  return true;
-};
+  return true
+}

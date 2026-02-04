@@ -1,14 +1,14 @@
-import { EstimateDataItem } from "src/webviews/utils/issueEstimateByType";
+import { EstimateDataItem } from "src/webviews/utils/issueEstimateByType"
 
 type EstimateIconProps = {
-  estimate?: EstimateDataItem | null;
-  size?: number;
-  style?: React.CSSProperties;
-  className?: string;
-};
+  estimate?: EstimateDataItem | null
+  size?: number
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function EstimateIcon(props: EstimateIconProps) {
-  const { style, className, estimate, size = 16 } = props;
+  const { style, className, estimate, size = 16 } = props
 
   if (!estimate?.value) {
     return (
@@ -31,7 +31,7 @@ export function EstimateIcon(props: EstimateIconProps) {
           clipRule="evenodd"
         ></path>
       </svg>
-    );
+    )
   }
 
   return (
@@ -53,5 +53,5 @@ export function EstimateIcon(props: EstimateIconProps) {
         clipRule="evenodd"
       ></path>
     </svg>
-  );
+  )
 }

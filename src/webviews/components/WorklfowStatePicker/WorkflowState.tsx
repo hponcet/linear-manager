@@ -1,23 +1,24 @@
-import { WorkflowStateIcon } from "./WorkflowStateIcon";
-import { WorkflowStateWithStateProgress } from "src/types/Linear";
+import { WorkflowStateWithStateProgress } from "src/types/Linear"
+
+import { WorkflowStateIcon } from "./WorkflowStateIcon"
 
 export type WorkflowStateProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  workflowState?: WorkflowStateWithStateProgress;
-  inline?: "text" | "icon";
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  workflowState?: WorkflowStateWithStateProgress
+  inline?: "text" | "icon"
+  size?: number
+}
 
 export function WorkflowState(props: WorkflowStateProps) {
-  const { style, className, workflowState, inline, size } = props;
+  const { style, className, workflowState, inline, size } = props
 
   if (!workflowState) {
-    return "Unknown state";
+    return "Unknown state"
   }
 
   if (inline === "text") {
-    return workflowState.name;
+    return workflowState.name
   }
 
   if (inline === "icon") {
@@ -28,7 +29,7 @@ export function WorkflowState(props: WorkflowStateProps) {
         workflowState={workflowState}
         size={size}
       />
-    );
+    )
   }
 
   return (
@@ -43,12 +44,8 @@ export function WorkflowState(props: WorkflowStateProps) {
       }}
       className={className}
     >
-      <WorkflowStateIcon
-        style={{ marginRight: 8 }}
-        workflowState={workflowState}
-        size={size}
-      />
+      <WorkflowStateIcon style={{ marginRight: 8 }} workflowState={workflowState} size={size} />
       <span>{workflowState.name}</span>
     </div>
-  );
+  )
 }

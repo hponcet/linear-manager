@@ -1,45 +1,34 @@
-import { forwardRef, useCallback, useState } from "react";
-
-// --- Icons ---
-import { ChevronDownIcon } from "src/webviews/components/Editor/components/tiptap-icons/chevron-down-icon";
-
-// --- Hooks ---
-import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor";
-
-// --- Tiptap UI ---
-import { HeadingButton } from "src/webviews/components/Editor/components/tiptap-ui/heading-button";
-import type { UseHeadingDropdownMenuConfig } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu";
-import { useHeadingDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu";
-
-// --- UI Primitives ---
-import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
+import { forwardRef, useCallback, useState } from "react"
+import { ChevronDownIcon } from "src/webviews/components/Editor/components/tiptap-icons/chevron-down-icon"
+import { HeadingButton } from "src/webviews/components/Editor/components/tiptap-ui/heading-button"
+import { useHeadingDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu"
 import {
   Button,
   ButtonGroup,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
+import { Card, CardBody } from "src/webviews/components/Editor/components/tiptap-ui-primitive/card"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/dropdown-menu";
-import {
-  Card,
-  CardBody,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/card";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/dropdown-menu"
+import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor"
+
+import type { UseHeadingDropdownMenuConfig } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu"
+import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
 
 export interface HeadingDropdownMenuProps
-  extends Omit<ButtonProps, "type">,
-    UseHeadingDropdownMenuConfig {
+  extends Omit<ButtonProps, "type">, UseHeadingDropdownMenuConfig {
   /**
    * Whether to render the dropdown menu in a portal
    * @default false
    */
-  portal?: boolean;
+  portal?: boolean
   /**
    * Callback for when the dropdown opens or closes
    */
-  onOpenChange?: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void
 }
 
 /**
@@ -47,10 +36,7 @@ export interface HeadingDropdownMenuProps
  *
  * For custom dropdown implementations, use the `useHeadingDropdownMenu` hook instead.
  */
-export const HeadingDropdownMenu = forwardRef<
-  HTMLButtonElement,
-  HeadingDropdownMenuProps
->(
+export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdownMenuProps>(
   (
     {
       editor: providedEditor,
@@ -60,27 +46,27 @@ export const HeadingDropdownMenu = forwardRef<
       onOpenChange,
       ...buttonProps
     },
-    ref
+    ref,
   ) => {
-    const { editor } = useTiptapEditor(providedEditor);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const { editor } = useTiptapEditor(providedEditor)
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     const { isVisible, isActive, canToggle, Icon } = useHeadingDropdownMenu({
       editor,
       levels,
       hideWhenUnavailable,
-    });
+    })
 
     const handleOpenChange = useCallback(
       (open: boolean) => {
-        if (!editor || !canToggle) return;
-        setIsOpen(open);
-        onOpenChange?.(open);
+        if (!editor || !canToggle) return
+        setIsOpen(open)
+        onOpenChange?.(open)
       },
-      [canToggle, editor, onOpenChange]
-    );
+      [canToggle, editor, onOpenChange],
+    )
 
     if (!isVisible) {
-      return null;
+      return null
     }
 
     return (
@@ -124,10 +110,10 @@ export const HeadingDropdownMenu = forwardRef<
           </Card>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  }
-);
+    )
+  },
+)
 
-HeadingDropdownMenu.displayName = "HeadingDropdownMenu";
+HeadingDropdownMenu.displayName = "HeadingDropdownMenu"
 
-export default HeadingDropdownMenu;
+export default HeadingDropdownMenu

@@ -1,13 +1,13 @@
-import { User } from "@linear/sdk";
+import { User } from "@linear/sdk"
 type UserAvatarProps = {
-  user?: User | null;
-  size?: number;
-  style?: React.CSSProperties;
-  className?: string;
-};
+  user?: User | null
+  size?: number
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function UserAvatar(props: UserAvatarProps) {
-  const { user, size, style, className } = props;
+  const { user, size, style, className } = props
 
   if (!user) {
     return (
@@ -59,7 +59,7 @@ export function UserAvatar(props: UserAvatarProps) {
           d="M8 1C8.18457 1 8.36759 1.00741 8.54883 1.02148C8.9618 1.05357 9.27036 1.41418 9.23828 1.82715C9.20615 2.24007 8.84556 2.54868 8.43262 2.5166C8.29001 2.50553 8.14573 2.5 8 2.5C7.85427 2.5 7.70999 2.50553 7.56738 2.5166C7.15444 2.54868 6.79385 2.24007 6.76172 1.82715C6.72964 1.41418 7.0382 1.05357 7.45117 1.02148C7.63241 1.00741 7.81543 1 8 1Z"
         ></path>
       </svg>
-    );
+    )
   }
 
   return (
@@ -99,5 +99,5 @@ export function UserAvatar(props: UserAvatarProps) {
         user?.initials
       )}
     </div>
-  );
+  )
 }

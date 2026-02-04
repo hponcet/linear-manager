@@ -1,38 +1,35 @@
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Comment as CommentType } from "src/webviews/utils/comments";
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { Comment as CommentType } from "src/webviews/utils/comments"
 
-import { ResolveIcon } from "../Icons/ResolveIcon";
+import { CollapseIcon } from "../Icons/CollapseIcon"
+import { ExpandIcon } from "../Icons/ExpandIcon"
+import { ResolveIcon } from "../Icons/ResolveIcon"
 
-import "./CommentExpander.scss";
-import { CollapseIcon } from "../Icons/CollapseIcon";
-import { ExpandIcon } from "../Icons/ExpandIcon";
+import "./CommentExpander.scss"
 
 type CommentExpanderProps = {
-  comment: CommentType;
-  expanded: boolean;
-  setExpanded: (expanded: boolean) => void;
-};
+  comment: CommentType
+  expanded: boolean
+  setExpanded: (expanded: boolean) => void
+}
 
 export function CommentExpander(props: CommentExpanderProps) {
-  const { comment, expanded, setExpanded } = props;
+  const { comment, expanded, setExpanded } = props
 
-  const { users } = useIssueContext();
+  const { users } = useIssueContext()
 
-  if (
-    (!comment.resolvingCommentId && !comment.resolvingUserId) ||
-    !comment.childrenComments
-  ) {
-    return null;
+  if ((!comment.resolvingCommentId && !comment.resolvingUserId) || !comment.childrenComments) {
+    return null
   }
 
-  const user = users.find((u) => u.id === comment.resolvingUserId) || null;
+  const user = users.find((u) => u.id === comment.resolvingUserId) || null
 
-  let commentCount = 0;
+  let commentCount = 0
 
   if (comment.resolvingCommentId) {
-    commentCount = comment.childrenComments.length - 1;
+    commentCount = comment.childrenComments.length - 1
   } else {
-    commentCount = comment.childrenComments.length + 1;
+    commentCount = comment.childrenComments.length + 1
   }
 
   return (
@@ -59,5 +56,5 @@ export function CommentExpander(props: CommentExpanderProps) {
       </div>
       <div className="issueCommentSeparator" />
     </>
-  );
+  )
 }

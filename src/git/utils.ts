@@ -3,145 +3,140 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-"use strict";
-import { Event } from "vscode";
-import { sep } from "path";
+"use strict"
+import { sep } from "path"
+
+import { Event } from "vscode"
 
 export function uniqBy<T>(arr: T[], fn: (el: T) => string): T[] {
-  const seen = Object.create(null);
+  const seen = Object.create(null)
 
   return arr.filter((el) => {
-    const key = fn(el);
+    const key = fn(el)
 
     if (seen[key]) {
-      return false;
+      return false
     }
 
-    seen[key] = true;
-    return true;
-  });
+    seen[key] = true
+    return true
+  })
 }
 
 export interface IDisposable {
-  dispose(): void;
+  dispose(): void
 }
 
 export function dispose<T extends IDisposable>(disposables: T[]): T[] {
-  disposables.forEach((d) => d.dispose());
-  return [];
+  disposables.forEach((d) => d.dispose())
+  return []
 }
 
 export function toDisposable(d: () => void): IDisposable {
-  return { dispose: d };
+  return { dispose: d }
 }
 
 export function combinedDisposable(disposables: IDisposable[]): IDisposable {
-  return toDisposable(() => dispose(disposables));
+  return toDisposable(() => dispose(disposables))
 }
 
 export function anyEvent<T>(...events: Event<T>[]): Event<T> {
   return (listener, thisArgs = null, disposables?) => {
     const result = combinedDisposable(
-      events.map((event) => event((i) => listener.call(thisArgs, i)))
-    );
+      events.map((event) => event((i) => listener.call(thisArgs, i))),
+    )
 
     if (disposables) {
-      disposables.push(result);
+      disposables.push(result)
     }
 
-    return result;
-  };
+    return result
+  }
 }
 
-export function filterEvent<T>(
-  event: Event<T>,
-  filter: (e: T) => boolean
-): Event<T> {
+export function filterEvent<T>(event: Event<T>, filter: (e: T) => boolean): Event<T> {
   return (listener, thisArgs = null, disposables?) =>
-    event((e) => filter(e) && listener.call(thisArgs, e), null, disposables);
+    event((e) => filter(e) && listener.call(thisArgs, e), null, disposables)
 }
 
 export function onceEvent<T>(event: Event<T>): Event<T> {
   return (listener, thisArgs = null, disposables?) => {
     const result = event(
       (e) => {
-        result.dispose();
-        return listener.call(thisArgs, e);
+        result.dispose()
+        return listener.call(thisArgs, e)
       },
       null,
-      disposables
-    );
+      disposables,
+    )
 
-    return result;
-  };
+    return result
+  }
 }
 
 function isWindowsPath(path: string): boolean {
-  return /^[a-zA-Z]:\\/.test(path);
+  return /^[a-zA-Z]:\\/.test(path)
 }
 
 export function isDescendant(parent: string, descendant: string): boolean {
   if (parent === descendant) {
-    return true;
+    return true
   }
 
   if (parent.charAt(parent.length - 1) !== sep) {
-    parent += sep;
+    parent += sep
   }
 
   // Windows is case insensitive
   if (isWindowsPath(parent)) {
-    parent = parent.toLowerCase();
-    descendant = descendant.toLowerCase();
+    parent = parent.toLowerCase()
+    descendant = descendant.toLowerCase()
   }
 
-  return descendant.startsWith(parent);
+  return descendant.startsWith(parent)
 }
 
-export function groupBy<T>(
-  arr: T[],
-  fn: (el: T) => string
-): { [key: string]: T[] } {
+export function groupBy<T>(arr: T[], fn: (el: T) => string): { [key: string]: T[] } {
   return arr.reduce((result, el) => {
-    const key = fn(el);
-    result[key] = [...(result[key] || []), el];
-    return result;
-  }, Object.create(null));
+    const key = fn(el)
+    result[key] = [...(result[key] || []), el]
+    return result
+  }, Object.create(null))
 }
 
 export function formatError(e: any): string {
   if (!(e instanceof Error)) {
     if (typeof e === "string") {
-      return e;
+      return e
     }
-    return "Error";
+    return "Error"
   }
 
   try {
-    let errorMessage = e.message;
+    let errorMessage = e.message
 
-    const message = JSON.parse(e.message);
+    const message = JSON.parse(e.message)
     if (message) {
-      errorMessage = message.message;
+      errorMessage = message.message
 
       const furtherInfo =
         message.errors &&
         message.errors
           .map((error: any) => {
             if (typeof error === "string") {
-              return error;
+              return error
             } else {
-              return error.message;
+              return error.message
             }
           })
-          .join(", ");
+          .join(", ")
       if (furtherInfo) {
-        errorMessage = `${errorMessage}: ${furtherInfo}`;
+        errorMessage = `${errorMessage}: ${furtherInfo}`
       }
     }
 
-    return errorMessage;
+    return errorMessage
   } catch (_) {
-    return e.message;
+    return e.message
   }
 }

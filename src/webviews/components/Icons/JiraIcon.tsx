@@ -1,11 +1,11 @@
 type JiraIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function JiraIcon(props: JiraIconProps) {
-  const { style, className, size = 16 } = props;
+  const { style, className, size = 16 } = props
 
   return (
     <svg
@@ -56,5 +56,5 @@ export function JiraIcon(props: JiraIconProps) {
         </linearGradient>
       </defs>
     </svg>
-  );
+  )
 }

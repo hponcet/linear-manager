@@ -1,0 +1,11 @@
+echo "Check types..."
+npm run check:types
+
+echo "\nCheck lint..."
+npm run lint
+
+echo "\nCheck indent..."
+npm run lint:indent
+
+echo "\nCheck styles..."
+npm run lint:styles

@@ -1,36 +1,34 @@
-import { ReactNode } from "react";
-import { Popover, Whisper, Menu as RSMenu } from "rsuite";
-import { Button } from "../Button/Button";
-import { MenuIcon } from "../Icons/MenuIcon";
+import { ReactNode } from "react"
+import { Popover, Whisper, Menu as RSMenu } from "rsuite"
+
+import { Button } from "../Button/Button"
+import { MenuIcon } from "../Icons/MenuIcon"
 
 export type MenuItem =
   | {
-      label: string;
-      action: () => void;
-      disabled?: boolean;
-      icon?: ReactNode;
-      submenu?: MenuItem[];
+      label: string
+      action: () => void
+      disabled?: boolean
+      icon?: ReactNode
+      submenu?: MenuItem[]
     }
-  | "separator";
+  | "separator"
 
 export type MenuProps = {
-  items: MenuItem[];
-};
+  items: MenuItem[]
+}
 
 export function Menu(props: MenuProps) {
-  const { items } = props;
+  const { items } = props
 
-  function renderMenu(
-    { onClose, className, ...rest }: any,
-    ref: React.Ref<any>,
-  ) {
+  function renderMenu({ onClose, className, ...rest }: any, ref: React.Ref<any>) {
     return (
       <Popover ref={ref} className={className} {...rest} full>
         <RSMenu
           onSelect={(itemIndex: number) => {
             if (items[itemIndex] !== "separator") {
-              items[itemIndex]?.action?.();
-              onClose();
+              items[itemIndex]?.action?.()
+              onClose()
             }
           }}
         >
@@ -50,7 +48,7 @@ export function Menu(props: MenuProps) {
           )}
         </RSMenu>
       </Popover>
-    );
+    )
   }
 
   return (
@@ -61,5 +59,5 @@ export function Menu(props: MenuProps) {
         </Button>
       </div>
     </Whisper>
-  );
+  )
 }

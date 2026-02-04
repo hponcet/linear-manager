@@ -1,16 +1,12 @@
-import { ReactNode } from "react";
-import {
-  Whisper,
-  Tooltip as RSTooltip,
-  type WhisperProps as RSWhisperProps,
-} from "rsuite";
+import { ReactNode } from "react"
+import { Whisper, Tooltip as RSTooltip, type WhisperProps as RSWhisperProps } from "rsuite"
 
 type TooltipProps = Omit<RSWhisperProps, "speaker"> & {
-  tooltip?: ReactNode;
-};
+  tooltip?: ReactNode
+}
 
 export function Tooltip(props: TooltipProps) {
-  const { children, tooltip, preventOverflow, ...tooltipProps } = props;
+  const { children, tooltip, preventOverflow, ...tooltipProps } = props
 
   return (
     <Whisper
@@ -25,5 +21,5 @@ export function Tooltip(props: TooltipProps) {
     >
       {children}
     </Whisper>
-  );
+  )
 }

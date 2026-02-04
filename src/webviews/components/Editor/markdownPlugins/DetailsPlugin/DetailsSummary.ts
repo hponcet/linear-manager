@@ -1,12 +1,12 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core"
 
 export interface DetailsSummaryOptions {
   /**
    * Custom HTML attributes that should be added to the rendered HTML tag.
    */
   HTMLAttributes: {
-    [key: string]: any;
-  };
+    [key: string]: any
+  }
 }
 
 export const DetailsSummary = Node.create<DetailsSummaryOptions>({
@@ -23,7 +23,7 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
-    };
+    }
   },
 
   parseHTML() {
@@ -31,14 +31,10 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
       {
         tag: "summary",
       },
-    ];
+    ]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [
-      "summary",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
-      0,
-    ];
+    return ["summary", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0]
   },
-});
+})

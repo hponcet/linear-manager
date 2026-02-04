@@ -1,11 +1,11 @@
 type ReplyIconProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  size?: number;
-};
+  style?: React.CSSProperties
+  className?: string
+  size?: number
+}
 
 export function CollapseIcon(props: ReplyIconProps) {
-  const { style, className, size = 16 } = props;
+  const { style, className, size = 16 } = props
 
   return (
     <svg
@@ -31,5 +31,5 @@ export function CollapseIcon(props: ReplyIconProps) {
         d="M8.35343 10.5607C8.15817 10.3654 7.84159 10.3654 7.64632 10.5607L5.35343 12.8536C5.15817 13.0488 4.84159 13.0488 4.64632 12.8536C4.45106 12.6583 4.45106 12.3417 4.64632 12.1464L6.93922 9.85355C7.525 9.26777 8.47475 9.26777 9.06054 9.85355L11.3534 12.1464C11.5487 12.3417 11.5487 12.6583 11.3534 12.8536C11.1582 13.0488 10.8416 13.0488 10.6463 12.8536L8.35343 10.5607Z"
       ></path>
     </svg>
-  );
+  )
 }

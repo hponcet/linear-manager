@@ -1,19 +1,20 @@
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { useAsyncMemo } from "src/webviews/hooks/useAsyncMemo";
-import { Issue } from "../Issue/Issue";
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useAsyncMemo } from "src/webviews/hooks/useAsyncMemo"
+
+import { Issue } from "../Issue/Issue"
 
 export function IssueParent() {
-  const { issue } = useIssueContext();
+  const { issue } = useIssueContext()
 
   const [parent, parentLoading] = useAsyncMemo(async () => {
     if (!issue?.parentId) {
-      return null;
+      return null
     }
-    return issue.parent;
-  }, [issue?.parentId]);
+    return issue.parent
+  }, [issue?.parentId])
 
   if (!parent || parentLoading) {
-    return null;
+    return null
   }
 
   return (
@@ -27,5 +28,5 @@ export function IssueParent() {
       Sub-Issue of
       <Issue issue={parent} />
     </div>
-  );
+  )
 }

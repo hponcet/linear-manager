@@ -1,17 +1,14 @@
-import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { cn } from "src/webviews/components/Editor/lib/tiptap-utils";
-import "src/webviews/components/Editor/components/tiptap-ui-primitive/popover/popover.scss";
+import * as PopoverPrimitive from "@radix-ui/react-popover"
+import { cn } from "src/webviews/components/Editor/lib/tiptap-utils"
 
-function Popover({
-  ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Root>) {
-  return <PopoverPrimitive.Root {...props} />;
+import "src/webviews/components/Editor/components/tiptap-ui-primitive/popover/popover.scss"
+
+function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
+  return <PopoverPrimitive.Root {...props} />
 }
 
-function PopoverTrigger({
-  ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger {...props} />;
+function PopoverTrigger({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
+  return <PopoverPrimitive.Trigger {...props} />
 }
 
 function PopoverContent({
@@ -29,7 +26,7 @@ function PopoverContent({
         {...props}
       />
     </PopoverPrimitive.Portal>
-  );
+  )
 }
 
-export { Popover, PopoverTrigger, PopoverContent };
+export { Popover, PopoverTrigger, PopoverContent }

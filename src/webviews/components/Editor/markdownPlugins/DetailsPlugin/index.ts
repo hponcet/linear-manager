@@ -1,3 +1,3 @@
-export * from "./Details";
-export * from "./DetailsSummary";
-export * from "./DetailsContent";
+export * from "./Details"
+export * from "./DetailsSummary"
+export * from "./DetailsContent"

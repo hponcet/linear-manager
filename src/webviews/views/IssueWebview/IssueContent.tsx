@@ -1,11 +1,11 @@
-import { IssueTitleInput } from "src/webviews/components/Input/IssueTitleInput";
-import { Editor } from "src/webviews/components/Editor/Editor";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { EmojiPicker } from "src/webviews/components/EmojiPicker/EmojiPicker";
-import { IssueParent } from "src/webviews/components/IssueParent/IssueParent";
+import { Editor } from "src/webviews/components/Editor/Editor"
+import { EmojiPicker } from "src/webviews/components/EmojiPicker/EmojiPicker"
+import { IssueTitleInput } from "src/webviews/components/Input/IssueTitleInput"
+import { IssueParent } from "src/webviews/components/IssueParent/IssueParent"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 export function IssueContent() {
-  const { issue, update } = useIssueContext();
+  const { issue, update } = useIssueContext()
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -19,14 +19,14 @@ export function IssueContent() {
             await update.reactions.addReaction({
               emoji,
               issueId: issue?.id || "",
-            });
+            })
           }}
           onUnselect={async (id) => {
-            await update.reactions.removeReaction(id);
+            await update.reactions.removeReaction(id)
           }}
           reactions={issue?.reactions || []}
         />
       </div>
     </div>
-  );
+  )
 }

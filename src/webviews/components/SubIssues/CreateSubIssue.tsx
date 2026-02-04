@@ -1,32 +1,31 @@
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { WorkflowStatePicker } from "../WorklfowStatePicker/WorkflowStatePicker";
-import { Issue, LinearClient } from "@linear/sdk";
-import { useEffect, useState } from "react";
-import { Button, Input } from "rsuite";
-import { Editor } from "../Editor/Editor";
-import { PriorityPicker } from "../PriorityPicker/PriorityPicker";
-import { AssigneePicker } from "../Assignee/AssigneePicker";
-import { EstimatePicker } from "../EstimatePicker/EstimatePicker";
-import { ProjectCyclePicker } from "../ProjectCyclePicker/ProjectCyclePicker";
-import { IssueProjectPicker } from "../ProjectPicker/ProjectPicker";
-import { LabelsPicker } from "../LabelsPicker/LabelsPicker";
+import { Issue, LinearClient } from "@linear/sdk"
+import { useEffect, useState } from "react"
+import { Button, Input } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import "./CreateSubIssue.scss";
+import { AssigneePicker } from "../Assignee/AssigneePicker"
+import { Editor } from "../Editor/Editor"
+import { EstimatePicker } from "../EstimatePicker/EstimatePicker"
+import { LabelsPicker } from "../LabelsPicker/LabelsPicker"
+import { PriorityPicker } from "../PriorityPicker/PriorityPicker"
+import { ProjectCyclePicker } from "../ProjectCyclePicker/ProjectCyclePicker"
+import { IssueProjectPicker } from "../ProjectPicker/ProjectPicker"
+import { WorkflowStatePicker } from "../WorklfowStatePicker/WorkflowStatePicker"
+
+import "./CreateSubIssue.scss"
 
 type CreateSubIssueProps = {
-  style?: React.CSSProperties;
-  className?: string;
-  onCancel: () => void;
-};
+  style?: React.CSSProperties
+  className?: string
+  onCancel: () => void
+}
 
 export function CreateSubIssue(props: CreateSubIssueProps) {
-  const { style, className, onCancel } = props;
+  const { style, className, onCancel } = props
 
-  const { issue: parentIssue, workflowStates, update } = useIssueContext();
+  const { issue: parentIssue, workflowStates, update } = useIssueContext()
 
-  const [issue, setIssue] = useState<
-    Parameters<LinearClient["updateIssue"]>[1]
-  >({});
+  const [issue, setIssue] = useState<Parameters<LinearClient["updateIssue"]>[1]>({})
 
   useEffect(() => {
     setIssue({
@@ -35,10 +34,10 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
       cycleId: parentIssue.cycleId,
       title: "",
       description: "",
-    });
-  }, [!!parentIssue, workflowStates]);
+    })
+  }, [!!parentIssue, workflowStates])
 
-  if (!parentIssue || !workflowStates) return null;
+  if (!parentIssue || !workflowStates) return null
 
   return (
     <div className={`createSubIssueContainer ${className || ""}`} style={style}>
@@ -67,15 +66,11 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
         <div className="createSubIssueActions">
           <PriorityPicker
             issue={issue as Issue}
-            onChange={(priority) =>
-              setIssue({ ...issue, priority: priority || undefined })
-            }
+            onChange={(priority) => setIssue({ ...issue, priority: priority || undefined })}
           />
           <AssigneePicker
             issue={issue as Issue}
-            onChange={(assigneeId) =>
-              setIssue({ ...issue, assigneeId: assigneeId || undefined })
-            }
+            onChange={(assigneeId) => setIssue({ ...issue, assigneeId: assigneeId || undefined })}
           />
           <EstimatePicker
             issue={issue as Issue}
@@ -83,21 +78,15 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
           />
           <ProjectCyclePicker
             issue={issue as Issue}
-            onChange={(cycleId) =>
-              setIssue({ ...issue, cycleId: cycleId || undefined })
-            }
+            onChange={(cycleId) => setIssue({ ...issue, cycleId: cycleId || undefined })}
           />
           <IssueProjectPicker
             issue={issue as Issue}
-            onChange={(projectId) =>
-              setIssue({ ...issue, projectId: projectId || undefined })
-            }
+            onChange={(projectId) => setIssue({ ...issue, projectId: projectId || undefined })}
           />
           <LabelsPicker
             issue={issue as Issue}
-            onChange={(labelIds) =>
-              setIssue({ ...issue, labelIds: labelIds || [] })
-            }
+            onChange={(labelIds) => setIssue({ ...issue, labelIds: labelIds || [] })}
           />
           <div className="createSubIssueButtons">
             <Button onClick={onCancel}>Cancel</Button>
@@ -105,8 +94,8 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
               disabled={!issue.title || issue.title.trim() === ""}
               appearance="primary"
               onClick={async () => {
-                await update.subIssues.createSubIssue(parentIssue.id, issue);
-                onCancel();
+                await update.subIssues.createSubIssue(parentIssue.id, issue)
+                onCancel()
               }}
             >
               Create
@@ -115,5 +104,5 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

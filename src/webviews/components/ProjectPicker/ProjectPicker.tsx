@@ -1,31 +1,25 @@
-import { useMemo } from "react";
-import { SelectPicker, SelectPickerProps } from "rsuite";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Project } from "./Project";
-import { Issue } from "@linear/sdk";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { Issue } from "@linear/sdk"
+import { useMemo } from "react"
+import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+
+import { Project } from "./Project"
+
+import { Tooltip } from "../Tooltip/Tooltip"
 
 export type IssueProjectPickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue;
-  inline?: "text" | "icon";
-  size?: number;
-  onChange: (value: string | null) => void;
-};
+  issue: Issue
+  inline?: "text" | "icon"
+  size?: number
+  onChange: (value: string | null) => void
+}
 
 export function IssueProjectPicker(props: IssueProjectPickerProps) {
-  const {
-    style,
-    className,
-    issue,
-    inline,
-    size,
-    onChange,
-    ...selectPickerProps
-  } = props;
-  const { projects, projectsLoading } = useIssueContext();
+  const { style, className, issue, inline, size, onChange, ...selectPickerProps } = props
+  const { projects, projectsLoading } = useIssueContext()
 
   const data = useMemo(
     () => [
@@ -42,17 +36,13 @@ export function IssueProjectPicker(props: IssueProjectPickerProps) {
         }))
         .sort((a, b) => a.project?.name.localeCompare(b.project?.name)) || []),
     ],
-    [projects]
-  );
+    [projects],
+  )
 
-  const project =
-    data?.find((p) => p?.value === issue.projectId)?.project || null;
+  const project = data?.find((p) => p?.value === issue.projectId)?.project || null
 
   return (
-    <Tooltip
-      tooltip={inline === "icon" ? <Project project={project} /> : undefined}
-      delayOpen={0}
-    >
+    <Tooltip tooltip={inline === "icon" ? <Project project={project} /> : undefined} delayOpen={0}>
       <div>
         <SelectPicker
           loading={projectsLoading}
@@ -61,18 +51,14 @@ export function IssueProjectPicker(props: IssueProjectPickerProps) {
           data={data}
           value={issue.projectId || null}
           placeholder={<Project project={null} inline={inline} size={size} />}
-          onChange={(projectId) =>
-            onChange?.(projectId === "no-project" ? null : projectId)
-          }
+          onChange={(projectId) => onChange?.(projectId === "no-project" ? null : projectId)}
           renderOption={(_, item) => <Project project={item.project} />}
           renderValue={(_, item) =>
-            item ? (
-              <Project project={item.project} inline={inline} size={size} />
-            ) : null
+            item ? <Project project={item.project} inline={inline} size={size} /> : null
           }
           {...selectPickerProps}
         />
       </div>
     </Tooltip>
-  );
+  )
 }

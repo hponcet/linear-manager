@@ -1,60 +1,49 @@
-import { useCallback, useState } from "react";
-import { type Editor } from "@tiptap/react";
-
-// --- Hooks ---
-import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor";
-
-// --- Icons ---
-import { ChevronDownIcon } from "src/webviews/components/Editor/components/tiptap-icons/chevron-down-icon";
-
-// --- Tiptap UI ---
+import { type Editor } from "@tiptap/react"
+import { useCallback, useState } from "react"
+import { ChevronDownIcon } from "src/webviews/components/Editor/components/tiptap-icons/chevron-down-icon"
 import {
   ListButton,
   type ListType,
-} from "src/webviews/components/Editor/components/tiptap-ui/list-button";
-
-import { useListDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu";
-
-// --- UI Primitives ---
-import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
+} from "src/webviews/components/Editor/components/tiptap-ui/list-button"
+import { useListDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu"
 import {
   Button,
   ButtonGroup,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/button";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
+import { Card, CardBody } from "src/webviews/components/Editor/components/tiptap-ui-primitive/card"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/dropdown-menu";
-import {
-  Card,
-  CardBody,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/card";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/dropdown-menu"
+import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor"
+
+import type { ButtonProps } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
 
 export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
   /**
    * The Tiptap editor instance.
    */
-  editor?: Editor;
+  editor?: Editor
   /**
    * The list types to display in the dropdown.
    */
-  types?: ListType[];
+  types?: ListType[]
   /**
    * Whether the dropdown should be hidden when no list types are available
    * @default false
    */
-  hideWhenUnavailable?: boolean;
+  hideWhenUnavailable?: boolean
   /**
    * Callback for when the dropdown opens or closes
    */
-  onOpenChange?: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void
   /**
    * Whether to render the dropdown menu in a portal
    * @default false
    */
-  portal?: boolean;
+  portal?: boolean
 }
 
 export function ListDropdownMenu({
@@ -65,26 +54,25 @@ export function ListDropdownMenu({
   portal = false,
   ...props
 }: ListDropdownMenuProps) {
-  const { editor } = useTiptapEditor(providedEditor);
-  const [isOpen, setIsOpen] = useState(false);
+  const { editor } = useTiptapEditor(providedEditor)
+  const [isOpen, setIsOpen] = useState(false)
 
-  const { filteredLists, canToggle, isActive, isVisible, Icon } =
-    useListDropdownMenu({
-      editor,
-      types,
-      hideWhenUnavailable,
-    });
+  const { filteredLists, canToggle, isActive, isVisible, Icon } = useListDropdownMenu({
+    editor,
+    types,
+    hideWhenUnavailable,
+  })
 
   const handleOnOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open);
-      onOpenChange?.(open);
+      setIsOpen(open)
+      onOpenChange?.(open)
     },
-    [onOpenChange]
-  );
+    [onOpenChange],
+  )
 
   if (!isVisible) {
-    return null;
+    return null
   }
 
   return (
@@ -126,7 +114,7 @@ export function ListDropdownMenu({
         </Card>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
 
-export default ListDropdownMenu;
+export default ListDropdownMenu

@@ -1,34 +1,24 @@
-import { forwardRef, Fragment, useMemo } from "react";
-
-// --- Tiptap UI Primitive ---
+import { forwardRef, Fragment, useMemo } from "react"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/tooltip";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/tooltip"
+import { cn, parseShortcutKeys } from "src/webviews/components/Editor/lib/tiptap-utils"
 
-// --- Lib ---
-import {
-  cn,
-  parseShortcutKeys,
-} from "src/webviews/components/Editor/lib/tiptap-utils";
+import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button-colors.scss"
+import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button-group.scss"
+import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button.scss"
 
-import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button-colors.scss";
-import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button-group.scss";
-import "src/webviews/components/Editor/components/tiptap-ui-primitive/button/button.scss";
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string;
-  showTooltip?: boolean;
-  tooltip?: React.ReactNode;
-  shortcutKeys?: string;
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string
+  showTooltip?: boolean
+  tooltip?: React.ReactNode
+  shortcutKeys?: string
 }
 
-export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({
-  shortcuts,
-}) => {
-  if (shortcuts.length === 0) return null;
+export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({ shortcuts }) => {
+  if (shortcuts.length === 0) return null
 
   return (
     <div>
@@ -39,8 +29,8 @@ export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({
         </Fragment>
       ))}
     </div>
-  );
-};
+  )
+}
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -53,12 +43,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       "aria-label": ariaLabel,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const shortcuts = useMemo<string[]>(
-      () => parseShortcutKeys({ shortcutKeys }),
-      [shortcutKeys]
-    );
+    const shortcuts = useMemo<string[]>(() => parseShortcutKeys({ shortcutKeys }), [shortcutKeys])
 
     if (!tooltip || !showTooltip) {
       return (
@@ -70,7 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         >
           {children}
         </button>
-      );
+      )
     }
 
     return (
@@ -88,16 +75,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <ShortcutDisplay shortcuts={shortcuts} />
         </TooltipContent>
       </Tooltip>
-    );
-  }
-);
+    )
+  },
+)
 
-Button.displayName = "Button";
+Button.displayName = "Button"
 
 export const ButtonGroup = forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
-    orientation?: "horizontal" | "vertical";
+    orientation?: "horizontal" | "vertical"
   }
 >(({ className, children, orientation = "vertical", ...props }, ref) => {
   return (
@@ -110,8 +97,8 @@ export const ButtonGroup = forwardRef<
     >
       {children}
     </div>
-  );
-});
-ButtonGroup.displayName = "ButtonGroup";
+  )
+})
+ButtonGroup.displayName = "ButtonGroup"
 
-export default Button;
+export default Button

@@ -1,77 +1,57 @@
-"use client";
+"use client"
 
-import { useEffect, useRef } from "react";
-import {
-  Editor as EditorType,
-  EditorContent,
-  EditorContext,
-  useEditor,
-} from "@tiptap/react";
-
-import { StarterKit } from "@tiptap/starter-kit";
-
-import { Image } from "@tiptap/extension-image";
-import { Markdown } from "@tiptap/markdown";
-import { BubbleMenu } from "@tiptap/react/menus";
-import BubbleMenuExt from "@tiptap/extension-bubble-menu";
-import { Placeholder } from "@tiptap/extensions";
-
-import { Spacer } from "src/webviews/components/Editor/components/tiptap-ui-primitive/spacer";
+import BubbleMenuExt from "@tiptap/extension-bubble-menu"
+import { Image } from "@tiptap/extension-image"
+import { Placeholder } from "@tiptap/extensions"
+import { Markdown } from "@tiptap/markdown"
+import { Editor as EditorType, EditorContent, EditorContext, useEditor } from "@tiptap/react"
+import { BubbleMenu } from "@tiptap/react/menus"
+import { StarterKit } from "@tiptap/starter-kit"
+import { useEffect, useRef } from "react"
+import { ImageUploadNode } from "src/webviews/components/Editor/components/tiptap-node/image-upload-node/image-upload-node-extension"
+import { BlockquoteButton } from "src/webviews/components/Editor/components/tiptap-ui/blockquote-button"
+import { CodeBlockButton } from "src/webviews/components/Editor/components/tiptap-ui/code-block-button"
+import { HeadingDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu"
+import { LinkPopover } from "src/webviews/components/Editor/components/tiptap-ui/link-popover"
+import { ListDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/list-dropdown-menu"
+import { MarkButton } from "src/webviews/components/Editor/components/tiptap-ui/mark-button"
+import { Spacer } from "src/webviews/components/Editor/components/tiptap-ui-primitive/spacer"
 import {
   Toolbar,
   ToolbarGroup,
   ToolbarSeparator,
-} from "src/webviews/components/Editor/components/tiptap-ui-primitive/toolbar";
+} from "src/webviews/components/Editor/components/tiptap-ui-primitive/toolbar"
+import { MAX_FILE_SIZE } from "src/webviews/components/Editor/lib/tiptap-utils"
 
-import { ImageUploadNode } from "src/webviews/components/Editor/components/tiptap-node/image-upload-node/image-upload-node-extension";
+import { Details, DetailsContent, DetailsSummary } from "./markdownPlugins/DetailsPlugin"
+import { getImageFileToBase64 } from "./uploadImage"
 
-import { HeadingDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/heading-dropdown-menu";
-import { ListDropdownMenu } from "src/webviews/components/Editor/components/tiptap-ui/list-dropdown-menu";
-import { BlockquoteButton } from "src/webviews/components/Editor/components/tiptap-ui/blockquote-button";
-import { CodeBlockButton } from "src/webviews/components/Editor/components/tiptap-ui/code-block-button";
-import { LinkPopover } from "src/webviews/components/Editor/components/tiptap-ui/link-popover";
-import { MarkButton } from "src/webviews/components/Editor/components/tiptap-ui/mark-button";
-import { getImageFileToBase64 } from "./uploadImage";
-import {
-  Details,
-  DetailsContent,
-  DetailsSummary,
-} from "./markdownPlugins/DetailsPlugin";
+import "src/webviews/components/Editor/components/tiptap-node/blockquote-node/blockquote-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/code-block-node/code-block-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/heading-node/heading-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/image-node/image-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/list-node/list-node.scss"
+import "src/webviews/components/Editor/components/tiptap-node/paragraph-node/paragraph-node.scss"
 
-import { MAX_FILE_SIZE } from "src/webviews/components/Editor/lib/tiptap-utils";
-
-import "src/webviews/components/Editor/components/tiptap-node/blockquote-node/blockquote-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/code-block-node/code-block-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/list-node/list-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/image-node/image-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/heading-node/heading-node.scss";
-import "src/webviews/components/Editor/components/tiptap-node/paragraph-node/paragraph-node.scss";
-import "./markdownPlugins/DetailsPlugin/Details.scss";
-import "./Editor.scss";
+import "./markdownPlugins/DetailsPlugin/Details.scss"
+// eslint-disable-next-line import/order
+import "./Editor.scss"
 
 type EditorProps = {
-  value?: string;
-  editable?: boolean;
-  placeholder?: string;
-  onChange?: (value: string) => void;
-  getEditor?: (editor: EditorType) => void;
-  className?: string;
-  style?: React.CSSProperties;
-};
+  value?: string
+  editable?: boolean
+  placeholder?: string
+  onChange?: (value: string) => void
+  getEditor?: (editor: EditorType) => void
+  className?: string
+  style?: React.CSSProperties
+}
 
 export function Editor(props: EditorProps) {
-  const {
-    value = "",
-    editable = false,
-    placeholder,
-    onChange,
-    getEditor,
-    className,
-    style,
-  } = props;
+  const { value = "", editable = false, placeholder, onChange, getEditor, className, style } = props
 
-  const toolbarRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null)
 
   const editor = useEditor({
     immediatelyRender: true,
@@ -99,9 +79,9 @@ export function Editor(props: EditorProps) {
       Placeholder.configure({
         placeholder: ({ pos }) => {
           if (pos === 0) {
-            return placeholder || "";
+            return placeholder || ""
           }
-          return "";
+          return ""
         },
       }),
       Image,
@@ -118,28 +98,21 @@ export function Editor(props: EditorProps) {
     content: value || undefined,
     onUpdate: editable
       ? ({ editor }) => {
-          const markdown = editor.getMarkdown();
-          onChange?.(markdown);
+          const markdown = editor.getMarkdown()
+          onChange?.(markdown)
         }
       : undefined,
     editable,
-  });
+  })
 
   useEffect(() => {
-    getEditor?.(editor);
-  }, [editor]);
+    getEditor?.(editor)
+  }, [editor])
 
   return (
-    <div
-      className={`simple-editor-wrapper dark ${className || ""}`}
-      style={style}
-    >
+    <div className={`simple-editor-wrapper dark ${className || ""}`} style={style}>
       <EditorContext.Provider value={{ editor }}>
-        <EditorContent
-          editor={editor}
-          role="presentation"
-          className="simple-editor-content"
-        />
+        <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
         {editor && editable ? (
           <BubbleMenu
             editor={editor || undefined}
@@ -157,11 +130,11 @@ export function Editor(props: EditorProps) {
         ) : null}
       </EditorContext.Provider>
     </div>
-  );
+  )
 }
 
 const MainToolbarContent = (props: { editor: EditorType }) => {
-  const { editor } = props;
+  const { editor } = props
 
   return (
     <div
@@ -175,10 +148,7 @@ const MainToolbarContent = (props: { editor: EditorType }) => {
       <Spacer />
       <ToolbarGroup>
         <HeadingDropdownMenu editor={editor} levels={[1, 2, 3, 4]} />
-        <ListDropdownMenu
-          editor={editor}
-          types={["bulletList", "orderedList", "taskList"]}
-        />
+        <ListDropdownMenu editor={editor} types={["bulletList", "orderedList", "taskList"]} />
         <BlockquoteButton editor={editor} />
       </ToolbarGroup>
       <ToolbarSeparator />
@@ -196,5 +166,5 @@ const MainToolbarContent = (props: { editor: EditorType }) => {
       </ToolbarGroup>
       <Spacer />
     </div>
-  );
-};
+  )
+}

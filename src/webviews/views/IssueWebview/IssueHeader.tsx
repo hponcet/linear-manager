@@ -1,28 +1,28 @@
-import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker";
-import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker";
-import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker";
-import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker";
-import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker";
-import { IssueProjectPicker } from "src/webviews/components/ProjectPicker/ProjectPicker";
-import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { ConfigureBranchButton } from "src/webviews/components/ConfigureBranchButton/ConfigureBranchButton";
-import { OpenExternalIssue } from "src/webviews/components/OpenExternalIssue/OpenExternalIssue";
-import { TrashIcon } from "src/webviews/components/Icons/TrashIcon";
-import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton";
-import { Menu } from "src/webviews/components/Menu/Menu";
-import { useModalsContext } from "src/webviews/contexts/ModalsContext";
-import { LinkIcon } from "src/webviews/components/Icons/LinkIcon";
+import { useDialog } from "rsuite"
+import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker"
+import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton"
+import { ConfigureBranchButton } from "src/webviews/components/ConfigureBranchButton/ConfigureBranchButton"
+import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker"
+import { LinkIcon } from "src/webviews/components/Icons/LinkIcon"
+import { TrashIcon } from "src/webviews/components/Icons/TrashIcon"
+import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker"
+import { Menu } from "src/webviews/components/Menu/Menu"
+import { OpenExternalIssue } from "src/webviews/components/OpenExternalIssue/OpenExternalIssue"
+import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker"
+import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker"
+import { IssueProjectPicker } from "src/webviews/components/ProjectPicker/ProjectPicker"
+import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useModalsContext } from "src/webviews/contexts/ModalsContext"
 
-import "./IssueHeader.css";
-import { useDialog } from "rsuite";
+import "./IssueHeader.css"
 
 export function IssueHeader() {
-  const { issue, update } = useIssueContext();
+  const { issue, update } = useIssueContext()
 
-  const { setIsCreatingAttachment } = useModalsContext();
+  const { setIsCreatingAttachment } = useModalsContext()
 
-  const dialog = useDialog();
+  const dialog = useDialog()
 
   return (
     <>
@@ -81,11 +81,7 @@ export function IssueHeader() {
           />
           {!issue.trashed && (
             <>
-              <CheckoutButton
-                issue={issue}
-                style={{ marginLeft: 6, padding: 0 }}
-                inline="icon"
-              />
+              <CheckoutButton issue={issue} style={{ marginLeft: 6, padding: 0 }} inline="icon" />
               <ConfigureBranchButton
                 issue={issue}
                 style={{ marginLeft: 6, padding: 0 }}
@@ -93,10 +89,7 @@ export function IssueHeader() {
               />
             </>
           )}
-          <OpenExternalIssue
-            issue={issue}
-            style={{ marginLeft: 6, padding: 0 }}
-          />
+          <OpenExternalIssue issue={issue} style={{ marginLeft: 6, padding: 0 }} />
           <Menu
             items={[
               {
@@ -120,9 +113,9 @@ export function IssueHeader() {
                       okText: "Delete",
                       severity: "error",
                     },
-                  );
+                  )
                   if (shouldDeleteIssue) {
-                    await update.subIssues.deleteSubIssue(issue.id);
+                    await update.subIssues.deleteSubIssue(issue.id)
                   }
                 },
               },
@@ -138,5 +131,5 @@ export function IssueHeader() {
         disabled={!!issue.trashed}
       />
     </>
-  );
+  )
 }

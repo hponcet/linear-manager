@@ -1,19 +1,19 @@
-import { Issue } from "@linear/sdk";
-import { Modal } from "rsuite";
-import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField";
-import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker";
-import { useSettings } from "src/webviews/hooks/useSettings";
+import { Issue } from "@linear/sdk"
+import { Modal } from "rsuite"
+import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField"
+import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker"
+import { useSettings } from "src/webviews/hooks/useSettings"
 
 type BranchNamingSettingsProps = {
-  issue: Issue;
-  open: boolean;
-  onClose?: () => void;
-};
+  issue: Issue
+  open: boolean
+  onClose?: () => void
+}
 
 export function BranchNamingSettings(props: BranchNamingSettingsProps) {
-  const { issue, open, onClose } = props;
+  const { issue, open, onClose } = props
 
-  const { updateSettings, branchesSettings } = useSettings();
+  const { updateSettings, branchesSettings } = useSettings()
 
   return (
     <Modal size="sm" backdrop="static" open={open} onClose={onClose}>
@@ -61,11 +61,9 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
           label="Uppercase issue identifier in branch name"
           showToggle={true}
           disabled={!branchesSettings?.uppercaseIssueIdentifier}
-          onToggleChange={(open) =>
-            updateSettings({ uppercaseIssueIdentifier: open })
-          }
+          onToggleChange={(open) => updateSettings({ uppercaseIssueIdentifier: open })}
         />
       </Modal.Body>
     </Modal>
-  );
+  )
 }

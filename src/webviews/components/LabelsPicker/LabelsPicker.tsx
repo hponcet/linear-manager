@@ -1,28 +1,25 @@
-import { useMemo } from "react";
-import { TagPicker, TagPickerProps } from "rsuite";
-import { Issue } from "@linear/sdk";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Label } from "./Label";
-import { LabelIcon } from "./LabelIcon";
+import { Issue } from "@linear/sdk"
+import { useMemo } from "react"
+import { TagPicker, type TagPickerProps } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
-import "./LabelsPicker.css";
+import { Label } from "./Label"
+import { LabelIcon } from "./LabelIcon"
 
-type LabelsPickerProps = Omit<
-  TagPickerProps,
-  "onChange" | "value" | "data" | "size"
-> & {
-  issue: Issue;
-  inline?: boolean;
-  size?: number;
-  onChange: (labelIds: string[]) => void;
-  style?: React.CSSProperties;
-  className?: string;
-};
+import "./LabelsPicker.css"
+
+type LabelsPickerProps = Omit<TagPickerProps, "onChange" | "value" | "data" | "size"> & {
+  issue: Issue
+  inline?: boolean
+  size?: number
+  onChange: (labelIds: string[]) => void
+  style?: React.CSSProperties
+  className?: string
+}
 
 export function LabelsPicker(props: LabelsPickerProps) {
-  const { issue, onChange, inline, size, style, className, ...tagPickerProps } =
-    props;
-  const { issueLabels, issueLabelsLoading } = useIssueContext();
+  const { issue, onChange, inline, size, style, className, ...tagPickerProps } = props
+  const { issueLabels, issueLabelsLoading } = useIssueContext()
 
   const cacheData = useMemo(
     () =>
@@ -33,9 +30,9 @@ export function LabelsPicker(props: LabelsPickerProps) {
           issueLabel: label,
         }))
         .sort((a, b) => a.label.localeCompare(b.label))
-        .sort((a, b) => (issue?.labelIds?.includes(a.value) ? -1 : 1)) || [],
+        .sort((a) => (issue?.labelIds?.includes(a.value) ? -1 : 1)) || [],
     [issueLabels, issue.labelIds],
-  );
+  )
 
   return (
     <TagPicker
@@ -57,23 +54,14 @@ export function LabelsPicker(props: LabelsPickerProps) {
       }
       cleanable={false}
       searchable
-      renderOption={(_, item) => (
-        <Label key={item.value} issueLabel={item.issueLabel} inline />
-      )}
+      renderOption={(_, item) => <Label key={item.value} issueLabel={item.issueLabel} inline />}
       renderValue={(_, items) =>
         items.map((item) => {
-          if (!item) return null;
-          return (
-            <Label
-              key={item.value}
-              issueLabel={item.issueLabel}
-              inline={inline}
-              size={size}
-            />
-          );
+          if (!item) return null
+          return <Label key={item.value} issueLabel={item.issueLabel} inline={inline} size={size} />
         })
       }
       {...tagPickerProps}
     />
-  );
+  )
 }

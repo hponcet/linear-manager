@@ -10,16 +10,15 @@
   gap: 6px;
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .EmojiPickerReact {
   --epr-emoji-size: 30px !important;
   --epr-emoji-fullsize: 30px !important;
   --epr-header-padding: 6px 8px !important;
   --epr-search-input-height: 30px !important;
   --epr-category-navigation-button-size: 20px !important;
-
   --epr-category-label-height: 30px !important;
   --epr-category-label-padding: 5px !important;
-
   --epr-preview-height: 30px !important;
   --epr-search-input-bg-color-active: var(--rs-bg-hover) !important;
 

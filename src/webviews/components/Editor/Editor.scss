@@ -1,3 +1,5 @@
+/* stylelint-disable selector-class-pattern */
+
 ::-webkit-scrollbar {
   width: 0.25rem;
 }
@@ -63,14 +65,14 @@
   [data-resize-handle] {
     min-height: 20px;
     position: absolute;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgb(0 0 0 / 50%);
+    border: 1px solid rgb(255 255 255 / 50%);
     border-radius: 10px;
     overflow: hidden;
     z-index: 10;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgb(0 0 0 / 80%);
     }
 
     /* Edge handles */
@@ -93,13 +95,11 @@
   }
 
   [data-resize-state="true"] [data-resize-wrapper] {
-    outline: 1px solid rgba(0, 0, 0, 0.25);
+    outline: 1px solid rgb(0 0 0 / 25%);
     border-radius: 0.125rem;
   }
 }
 
-.is-empty:not(.with-slash)[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  )::before {
+.is-empty:not(.with-slash)[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   color: var(--rs-placeholder-color);
 }

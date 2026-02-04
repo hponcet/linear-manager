@@ -1,5 +1,5 @@
-import { LinearClient } from "@linear/sdk";
-import { useMemo } from "react";
+import { LinearClient } from "@linear/sdk"
+import { useMemo } from "react"
 
 export function useLinearClient(linearAccessToken: string | undefined) {
   return useMemo(
@@ -12,6 +12,6 @@ export function useLinearClient(linearAccessToken: string | undefined) {
             },
           })
         : null,
-    [linearAccessToken]
-  );
+    [linearAccessToken],
+  )
 }

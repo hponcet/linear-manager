@@ -1,9 +1,13 @@
+/* stylelint-disable selector-class-pattern */
+
 :root {
   --tt-toolbar-height: 2.75rem;
   --tt-safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --tt-toolbar-bg-color: var(--white);
   --tt-toolbar-border-color: var(--tt-gray-light-a-100);
+}
 
+.dark {
   --tt-toolbar-bg-color: var(--black);
   --tt-toolbar-border-color: var(--tt-gray-dark-a-50);
 }
@@ -47,7 +51,7 @@
       display: none;
     }
 
-    @media (max-width: 480px) {
+    @media (width <= 480px) {
       position: absolute;
       top: auto;
       height: calc(var(--tt-toolbar-height) + var(--tt-safe-area-bottom));
@@ -68,10 +72,7 @@
     --tt-toolbar-border-width: 1px;
 
     padding: 0.188rem;
-    border-radius: calc(
-      var(--tt-toolbar-padding) + var(--tt-radius-lg) +
-        var(--tt-toolbar-border-width)
-    );
+    border-radius: calc(var(--tt-toolbar-padding) + var(--tt-radius-lg));
     border: var(--tt-toolbar-border-width) solid var(--tt-toolbar-border-color);
     background-color: var(--tt-toolbar-bg-color);
     box-shadow: var(--tt-shadow-elevated-md);
@@ -86,7 +87,7 @@
       background-color: transparent;
     }
 
-    @media screen and (max-width: 480px) {
+    @media screen and (width <= 480px) {
       width: 100%;
       border-radius: 0;
       border: none;

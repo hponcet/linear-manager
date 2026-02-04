@@ -1,26 +1,27 @@
-import { ReactNode } from "react";
-import { Animation, Loader, Toggle } from "rsuite";
-import { ResolveIcon } from "../Icons/ResolveIcon";
-import { CrossIcon } from "../Icons/CrossIcon";
+import { ReactNode } from "react"
+import { Animation, Loader, Toggle } from "rsuite"
+
+import { CrossIcon } from "../Icons/CrossIcon"
+import { ResolveIcon } from "../Icons/ResolveIcon"
 
 export type FormQueueFieldProps = {
-  indexKey: string;
-  label: ReactNode;
-  input?: ReactNode | ((isExpand?: boolean) => ReactNode);
-  disabled?: boolean;
-  loading?: boolean;
-  required?: boolean;
-  validated?: boolean;
-  showToggle?: boolean;
-  processing?: boolean;
-  executed?: boolean;
-  allDone?: boolean;
-  onEnable?: () => void;
-  onDisable?: () => void;
-  onProcess?: () => Promise<void>;
-  onToggleChange?: (enabled: boolean) => void;
-  errors?: any[];
-};
+  indexKey: string
+  label: ReactNode
+  input?: ReactNode | ((isExpand?: boolean) => ReactNode)
+  disabled?: boolean
+  loading?: boolean
+  required?: boolean
+  validated?: boolean
+  showToggle?: boolean
+  processing?: boolean
+  executed?: boolean
+  allDone?: boolean
+  onEnable?: () => void
+  onDisable?: () => void
+  onProcess?: () => Promise<void>
+  onToggleChange?: (enabled: boolean) => void
+  errors?: any[]
+}
 
 export function FormQueueField(props: FormQueueFieldProps) {
   const {
@@ -38,11 +39,11 @@ export function FormQueueField(props: FormQueueFieldProps) {
     errors = [],
     processing,
     allDone,
-  } = props;
+  } = props
 
-  const expand = !disabled && !validated && !loading && !processing && !allDone;
+  const expand = !disabled && !validated && !loading && !processing && !allDone
 
-  const showAllInputs = !processing && !executed;
+  const showAllInputs = !processing && !executed
 
   return (
     <Animation.Collapse in={showAllInputs || !disabled}>
@@ -50,8 +51,7 @@ export function FormQueueField(props: FormQueueFieldProps) {
         style={{
           marginBottom: 30,
           pointerEvents: loading ? "none" : "auto",
-          opacity:
-            processing && !loading && !validated && !errors.length ? 0.4 : 1,
+          opacity: processing && !loading && !validated && !errors.length ? 0.4 : 1,
         }}
       >
         <div
@@ -74,10 +74,7 @@ export function FormQueueField(props: FormQueueFieldProps) {
             {loading ? (
               <Loader size="xs" style={{ marginRight: 8 }} />
             ) : validated ? (
-              <ResolveIcon
-                size={14}
-                style={{ marginRight: 8, fill: "var(--color-success)" }}
-              />
+              <ResolveIcon size={14} style={{ marginRight: 8, fill: "var(--color-success)" }} />
             ) : !required && errors.length > 0 ? (
               <CrossIcon
                 size={14}
@@ -104,9 +101,9 @@ export function FormQueueField(props: FormQueueFieldProps) {
                     checked={!disabled}
                     disabled={loading || validated}
                     onChange={(checked) => {
-                      if (checked) onEnable?.();
-                      else onDisable?.();
-                      onToggleChange?.(checked);
+                      if (checked) onEnable?.()
+                      else onDisable?.()
+                      onToggleChange?.(checked)
                     }}
                   />
                 ) : null}
@@ -118,8 +115,7 @@ export function FormQueueField(props: FormQueueFieldProps) {
           <Animation.Collapse in={expand}>
             <div
               style={{
-                pointerEvents:
-                  disabled || loading || validated ? "none" : "auto",
+                pointerEvents: disabled || loading || validated ? "none" : "auto",
               }}
             >
               {typeof input === "function" ? input() : input}
@@ -142,5 +138,5 @@ export function FormQueueField(props: FormQueueFieldProps) {
         ) : null}
       </div>
     </Animation.Collapse>
-  );
+  )
 }

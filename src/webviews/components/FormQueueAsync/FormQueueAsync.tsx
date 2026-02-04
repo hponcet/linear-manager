@@ -1,36 +1,31 @@
-import {
-  cloneElement,
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { FormQueueFieldProps } from "./FormQueueField";
-import { Button } from "../Button/Button";
+import { cloneElement, ReactElement, ReactNode, useEffect, useMemo, useState } from "react"
+
+import { FormQueueFieldProps } from "./FormQueueField"
+
+import { Button } from "../Button/Button"
 
 export type FormQueueAsyncProps = {
-  children: (ReactElement<FormQueueFieldProps> | null)[];
-  startButtonLabel?: string;
-  endButtonLabel?: string;
-  continueOnError?: boolean;
-  noActions?: boolean;
-  canRestart?: boolean;
-  canRetry?: boolean;
-  actions?: ReactNode[];
-  onComplete?: () => void;
-  onReset?: () => void;
-};
+  children: (ReactElement<FormQueueFieldProps> | null)[]
+  startButtonLabel?: string
+  endButtonLabel?: string
+  continueOnError?: boolean
+  noActions?: boolean
+  canRestart?: boolean
+  canRetry?: boolean
+  actions?: ReactNode[]
+  onComplete?: () => void
+  onReset?: () => void
+}
 
 type QueueItem = {
-  fn?: () => Promise<void>;
-  loading: boolean;
-  errors: any[];
-  disabled?: boolean;
-  validated?: boolean;
-  validations?: (value: any) => string | null;
-  showToggle?: boolean;
-};
+  fn?: () => Promise<void>
+  loading: boolean
+  errors: any[]
+  disabled?: boolean
+  validated?: boolean
+  validations?: (value: any) => string | null
+  showToggle?: boolean
+}
 
 export function FormQueueAsync(props: FormQueueAsyncProps) {
   const {
@@ -44,15 +39,15 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
     onComplete,
     onReset,
     actions,
-  } = props;
+  } = props
 
   const nonNullChildren = useMemo(
     () => children.filter(Boolean) as ReactElement<FormQueueFieldProps>[],
     [children],
-  );
+  )
 
-  const [processing, setProcessing] = useState(false);
-  const [executed, setExecuted] = useState(false);
+  const [processing, setProcessing] = useState(false)
+  const [executed, setExecuted] = useState(false)
   const [queue, setQueue] = useState<Record<string, QueueItem>>(
     nonNullChildren.reduce(
       (acc, child) => ({
@@ -67,10 +62,10 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
       }),
       {} as Record<string, QueueItem>,
     ),
-  );
+  )
 
   useEffect(() => {
-    if (processing || executed) return;
+    if (processing || executed) return
 
     setQueue((queue) =>
       nonNullChildren.reduce(
@@ -85,24 +80,21 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
         }),
         {} as Record<string, QueueItem>,
       ),
-    );
-  }, [nonNullChildren, processing, executed]);
+    )
+  }, [nonNullChildren, processing, executed])
 
-  const processDone = Object.values(queue).every(
-    (item) => item.disabled || item.validated,
-  );
-  const processLoading =
-    Object.values(queue).some((item) => item.loading) || processing;
+  const processDone = Object.values(queue).every((item) => item.disabled || item.validated)
+  const processLoading = Object.values(queue).some((item) => item.loading) || processing
   const processHasErrors = Object.values(queue).some(
     (item) => !item.disabled && item.errors.length > 0,
-  );
-  const processCanRetry = canRetry && executed && processHasErrors;
-  const processCanRestart = canRestart && executed;
+  )
+  const processCanRetry = canRetry && executed && processHasErrors
+  const processCanRestart = canRestart && executed
 
   async function executeQueue(executeType?: "restart" | "retry") {
     if (executed) {
       if (onComplete && processDone && !executeType) {
-        onComplete();
+        onComplete()
       }
 
       if (processCanRestart && executeType === "restart") {
@@ -118,10 +110,10 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
                 showToggle: !item.validated,
               },
             ]),
-          );
-        });
-        setExecuted(false);
-        return;
+          )
+        })
+        setExecuted(false)
+        return
       }
       if (processCanRetry && executeType === "retry") {
         setQueue((queue) => {
@@ -138,45 +130,41 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
                   }
                 : item,
             ]),
-          );
-        });
-        setExecuted(false);
+          )
+        })
+        setExecuted(false)
       }
     }
 
-    setProcessing(true);
+    setProcessing(true)
 
     for (const indexKey of Object.keys(queue)) {
-      if (
-        queue[indexKey]?.disabled ||
-        queue[indexKey]?.loading ||
-        queue[indexKey]?.validated
-      ) {
-        continue;
+      if (queue[indexKey]?.disabled || queue[indexKey]?.loading || queue[indexKey]?.validated) {
+        continue
       }
 
-      const newQueue = { ...queue };
-      newQueue[indexKey].loading = true;
-      newQueue[indexKey].errors = [];
-      setQueue(newQueue);
+      const newQueue = { ...queue }
+      newQueue[indexKey].loading = true
+      newQueue[indexKey].errors = []
+      setQueue(newQueue)
 
       try {
-        await newQueue[indexKey].fn?.();
-        newQueue[indexKey].validated = true;
+        await newQueue[indexKey].fn?.()
+        newQueue[indexKey].validated = true
       } catch (e) {
         if (!continueOnError) {
-          newQueue[indexKey].errors = [e];
-          setQueue(newQueue);
-          break;
+          newQueue[indexKey].errors = [e]
+          setQueue(newQueue)
+          break
         }
-        newQueue[indexKey].errors.push(e);
+        newQueue[indexKey].errors.push(e)
       } finally {
-        newQueue[indexKey].loading = false;
-        setQueue(newQueue);
+        newQueue[indexKey].loading = false
+        setQueue(newQueue)
       }
     }
-    setProcessing(false);
-    setExecuted(true);
+    setProcessing(false)
+    setExecuted(true)
   }
 
   return (
@@ -194,19 +182,19 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
           onDisable: !child.props.required
             ? () => {
                 setQueue((queue) => {
-                  const newQueue = { ...queue };
-                  newQueue[child.props.indexKey].disabled = true;
-                  return newQueue;
-                });
+                  const newQueue = { ...queue }
+                  newQueue[child.props.indexKey].disabled = true
+                  return newQueue
+                })
               }
             : undefined,
           onEnable: !child.props.required
             ? () => {
                 setQueue((queue) => {
-                  const newQueue = { ...queue };
-                  newQueue[child.props.indexKey].disabled = false;
-                  return newQueue;
-                });
+                  const newQueue = { ...queue }
+                  newQueue[child.props.indexKey].disabled = false
+                  return newQueue
+                })
               }
             : undefined,
         }),
@@ -217,8 +205,8 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
           {canRestart && !processing && executed ? (
             <Button
               onClick={() => {
-                onReset?.();
-                executeQueue("restart");
+                onReset?.()
+                executeQueue("restart")
               }}
               style={{
                 marginRight: 8,
@@ -229,9 +217,7 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
             </Button>
           ) : null}
           <Button
-            disabled={
-              processLoading || (executed && !canRetry) || processHasErrors
-            }
+            disabled={processLoading || (executed && !canRetry) || processHasErrors}
             tooltip={
               executed && !canRestart && !canRetry
                 ? "All actions have been processed"
@@ -242,13 +228,13 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
             loading={processing}
             onClick={() => {
               if (processDone && onComplete) {
-                onComplete();
+                onComplete()
               } else if (executed) {
                 if (processCanRetry) {
-                  executeQueue("retry");
+                  executeQueue("retry")
                 }
               } else {
-                executeQueue();
+                executeQueue()
               }
             }}
             style={{ padding: "0 16px" }}
@@ -265,5 +251,5 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
         </div>
       ) : null}
     </div>
-  );
+  )
 }

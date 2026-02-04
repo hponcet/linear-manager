@@ -10,5 +10,27 @@
   },
   // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
   "typescript.tsc.autoDetect": "off",
-  "i18n-ally.localesPaths": [""]
+  "stylelint.enable": true,
+  "stylelint.packageManager": "npm",
+  "stylelint.validate": ["css", "scss"],
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  // Formating code on save
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "[jsonc]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[postcss]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
 }

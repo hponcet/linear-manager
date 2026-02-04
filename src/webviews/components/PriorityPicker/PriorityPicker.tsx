@@ -1,31 +1,25 @@
-import { useMemo } from "react";
-import { SelectPicker, SelectPickerProps } from "rsuite";
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Priority } from "./Priority";
-import { Issue } from "@linear/sdk";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { Issue } from "@linear/sdk"
+import { useMemo } from "react"
+import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+
+import { Priority } from "./Priority"
+
+import { Tooltip } from "../Tooltip/Tooltip"
 
 export type PriorityPickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue;
-  onChange: (value: number | null) => void;
-  inline?: "text" | "icon";
-  size?: number;
-};
+  issue: Issue
+  onChange: (value: number | null) => void
+  inline?: "text" | "icon"
+  size?: number
+}
 
 export function PriorityPicker(props: PriorityPickerProps) {
-  const {
-    issue,
-    style,
-    className,
-    inline,
-    size,
-    onChange,
-    ...selectPickerProps
-  } = props;
-  const { priorities, prioritiesLoading } = useIssueContext();
+  const { issue, style, className, inline, size, onChange, ...selectPickerProps } = props
+  const { priorities, prioritiesLoading } = useIssueContext()
 
   const data = useMemo(
     () =>
@@ -34,18 +28,14 @@ export function PriorityPicker(props: PriorityPickerProps) {
         value: priority.priority,
         priority,
       })) || [],
-    [priorities]
-  );
+    [priorities],
+  )
 
-  const priority = data.find((p) => p.value === issue.priority)?.priority;
+  const priority = data.find((p) => p.value === issue.priority)?.priority
 
   return (
     <Tooltip
-      tooltip={
-        inline === "icon" ? (
-          <Priority priority={priority} inline={null} />
-        ) : undefined
-      }
+      tooltip={inline === "icon" ? <Priority priority={priority} inline={null} /> : undefined}
       delayOpen={0}
     >
       <span>
@@ -74,5 +64,5 @@ export function PriorityPicker(props: PriorityPickerProps) {
         />
       </span>
     </Tooltip>
-  );
+  )
 }

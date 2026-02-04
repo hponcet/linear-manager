@@ -1,20 +1,21 @@
 //@ts-check
 
-"use strict";
+"use strict"
 
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const fs = require("fs");
-const path = require("path");
-const webpack = require("webpack");
+const fs = require("fs")
+const path = require("path")
+
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
+const webpack = require("webpack")
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
-const appDirectory = fs.realpathSync(process.cwd());
+const appDirectory = fs.realpathSync(process.cwd())
 //@ts-ignore
-const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
+const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath)
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "production"
 
 /** @type WebpackConfig */
 const extensionConfig = {
@@ -65,5 +66,5 @@ const extensionConfig = {
   infrastructureLogging: {
     level: "log",
   },
-};
-module.exports = [extensionConfig];
+}
+module.exports = [extensionConfig]

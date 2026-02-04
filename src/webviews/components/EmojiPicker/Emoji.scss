@@ -1,17 +1,16 @@
 .emoji {
   display: inline-flex;
-  -webkit-box-align: center;
   align-items: center;
   padding: 4px 7px 5px;
   height: 15px;
   border-radius: 30px;
-  background: lch(17.085 19.664 285.566);
-  border: 1px solid lch(24.108 20.17 285.566);
+  background: lch(17.085% 19.664 285.566deg);
+  border: 1px solid lch(24.108% 20.17 285.566deg);
   cursor: pointer;
 
   &:hover {
-    background: lch(14.168 17.33 285.566);
-    border-color: lch(24.108 20.17 285.566);
+    background: lch(14.168% 17.33 285.566deg);
+    border-color: lch(24.108% 20.17 285.566deg);
   }
 
   & > span:first-child {

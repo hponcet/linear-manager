@@ -1,40 +1,39 @@
-import { useMemo } from "react";
-import { Reaction } from "@linear/sdk";
-import Picker, { Theme } from "emoji-picker-react";
-import { Popover, Whisper, WhisperProps } from "rsuite";
-import { EmojiIcon } from "../Icons/EmojiIcon";
-import { Button } from "../Button/Button";
-import { Emoji } from "./Emoji";
+import { Reaction } from "@linear/sdk"
+import Picker, { Theme } from "emoji-picker-react"
+import { useMemo } from "react"
+import { Popover, Whisper, type WhisperProps } from "rsuite"
 
-import "./EmojiPicker.scss";
+import { Emoji } from "./Emoji"
+
+import { Button } from "../Button/Button"
+import { EmojiIcon } from "../Icons/EmojiIcon"
+
+import "./EmojiPicker.scss"
 
 type EmojiPickerProps = {
-  onSelect?: (emoji: string) => void;
-  onUnselect?: (id: string) => void;
-  size?: number;
-  reactions?: Reaction[];
-  placement?: WhisperProps["placement"];
-};
+  onSelect?: (emoji: string) => void
+  onUnselect?: (id: string) => void
+  size?: number
+  reactions?: Reaction[]
+  placement?: WhisperProps["placement"]
+}
 
 export function EmojiPicker(props: EmojiPickerProps) {
-  const {
-    onSelect,
-    onUnselect,
-    size,
-    reactions,
-    placement = "bottomEnd",
-  } = props;
+  const { onSelect, onUnselect, size, reactions, placement = "bottomEnd" } = props
   const groupedReactions = useMemo(
     () =>
-      reactions?.reduce((acc, reaction) => {
-        if (!acc[reaction.emoji]) {
-          acc[reaction.emoji] = [];
-        }
-        acc[reaction.emoji].push(reaction);
-        return acc;
-      }, {} as Record<string, Reaction[]>),
-    [reactions]
-  );
+      reactions?.reduce(
+        (acc, reaction) => {
+          if (!acc[reaction.emoji]) {
+            acc[reaction.emoji] = []
+          }
+          acc[reaction.emoji].push(reaction)
+          return acc
+        },
+        {} as Record<string, Reaction[]>,
+      ),
+    [reactions],
+  )
 
   const renderSpeaker = ({ onClose, ...rest }: any, ref: any) => {
     return (
@@ -52,8 +51,8 @@ export function EmojiPicker(props: EmojiPickerProps) {
       >
         <Picker
           onEmojiClick={(emoji) => {
-            onSelect?.(emoji.unified);
-            onClose();
+            onSelect?.(emoji.unified)
+            onClose()
           }}
           width={230}
           height={270}
@@ -64,8 +63,8 @@ export function EmojiPicker(props: EmojiPickerProps) {
           open
         />
       </Popover>
-    );
-  };
+    )
+  }
 
   return (
     <div className="emojiPickerContainer">
@@ -96,5 +95,5 @@ export function EmojiPicker(props: EmojiPickerProps) {
         </span>
       </Whisper>
     </div>
-  );
+  )
 }

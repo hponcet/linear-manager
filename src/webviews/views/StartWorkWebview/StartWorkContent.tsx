@@ -1,27 +1,25 @@
-import { useIssueContext } from "src/webviews/contexts/IssueContext";
-import { Ref } from "src/types/GitAPI";
-import { StartWorkHeader } from "./StartWorkHeader";
-import { StartWorkBranchCreation } from "./StartWorkBranchCreation";
-import { useMemo, useState } from "react";
-import { IssueVscState } from "src/vscStates";
-import {
-  checkPossiblyExistingBranchName,
-  getDefaultBranchName,
-} from "src/webviews/utils/branches";
-import { StartWorkBanner } from "./StartWorkBanner";
-import { useIssueBranches } from "src/webviews/hooks/useGitBranches";
-import { BranchNamingSettings } from "./BranchNamingSettings";
-import { useSettings } from "src/webviews/hooks/useSettings";
+import { useMemo, useState } from "react"
+import { Ref } from "src/types/GitAPI"
+import { IssueVscState } from "src/vscStates"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
+import { useSettings } from "src/webviews/hooks/useSettings"
+import { checkPossiblyExistingBranchName, getDefaultBranchName } from "src/webviews/utils/branches"
+
+import { BranchNamingSettings } from "./BranchNamingSettings"
+import { StartWorkBanner } from "./StartWorkBanner"
+import { StartWorkBranchCreation } from "./StartWorkBranchCreation"
+import { StartWorkHeader } from "./StartWorkHeader"
 
 export type StartWorkContentProps = {
-  branches?: Ref[];
-  currentBranch?: Ref | null;
-  fromCheckout: boolean;
-  repoInitialized: boolean;
-  gitInitialized: boolean;
-  issueSettings: IssueVscState[string];
-  updateIssueSettings: (value: Partial<IssueVscState[string]>) => void;
-};
+  branches?: Ref[]
+  currentBranch?: Ref | null
+  fromCheckout: boolean
+  repoInitialized: boolean
+  gitInitialized: boolean
+  issueSettings: IssueVscState[string]
+  updateIssueSettings: (value: Partial<IssueVscState[string]>) => void
+}
 
 export function StartWorkContent(props: StartWorkContentProps) {
   const {
@@ -32,51 +30,39 @@ export function StartWorkContent(props: StartWorkContentProps) {
     gitInitialized,
     issueSettings,
     updateIssueSettings,
-  } = props;
+  } = props
 
-  const { issue, issueLabelsLoading } = useIssueContext();
-  const { hasUncommittedChanges } = useIssueBranches({ issueId: issue.id });
-  const { branchesSettings, branchesSettingsAreLoading } = useSettings();
+  const { issue, issueLabelsLoading } = useIssueContext()
+  const { hasUncommittedChanges } = useIssueBranches({ issueId: issue.id })
+  const { branchesSettings, branchesSettingsAreLoading } = useSettings()
 
-  const [branchNamingSettingsOpen, setBranchNamingSettingsOpen] =
-    useState(false);
+  const [branchNamingSettingsOpen, setBranchNamingSettingsOpen] = useState(false)
 
   const { matchingBranches, existingBranch } = useMemo(() => {
     const [matchingBranches, existingBranch] = checkPossiblyExistingBranchName(
       issueSettings.branch?.name || issue.branchName || "",
       issue.identifier,
-      branches?.filter(
-        (b) => !issueSettings.ignoredBranches?.includes(b.name || ""),
-      ) || [],
-    );
+      branches?.filter((b) => !issueSettings.ignoredBranches?.includes(b.name || "")) || [],
+    )
 
-    return { matchingBranches, existingBranch };
-  }, [branches, issueSettings.branch]);
+    return { matchingBranches, existingBranch }
+  }, [branches, issue.identifier, issueSettings.branch?.name, issueSettings.ignoredBranches])
 
   const initialBranchName = useMemo(() => {
     return (
-      issueSettings.branch?.name ||
-      getDefaultBranchName(issue, branchesSettings, issue.labelIds)
-    );
-  }, [
-    issueSettings.branch,
-    issue.branchName,
-    branchesSettingsAreLoading,
-    issueLabelsLoading,
-  ]);
+      issueSettings.branch?.name || getDefaultBranchName(issue, branchesSettings, issue.labelIds)
+    )
+  }, [issue, branchesSettings, issueSettings.branch?.name])
 
   if (branchesSettingsAreLoading || issueLabelsLoading) {
-    return null;
+    return null
   }
 
   return (
     <div>
-      <StartWorkHeader
-        setBranchNamingSettingsOpen={setBranchNamingSettingsOpen}
-      />
+      <StartWorkHeader setBranchNamingSettingsOpen={setBranchNamingSettingsOpen} />
       <h5>
-        {fromCheckout ? "Create branch for issue" : "Start work on issue"}{" "}
-        {issue.identifier}
+        {fromCheckout ? "Create branch for issue" : "Start work on issue"} {issue.identifier}
       </h5>
 
       <StartWorkBanner
@@ -105,5 +91,5 @@ export function StartWorkContent(props: StartWorkContentProps) {
         onClose={() => setBranchNamingSettingsOpen(false)}
       />
     </div>
-  );
+  )
 }

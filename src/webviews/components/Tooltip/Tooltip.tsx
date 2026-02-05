@@ -12,7 +12,11 @@ export function Tooltip(props: TooltipProps) {
     <Whisper
       controlId="control-id-hover"
       trigger="hover"
-      speaker={<RSTooltip arrow={false}>{tooltip}</RSTooltip>}
+      speaker={
+        <RSTooltip style={{ whiteSpace: "pre-wrap" }} arrow={false}>
+          {tooltip}
+        </RSTooltip>
+      }
       disabled={!tooltip}
       delayOpen={1000}
       preventOverflow={preventOverflow ?? true}

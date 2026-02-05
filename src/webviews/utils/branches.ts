@@ -98,6 +98,8 @@ export function getDefaultBranchName(
     const label = prefixByLabelList.find((l) => labelIds.includes(l.label.id))
     if (label) {
       prefix = label.prefix
+    } else if (prefixByLabelList[0]?.prefix) {
+      prefix = prefixByLabelList[0].prefix
     }
   }
 

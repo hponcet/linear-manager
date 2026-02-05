@@ -1,0 +1,40 @@
+.prefixByLabelPickerContainer {
+  border: 1px solid var(--rs-border-primary);
+  border-radius: 4px;
+}
+
+.prefixByLabelPickerHeader {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  border-bottom: 1px solid var(--rs-border-primary);
+  padding: 5px 8px;
+
+  .prefixByLabelPickerHeaderPlaceholder {
+    width: 38px;
+    height: 100%;
+  }
+
+  .prefixByLabelPickerHeaderTitles {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+
+    & div {
+      flex: 1;
+    }
+  }
+}
+
+.prefixByLabelPickerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.prefixByLabelDefaultValue::after {
+  content: " (default)";
+  font-style: italic;
+  color: var(--rs-text-secondary);
+}

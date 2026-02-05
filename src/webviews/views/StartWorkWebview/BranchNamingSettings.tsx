@@ -1,7 +1,9 @@
 import { Issue } from "@linear/sdk"
 import { Modal } from "rsuite"
 import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField"
+import { InfoIcon } from "src/webviews/components/Icons/InfoIcon"
 import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker"
+import { Tooltip } from "src/webviews/components/Tooltip/Tooltip"
 import { useSettings } from "src/webviews/hooks/useSettings"
 
 type BranchNamingSettingsProps = {
@@ -24,7 +26,20 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
         <FormQueueField
           key="prefix-by-label"
           indexKey="prefix-by-label"
-          label="Use branch prefix from labels"
+          label={
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div>Use branch prefix from labels</div>
+              <Tooltip
+                tooltip={
+                  "Automatically add a prefix to the branch name based on the issue's labels.\n\nYou can configure label-prefix pairs in the settings below.\n\nIn case of multiple matching labels or no matching labels, the prefix from the label with the highest priority (top of the list) will be used."
+                }
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <InfoIcon style={{ marginLeft: 4 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
           input={
             <PrefixByLabelPicker
               value={branchesSettings?.prefixByLabelList || []}
@@ -50,7 +65,7 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
         <FormQueueField
           key="update-cycle"
           indexKey="update-cycle"
-          label="Update issue cycle when starting work"
+          label="Update issue cycle"
           showToggle={true}
           disabled={!branchesSettings?.updateCycle}
           onToggleChange={(open) => updateSettings({ updateCycle: open })}

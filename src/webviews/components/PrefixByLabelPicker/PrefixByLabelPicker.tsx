@@ -14,6 +14,8 @@ import { DragIcon } from "../Icons/DragIcon"
 import { PlusIcon } from "../Icons/PlusIcon"
 import { Label } from "../LabelsPicker/Label"
 
+import "./PrefixByLabelPicker.scss"
+
 type LabelPrefixes = SettingsVscState["prefixByLabelList"]
 
 type PrefixByLabelPickerProps = {
@@ -79,33 +81,14 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
   }
 
   return (
-    <div
-      style={{
-        border: "1px solid var(--rs-border-primary)",
-        borderRadius: 4,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          fontWeight: "bold",
-          borderBottom: "1px solid var(--rs-border-primary)",
-          padding: "5px 8px",
-        }}
-      >
-        <div style={{ width: 38, height: "100%" }} />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            flex: 1,
-          }}
-        >
-          <div style={{ flex: 1 }}>Label</div>
-          <div style={{ flex: 1 }}>Branch prefix</div>
+    <div className="prefixByLabelPickerContainer">
+      <div className="prefixByLabelPickerHeader">
+        <div className="prefixByLabelPickerHeaderPlaceholder" />
+        <div className="prefixByLabelPickerHeaderTitles">
+          <div>Label</div>
+          <div>Branch prefix</div>
         </div>
-        <div style={{ width: 38, height: "100%" }}>
+        <div className="prefixByLabelPickerHeaderPlaceholder">
           <Button onClick={handleAddLabelPrefix} icon={<PlusIcon />} />
         </div>
       </div>
@@ -137,13 +120,7 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
             {labelsWithPrefixes.map((item, index) => (
               <Sortable key={index.toString()} id={index.toString()} style={{ padding: "2px 8px" }}>
                 <DragIcon style={{ cursor: "grab", marginRight: 8 }} />
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
+                <div className="prefixByLabelPickerRow">
                   <SelectPicker
                     key={`label-prefix-${item.label?.id || index}`}
                     data={cacheData}

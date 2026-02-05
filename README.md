@@ -5,11 +5,15 @@ A powerful VS Code extension to manage your Linear issues directly from your cod
 ## 🚀 Features
 
 - **Complete Linear integration**: Connect your Linear account and access your issues
-- **Dedicated activity view**: View your assigned issues in the VS Code sidebar
+- **Dedicated activity view**: View your assigned issues or current cycle issues in the VS Code sidebar
 - **Issue management**: Open, view, and start working on your issues directly from VS Code
 - **Rich user interface**: Modern React interface with rich editor and intuitive selectors
 - **Git integration**: Automatic branch creation and Git workflow management
 - **Comments and activity**: View and add comments on your issues
+- **Drag & Drop**: Drag issues from the TreeView to the editor to open them
+- **Quick branch checkout**: One-click checkout to issue branches with inline action buttons
+- **View modes**: Switch between "My Issues" and "Current Cycle" views
+- **Keyboard shortcuts**: Quick access to issues with customizable shortcuts
 
 ## 📋 Prerequisites
 
@@ -34,14 +38,47 @@ A powerful VS Code extension to manage your Linear issues directly from your cod
 
 ### Issue management
 
-- **Open an issue**: Simply click on it or via the context menu
+- **Open an issue**: Click on an issue, use the context menu, or drag it to the editor
 - **Start working**: Use "Start Work" from the context menu to automatically create a Git branch
+- **Configure branch**: Once a branch is created, use "Configure branch" to modify settings
+- **Checkout to branch**: Click the branch icon on issues with initialized branches
 - **Move your issues**: From the "My Issues" view, you can change issue status with simple drag and drop. You can also select multiple issues.
+
+### View modes
+
+Use the filter button in the TreeView title bar to switch between:
+- **My Issues**: View issues assigned to you
+- **Current Cycle**: View all issues from the active sprint/cycle of your teams
+
+### Keyboard shortcuts
+
+| Shortcut | Command | Description |
+|----------|---------|-------------|
+| `Cmd+K I` (Mac) / `Ctrl+K I` (Windows/Linux) | Open Issue for Current Branch | Opens the Linear issue associated with your current Git branch |
 
 ### Available commands
 
-- `linearManager.connect`: Connect your Linear account
-- `linearManager.disconnet`: Disconnect your Linear account
+| Command | Description |
+|---------|-------------|
+| `Linear manager: Connect to Linear` | Connect your Linear account |
+| `Linear manager: Disconnect from Linear` | Disconnect your Linear account |
+| `Linear manager: Open Issue` | Open an issue in the editor |
+| `Linear manager: Open Issue on Linear.app` | Open an issue in the browser |
+| `Linear manager: Open Issue for Current Branch` | Open the issue linked to the current branch |
+| `Linear manager: Start work on issue` | Create/configure a branch for an issue |
+| `Linear manager: Configure branch for issue` | Modify branch settings for an issue |
+| `Linear manager: Checkout to branch` | Switch to the issue's branch |
+| `Linear manager: Refresh` | Refresh the issues list |
+| `Linear manager: Toggle View` | Switch between My Issues and Current Cycle views |
+
+### TreeView actions
+
+- **Inline buttons**: 
+  - ▶️ (Play): Start work on an issue (when no branch is configured)
+  - 🌿 (Branch): Checkout to issue branch (when branch is configured)
+- **Refresh button**: Reload all data from Linear
+- **Filter button**: Toggle between My Issues and Current Cycle views
+- **Tooltips**: Hover over issues to see the title and branch name (if configured)
 
 ## 🏗️ Project structure
 
@@ -50,13 +87,22 @@ src/
 ├── extension.ts           # Extension entry point
 ├── commands.ts           # VS Code commands
 ├── controller.ts         # Main controller
+├── constants.ts          # Constants and enums
 ├── linear/              # Linear API integration
-├── git/                # Git integration
-├── panels/             # Webview panels
-├── webviews/           # React interface
-│   ├── components/     # Reusable React components
-│   └── views/         # Main views
-└── types/             # TypeScript definitions
+├── git/                 # Git integration
+├── panels/              # Webview panels
+├── views/               # TreeView providers
+│   └── myIssues/        # Issues TreeView module
+│       ├── MyIssuesView.ts    # Main TreeView class
+│       ├── dataFetching.ts    # Data fetching utilities
+│       ├── dragAndDrop.ts     # Drag & drop handlers
+│       ├── treeItems.ts       # TreeItem factories
+│       ├── types.ts           # Types and constants
+│       └── index.ts           # Module exports
+├── webviews/            # React interface
+│   ├── components/      # Reusable React components
+│   └── views/           # Main views
+└── types/               # TypeScript definitions
 ```
 
 ## 🛠️ Development

@@ -125,6 +125,9 @@ export class MyIssuesView
         async (issueIdentifier: Issue["identifier"] | Issue) =>
           await this.openIssueExternal(issueIdentifier),
       ),
+      commands.registerCommand(Commands.openCurrentBranchIssue, () =>
+        this.openCurrentBranchIssue(),
+      ),
       commands.registerCommand(Commands.startWork, (issue: Issue) => this.startWork(issue)),
       commands.registerCommand(Commands.configureBranch, (issue: Issue) => this.startWork(issue)),
       commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
@@ -236,6 +239,43 @@ export class MyIssuesView
       const url = `https://linear.app/${organisation.urlKey}/issue/${identifier}`
       await commands.executeCommand("vscode.open", Uri.parse(url))
     }
+  }
+
+  /**
+   * Opens the issue associated with the current Git branch
+   */
+  public async openCurrentBranchIssue() {
+    const currentBranch = Controller.git.getCurrentBranch()
+
+    if (!currentBranch?.name) {
+      window.showWarningMessage("No current branch found")
+      return
+    }
+
+    // Find the issue that matches the current branch
+    const allIssueStates = this.issuesStore.getAll()
+
+    for (const [issueId, issueState] of Object.entries(allIssueStates)) {
+      if (issueState.branchInitialized && issueState.branch?.name === currentBranch.name) {
+        // Found the issue, try to get it from cache or fetch it
+        let issue = this.#myIssues.get(issueId)
+
+        if (!issue) {
+          try {
+            const fetchedIssue = await this.#linearClient.issue(issueId)
+            issue = addKeyOnItem(fetchedIssue, "issue")
+          } catch {
+            window.showErrorMessage("Failed to fetch issue from Linear")
+            return
+          }
+        }
+
+        await this.openIssue(issue)
+        return
+      }
+    }
+
+    window.showInformationMessage(`No Linear issue found for branch "${currentBranch.name}"`)
   }
 
   public async startWork(issue: Issue, fromCheckout?: true) {

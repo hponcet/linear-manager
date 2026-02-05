@@ -134,6 +134,12 @@
         "icon": "$(list-filter)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.openCurrentBranchIssue",
+        "title": "Open Issue for Current Branch",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
       }
     ],
     "menus": {
@@ -213,7 +219,19 @@
           "group": "inline"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "linearManager.commands.openCurrentBranchIssue",
+        "key": "ctrl+k i",
+        "mac": "cmd+k i"
+      },
+      {
+        "command": "linearManager.commands.openCurrentBranchIssue",
+        "key": "ctrl+k ctrl+i",
+        "mac": "cmd+k cmd+i"
+      }
+    ]
   },
   "extensionDependencies": [
     "linear.linear-connect",

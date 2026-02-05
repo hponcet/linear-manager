@@ -127,6 +127,13 @@
         "icon": "$(refresh)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.toggleViewMode",
+        "title": "Toggle View: My Issues / Current Cycle",
+        "icon": "$(list-filter)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
       }
     ],
     "menus": {
@@ -155,6 +162,11 @@
       "view/title": [
         {
           "command": "linearManager.commands.refresh",
+          "when": "view == linearManager.views.myIssues",
+          "group": "navigation"
+        },
+        {
+          "command": "linearManager.commands.toggleViewMode",
           "when": "view == linearManager.views.myIssues",
           "group": "navigation"
         }

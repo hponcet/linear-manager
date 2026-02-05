@@ -101,3 +101,39 @@ export async function fetchIssues(me: User | null): Promise<Issue[]> {
     return []
   }
 }
+
+/**
+ * Fetches issues from the current active cycle for given teams
+ */
+export async function fetchCurrentCycleIssues(
+  linearClient: LinearClient,
+  teams: Record<string, Team>,
+): Promise<Issue[]> {
+  try {
+    const allIssues: Issue[] = []
+
+    for (const teamId in teams) {
+      // Get active cycles for this team
+      const cycles = await linearClient.cycles({
+        filter: {
+          team: { id: { eq: teamId } },
+          isActive: { eq: true },
+        },
+        first: 1,
+      })
+
+      if (cycles.nodes.length > 0) {
+        const activeCycle = cycles.nodes[0]
+        const cycleIssues = await activeCycle.issues({ first: 250 })
+        allIssues.push(...cycleIssues.nodes.map((issue) => addKeyOnItem(issue, "issue")))
+      }
+    }
+
+    return allIssues
+  } catch (error) {
+    window.showErrorMessage(
+      `Failed to fetch cycle issues: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return []
+  }
+}

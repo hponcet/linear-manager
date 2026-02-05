@@ -22,7 +22,13 @@ import {
   Uri,
 } from "vscode"
 
-import { fetchMe, fetchTeams, fetchWorkflowStates, fetchIssues } from "./dataFetching"
+import {
+  fetchMe,
+  fetchTeams,
+  fetchWorkflowStates,
+  fetchIssues,
+  fetchCurrentCycleIssues,
+} from "./dataFetching"
 import {
   registerDropProvider,
   registerLinearIssueContentProvider,
@@ -36,6 +42,7 @@ import {
   MIME_TYPE_ISSUE,
   AUTO_REFRESH_INTERVAL_MS,
   addKeyOnItem,
+  ViewMode,
 } from "./types"
 
 export class MyIssuesView
@@ -64,6 +71,7 @@ export class MyIssuesView
   #teams: Record<string, Team> = {}
   #workflowStatesByTeam: Record<string, Record<string, WorkflowState>> = {}
   #myIssues: Map<string, Issue> = new Map()
+  #viewMode: ViewMode = "myIssues"
 
   // Webviews
   #issuesWebviews: Map<string, IssueWebview> = new Map()
@@ -74,6 +82,9 @@ export class MyIssuesView
 
   // Disposables
   #disposables: Disposable[] = []
+
+  // TreeView reference
+  #treeView: ReturnType<typeof window.createTreeView<Team | WorkflowState | Issue>> | null = null
 
   constructor(context: ExtensionContext) {
     this.#context = context
@@ -89,14 +100,13 @@ export class MyIssuesView
     this._startAutoRefresh()
 
     // Create TreeView
-    context.subscriptions.push(
-      window.createTreeView(Views.myIssues, {
-        treeDataProvider: this,
-        dragAndDropController: this,
-        showCollapseAll: true,
-        canSelectMany: true,
-      }),
-    )
+    this.#treeView = window.createTreeView(Views.myIssues, {
+      treeDataProvider: this,
+      dragAndDropController: this,
+      showCollapseAll: true,
+      canSelectMany: true,
+    })
+    context.subscriptions.push(this.#treeView)
 
     // Register drag & drop providers
     const dragDropHandlers = {
@@ -121,6 +131,7 @@ export class MyIssuesView
         this.checkoutToIssueBranch(issue.id),
       ),
       commands.registerCommand(Commands.refresh, () => this.fetchDatas()),
+      commands.registerCommand(Commands.toggleViewMode, () => this.toggleViewMode()),
       dropProvider,
     ]
 
@@ -140,14 +151,39 @@ export class MyIssuesView
   }
 
   private async _refreshIssues() {
-    const issues = await fetchIssues(this.#me)
+    let issues: Issue[]
 
+    if (this.#viewMode === "myIssues") {
+      issues = await fetchIssues(this.#me)
+    } else {
+      issues = await fetchCurrentCycleIssues(this.#linearClient, this.#teams)
+    }
+
+    // Clear previous issues and add new ones
+    this.#myIssues.clear()
     issues.forEach((issue) => {
       this._updateWebviewsIfNeeded(issue)
       this.#myIssues.set(issue.id, issue)
     })
 
     this.#onDidChangeTreeData.fire()
+  }
+
+  /**
+   * Toggle between "My Issues" and "Current Cycle" view modes
+   */
+  public async toggleViewMode() {
+    this.#viewMode = this.#viewMode === "myIssues" ? "currentCycle" : "myIssues"
+
+    // Update TreeView title
+    if (this.#treeView) {
+      this.#treeView.title = this.#viewMode === "myIssues" ? "My Issues" : "Current Cycle"
+    }
+
+    // Update context for conditional button icon/title
+    commands.executeCommand("setContext", "linearManager:viewMode", this.#viewMode)
+
+    await this._refreshIssues()
   }
 
   private _updateWebviewsIfNeeded(issue: Issue) {

@@ -5,6 +5,11 @@ export const LINEAR_ISSUE_SCHEME = "linear-issue"
 export const AUTO_REFRESH_INTERVAL_MS = 30 * 1000 // 30 seconds
 
 /**
+ * View mode for the TreeView
+ */
+export type ViewMode = "myIssues" | "currentCycle"
+
+/**
  * Adds a discriminant key to an item to identify its type
  */
 export function addKeyOnItem<I extends object, K extends "issue" | "team" | "workflowState">(

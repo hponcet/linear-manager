@@ -18,4 +18,5 @@ export enum Commands {
   configureBranch = "linearManager.commands.configureBranch",
   checkoutIssue = "linearManager.commands.checkoutIssue",
   refresh = "linearManager.commands.refresh",
+  toggleViewMode = "linearManager.commands.toggleViewMode",
 }

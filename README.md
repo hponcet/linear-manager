@@ -28,7 +28,7 @@ A powerful VS Code extension to manage your Linear issues directly from your cod
 
 ### Connecting to Linear
 
-1. Open the "Linear issue manager" view in the sidebar
+1. Open the "Linear manager" view in the sidebar
 2. Click on "Connect to Linear" to authenticate your account
 3. Your assigned issues will appear in the "My issues" view
 

@@ -17,4 +17,5 @@ export enum Commands {
   startWork = "linearManager.commands.startWork",
   configureBranch = "linearManager.commands.configureBranch",
   checkoutIssue = "linearManager.commands.checkoutIssue",
+  refresh = "linearManager.commands.refresh",
 }

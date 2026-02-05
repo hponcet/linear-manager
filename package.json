@@ -48,7 +48,7 @@
       "activitybar": [
         {
           "id": "linear-manager-issues",
-          "title": "Linear issue manager",
+          "title": "Linear manager",
           "icon": "resources/images/linear_dark.png"
         }
       ]
@@ -120,6 +120,13 @@
         "icon": "$(git-branch)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
       }
     ],
     "menus": {
@@ -143,6 +150,13 @@
         {
           "command": "linearManager.commands.checkoutIssue",
           "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "linearManager.commands.refresh",
+          "when": "view == linearManager.views.myIssues",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

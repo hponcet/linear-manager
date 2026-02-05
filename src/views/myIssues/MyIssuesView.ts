@@ -120,6 +120,7 @@ export class MyIssuesView
       commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
         this.checkoutToIssueBranch(issue.id),
       ),
+      commands.registerCommand(Commands.refresh, () => this.fetchDatas()),
       dropProvider,
     ]
 

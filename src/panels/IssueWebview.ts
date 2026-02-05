@@ -2,7 +2,7 @@ import { Issue } from "@linear/sdk"
 import { Webviews } from "src/constants"
 import { Controller } from "src/controller"
 import { LinearSecretKeys } from "src/linear/auth"
-import { MyIssuesView } from "src/views/MyIssuesView"
+import { MyIssuesView } from "src/views/myIssues"
 import { ExtensionContext, ViewColumn } from "vscode"
 
 import { AbstractIssueWebview } from "./AbstractIssueWebview"

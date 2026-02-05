@@ -1,7 +1,7 @@
 import { Issue } from "@linear/sdk"
 import { Controller } from "src/controller"
 import { Ipc, Props } from "src/types/ActionMessage"
-import { MyIssuesView } from "src/views/MyIssuesView"
+import { MyIssuesView } from "src/views/myIssues"
 import { ExtensionContext, ViewColumn, WebviewPanel } from "vscode"
 
 import { AbstractWebview, ReactWebview } from "./AbstractWebview"

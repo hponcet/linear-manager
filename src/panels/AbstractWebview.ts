@@ -56,7 +56,7 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
 
   public async createOrShow(column?: ViewColumn) {
     if (this._panel) {
-      this._panel.reveal(ViewColumn.One)
+      this._panel.reveal(column ?? ViewColumn.Active)
       return this._panel
     }
 

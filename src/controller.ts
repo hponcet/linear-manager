@@ -3,7 +3,7 @@ import { ExtensionContext } from "vscode"
 import { CommandContext, setCommandContext } from "./commandsContext"
 import { GitClient } from "./git/GitClient"
 import { Resources } from "./resources"
-import { MyIssuesView } from "./views/MyIssuesView"
+import { MyIssuesView } from "./views/myIssues"
 
 export class Controller {
   static resources: Resources

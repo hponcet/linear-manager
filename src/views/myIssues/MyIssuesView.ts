@@ -116,6 +116,7 @@ export class MyIssuesView
           await this.openIssueExternal(issueIdentifier),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) => this.startWork(issue)),
+      commands.registerCommand(Commands.configureBranch, (issue: Issue) => this.startWork(issue)),
       commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
         this.checkoutToIssueBranch(issue.id),
       ),
@@ -312,7 +313,9 @@ export class MyIssuesView
         issuesCount,
       )
     } else {
-      item = createIssueTreeItem(element)
+      const issueState = this.issuesStore.get(element.id)
+      const branchName = issueState?.branchInitialized ? issueState.branch?.name : undefined
+      item = createIssueTreeItem(element, branchName)
     }
 
     this.#treeItems.set(item.id!, item)

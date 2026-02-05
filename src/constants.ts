@@ -15,5 +15,6 @@ export enum Commands {
   openIssue = "linearManager.commands.openIssue",
   openIssueExternal = "linearManager.commands.openIssueExternal",
   startWork = "linearManager.commands.startWork",
+  configureBranch = "linearManager.commands.configureBranch",
   checkoutIssue = "linearManager.commands.checkoutIssue",
 }

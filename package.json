@@ -103,6 +103,13 @@
       },
       {
         "command": "linearManager.commands.startWork",
+        "title": "Start work on issue",
+        "icon": "$(play)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.configureBranch",
         "title": "Configure branch for issue",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
@@ -110,6 +117,7 @@
       {
         "command": "linearManager.commands.checkoutIssue",
         "title": "Checkout to branch",
+        "icon": "$(git-branch)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
       }
@@ -129,6 +137,10 @@
           "when": "false"
         },
         {
+          "command": "linearManager.commands.configureBranch",
+          "when": "false"
+        },
+        {
           "command": "linearManager.commands.checkoutIssue",
           "when": "false"
         }
@@ -137,13 +149,13 @@
         {
           "command": "linearManager.commands.openIssue",
           "icon": "resources/images/issue_dark.png",
-          "when": "viewItem == issueItem",
+          "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
           "command": "linearManager.commands.openIssueExternal",
           "icon": "resources/images/issue_dark.png",
-          "when": "viewItem == issueItem",
+          "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
@@ -153,10 +165,26 @@
           "group": "2issueActions"
         },
         {
+          "command": "linearManager.commands.configureBranch",
+          "icon": "resources/images/start-work_dark.png",
+          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "group": "2issueActions"
+        },
+        {
           "command": "linearManager.commands.checkoutIssue",
           "icon": "resources/images/start-work_dark.png",
-          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
+          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
           "group": "2issueActions"
+        },
+        {
+          "command": "linearManager.commands.startWork",
+          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
+          "group": "inline"
+        },
+        {
+          "command": "linearManager.commands.checkoutIssue",
+          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "group": "inline"
         }
       ]
     }

@@ -46,14 +46,17 @@ export function createWorkflowStateTreeItem(
 
 /**
  * Creates a TreeItem for an issue
+ * @param issue The issue to create a TreeItem for
+ * @param branchName The branch name if initialized, undefined otherwise
  */
-export function createIssueTreeItem(issue: Issue): TreeItem {
+export function createIssueTreeItem(issue: Issue, branchName?: string): TreeItem {
   const item = new TreeItem(`${issue.identifier}`, TreeItemCollapsibleState.None)
   item.id = issue.id
-  item.tooltip = issue.title
+  item.tooltip = branchName ? `${issue.title}\n\n🌿 ${branchName}` : issue.title
   item.description = `- ${issue.trashed ? "[trashed] " : ""}${issue.title}`
 
-  item.contextValue = "issueItem"
+  // Use different contextValue to control which context menu items are shown
+  item.contextValue = branchName ? "issueItemWithBranch" : "issueItem"
   item.iconPath = Controller.resources.icons.get("treeIssue")
 
   item.command = {

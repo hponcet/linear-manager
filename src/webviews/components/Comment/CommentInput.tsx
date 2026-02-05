@@ -11,6 +11,7 @@ export function CommentInput() {
   const { update } = useIssueContext()
 
   const [value, setValue] = useState("")
+  const [resetEditor, setResetEditor] = useState(0)
 
   async function sendComment() {
     if (!value.trim()) {
@@ -19,11 +20,18 @@ export function CommentInput() {
     await update.comments.addComment(value)
 
     setValue("")
+    setResetEditor((prev) => prev + 1)
   }
 
   return (
     <div className="commentInputContainer">
-      <Editor placeholder="Leave a comment..." value={value} editable onChange={setValue} />
+      <Editor
+        key={resetEditor}
+        placeholder="Leave a comment..."
+        value={value}
+        editable
+        onChange={setValue}
+      />
       <div className="commentActions">
         <Button
           disabled={!value.trim()}

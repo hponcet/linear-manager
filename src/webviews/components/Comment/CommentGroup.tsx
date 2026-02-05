@@ -24,6 +24,7 @@ export function CommentGroup(props: CommentGroupProps) {
 
   const [replyValue, setReplyValue] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(!resolvingCommentId && !resolvingUserId)
+  const [resetEditor, setResetEditor] = useState(0)
 
   function onKeyDown(e: KeyboardEvent) {
     if (childrenComments?.length) return
@@ -111,6 +112,7 @@ export function CommentGroup(props: CommentGroupProps) {
         >
           <div className="issueCommentReplyEditor">
             <Editor
+              key={resetEditor}
               placeholder={`Leave a reply...`}
               editable
               value={replyValue || ""}
@@ -128,6 +130,7 @@ export function CommentGroup(props: CommentGroupProps) {
               onClick={async () => {
                 await update.comments.sendCommentReply(id, replyValue || "")
                 setReplyValue("")
+                setResetEditor((prev) => prev + 1)
               }}
               className="commentSendButton"
               tooltip="Send Comment"

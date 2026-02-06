@@ -1,6 +1,7 @@
 import { Issue } from "@linear/sdk"
 import { Controller } from "src/controller"
 import { Ipc, Props } from "src/types/ActionMessage"
+import { Stores } from "src/utils/Stores"
 import { MyIssuesView } from "src/views/myIssues"
 import { ExtensionContext, ViewColumn, WebviewPanel } from "vscode"
 
@@ -16,6 +17,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
 {
   issue: Partial<Issue> | null = null
   protected issueActions: MyIssuesView["issuesActions"]
+  protected issuesStore: ReturnType<Stores["issuesStore"]>
 
   isLoading: boolean = false
 
@@ -28,6 +30,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
   constructor(context: ExtensionContext, issueActions: MyIssuesView["issuesActions"]) {
     super(context)
     this.issueActions = issueActions
+    this.issuesStore = new Stores(context).issuesStore()
   }
 
   override async onMessageReceived<T extends Ipc<"req">["type"]>(
@@ -59,7 +62,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
           return this.postMessage(msg.type, void 0, msg)
         }
         case "getGitStatus": {
-          const gitStatus = await Controller.git.getGitStatus()
+          const gitStatus = Controller.git.getGitStatus()
           return this.postMessage(msg.type, gitStatus, msg)
         }
         case "getAllBranches": {

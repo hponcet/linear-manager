@@ -20,17 +20,17 @@ export type Props = {
 export type Request<
   T extends Ipc<"req">["type"],
   R extends Record<string, any> | void = void,
-> = R extends void ? { type: T; resKey?: string } : { type: T; resKey?: string } & R
+> = R extends void ? { type: T; _ipcReqId?: string } : { type: T; _ipcReqId?: string } & R
 
 export type Response<T extends Ipc<"req">["type"], R = void> = {
   type: `${T}_response`
-  resKey?: string
+  _ipcReqId?: string
   payload: R extends void ? void : R
 }
 
 export type ResponseError<T extends Ipc<"req">["type"]> = {
   type: `${T}_error`
-  resKey?: string
+  _ipcReqId?: string
   error: string
 }
 

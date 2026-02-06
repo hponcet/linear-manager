@@ -65,7 +65,7 @@
         {
           "id": "linearManager.views.connect",
           "name": "Connect to Linear",
-          "icon": "resources/images/issue_dark.png",
+          "icon": "resources/images/linear_dark.png",
           "when": "!linearManager:isLinearAuthenticated"
         },
         {
@@ -180,31 +180,26 @@
       "view/item/context": [
         {
           "command": "linearManager.commands.openIssue",
-          "icon": "resources/images/issue_dark.png",
           "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
           "command": "linearManager.commands.openIssueExternal",
-          "icon": "resources/images/issue_dark.png",
           "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
           "command": "linearManager.commands.startWork",
-          "icon": "resources/images/start-work_dark.png",
           "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
           "group": "2issueActions"
         },
         {
           "command": "linearManager.commands.configureBranch",
-          "icon": "resources/images/start-work_dark.png",
           "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
           "group": "2issueActions"
         },
         {
           "command": "linearManager.commands.checkoutIssue",
-          "icon": "resources/images/start-work_dark.png",
           "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
           "group": "2issueActions"
         },

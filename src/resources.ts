@@ -57,6 +57,10 @@ export class Resources {
     )
 
     this.icons.set(
+      Icons.backlog,
+      Uri.file(context.asAbsolutePath(path.join(statuesPath, "backlog.png"))),
+    )
+    this.icons.set(
       Icons.canceled,
       Uri.file(context.asAbsolutePath(path.join(statuesPath, "canceled.png"))),
     )
@@ -127,10 +131,6 @@ export class Resources {
     // this.icons.set(
     //   Icons.linear,
     //   Uri.file(context.asAbsolutePath(path.join(imagesPath, "linear.png"))),
-    // );
-    // this.icons.set(
-    //   Icons.backlog,
-    //   Uri.file(context.asAbsolutePath(path.join(statuesPath, "backlog.png"))),
     // );
   }
 }

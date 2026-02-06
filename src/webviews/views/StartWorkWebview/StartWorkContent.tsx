@@ -38,21 +38,27 @@ export function StartWorkContent(props: StartWorkContentProps) {
 
   const [branchNamingSettingsOpen, setBranchNamingSettingsOpen] = useState(false)
 
+  const initialBranchName = useMemo(
+    () =>
+      issueSettings.branch?.name || getDefaultBranchName(issue, branchesSettings, issue.labelIds),
+    [issue, branchesSettings, issueSettings.branch?.name],
+  )
+
   const { matchingBranches, existingBranch } = useMemo(() => {
     const [matchingBranches, existingBranch] = checkPossiblyExistingBranchName(
-      issueSettings.branch?.name || issue.branchName || "",
+      issueSettings.branch?.name || initialBranchName || "",
       issue.identifier,
       branches?.filter((b) => !issueSettings.ignoredBranches?.includes(b.name || "")) || [],
     )
 
     return { matchingBranches, existingBranch }
-  }, [branches, issue.identifier, issueSettings.branch?.name, issueSettings.ignoredBranches])
-
-  const initialBranchName = useMemo(() => {
-    return (
-      issueSettings.branch?.name || getDefaultBranchName(issue, branchesSettings, issue.labelIds)
-    )
-  }, [issue, branchesSettings, issueSettings.branch?.name])
+  }, [
+    branches,
+    issue.identifier,
+    issueSettings.branch?.name,
+    issueSettings.ignoredBranches,
+    initialBranchName,
+  ])
 
   if (branchesSettingsAreLoading || issueLabelsLoading) {
     return null

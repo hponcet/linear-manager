@@ -50,40 +50,31 @@ export class MyIssuesView
     TreeDataProvider<Team | WorkflowState | Issue>,
     TreeDragAndDropController<Issue | WorkflowState | Team>
 {
-  // Drag & Drop configuration
   dropMimeTypes = [MIME_TYPE_ISSUE]
   dragMimeTypes = [MIME_TYPE_ISSUE, "text/uri-list"]
 
-  // Event emitter for tree refresh
   #onDidChangeTreeData = new EventEmitter<void>()
   onDidChangeTreeData = this.#onDidChangeTreeData.event
 
-  // TreeItems cache
   #treeItems = new Map<string, TreeItem>()
 
-  // Context & Linear client
   #context: ExtensionContext
   #linearClient = getLinearClient() as LinearClient
   protected issuesStore: ReturnType<Stores["issuesStore"]>
 
-  // Data state
   #me: User | null = null
   #teams: Record<string, Team> = {}
   #workflowStatesByTeam: Record<string, Record<string, WorkflowState>> = {}
   #myIssues: Map<string, Issue> = new Map()
   #viewMode: ViewMode = "myIssues"
 
-  // Webviews
   #issuesWebviews: Map<string, IssueWebview> = new Map()
   #startWorkWebviews: Map<string, StartWorkWebview> = new Map()
 
-  // Auto-refresh
   #autoRefreshInterval: NodeJS.Timeout | null = null
 
-  // Disposables
   #disposables: Disposable[] = []
 
-  // TreeView reference
   #treeView: ReturnType<typeof window.createTreeView<Team | WorkflowState | Issue>> | null = null
 
   constructor(context: ExtensionContext) {
@@ -153,6 +144,21 @@ export class MyIssuesView
     await this._refreshIssues()
   }
 
+  private async _refetchIssue(issueId: Issue["id"]): Promise<Issue | null> {
+    try {
+      const issue = addKeyOnItem(await this.#linearClient.issue(issueId), "issue")
+      this.#myIssues.set(issue.id, issue)
+      this._updateWebviewsIfNeeded(issue)
+      this.#onDidChangeTreeData.fire()
+      return issue
+    } catch (error) {
+      window.showErrorMessage(
+        `Failed to fetch issue details: ${error instanceof Error ? error.message : String(error)}`,
+      )
+      return null
+    }
+  }
+
   private async _refreshIssues() {
     let issues: Issue[]
 
@@ -172,9 +178,6 @@ export class MyIssuesView
     this.#onDidChangeTreeData.fire()
   }
 
-  /**
-   * Toggle between "My Issues" and "Current Cycle" view modes
-   */
   public async toggleViewMode() {
     this.#viewMode = this.#viewMode === "myIssues" ? "currentCycle" : "myIssues"
 
@@ -241,9 +244,6 @@ export class MyIssuesView
     }
   }
 
-  /**
-   * Opens the issue associated with the current Git branch
-   */
   public async openCurrentBranchIssue() {
     const currentBranch = Controller.git.getCurrentBranch()
 
@@ -291,8 +291,16 @@ export class MyIssuesView
     const issueState = this.issuesStore.get(issueId)
 
     if (issueState.branchInitialized && issueState.branch) {
-      Controller.git.checkout(issueState.branch)
-      return
+      try {
+        await Controller.git.checkout(issueState.branch)
+        return
+      } catch (error) {
+        await this.issuesStore.set(issueId, {
+          branchInitialized: false,
+          branch: undefined,
+        })
+        await this.issuesActions.refetchIssue(issueId)
+      }
     }
 
     const issue =
@@ -316,7 +324,6 @@ export class MyIssuesView
     this.fetchDatas()
   }
 
-  // Actions exposed to webviews
   issuesActions = {
     openIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return
@@ -331,7 +338,7 @@ export class MyIssuesView
         await this.openIssue(issueWithKey)
       }
     },
-    openIssueExternal: this.openIssueExternal.bind(this),
+    openIssueExternal: this.openIssueExternal.bind(this) as typeof this.openIssueExternal,
     updateIssue: async (issueId: Issue["id"]) => {
       if (!issueId) return
 
@@ -354,6 +361,10 @@ export class MyIssuesView
         await this.startWork(issueWithKey)
       }
     },
+    refetchIssue: this._refetchIssue.bind(this) as typeof this._refetchIssue,
+    checkoutToIssueBranch: this.checkoutToIssueBranch.bind(
+      this,
+    ) as typeof this.checkoutToIssueBranch,
   }
 
   // ============================================================

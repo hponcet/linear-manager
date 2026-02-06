@@ -94,7 +94,7 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
                 icon: <ResetIcon size={14} />,
               },
               {
-                label: "Branch naming settings",
+                label: "Git Settings",
                 action: () => setBranchNamingSettingsOpen(true),
                 icon: <CogIcon size={14} />,
               },

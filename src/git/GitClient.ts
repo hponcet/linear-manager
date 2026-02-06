@@ -115,7 +115,7 @@ export class GitClient {
     return this.#repository.state.workingTreeChanges.length > 0
   }
 
-  async checkout(branch: Ref): Promise<boolean> {
+  async checkout(branch: Ref, retry?: boolean): Promise<void> {
     if (!this.#repository) {
       throw new Error("No repository available")
     }
@@ -126,9 +126,17 @@ export class GitClient {
       } else {
         await this.createBranch(branch.name || "", branch)
       }
-      return true
     } catch (error) {
       if (error.stderr) {
+        if (error.stderr.includes("not match any file")) {
+          if (!retry) {
+            // This error can happen when trying to checkout a branch that was just created remotely and not fetched locally yet
+            // In this case, we can try to fetch and checkout again
+            await this.#repository?.fetch({ all: true, prune: true })
+            return this.checkout(branch, true)
+          }
+        }
+
         window.showErrorMessage(error.stderr || "Failed to checkout branch")
       }
       throw new Error(error.stderr || "Failed to checkout branch")

@@ -15,8 +15,8 @@ const vscApi = {
   postMessage<T extends IpcType<"req">>(
     msg: { type: T } & Ipc<"req", T>,
   ): Promise<Ipc<"res", T>["payload"]> {
-    const resKey = Math.random().toString(36).substring(2, 15)
-    VsCodeApi.postMessage({ ...msg, resKey })
+    const _ipcReqId = Math.random().toString(36).substring(2, 15)
+    VsCodeApi.postMessage({ ...msg, _ipcReqId })
     return new Promise((resolve, reject) => {
       function handleMessage(e: MessageEvent<Ipc<"res">>) {
         const timeout = setTimeout(() => {
@@ -26,13 +26,13 @@ const vscApi = {
 
         const { type, payload } = e.data
 
-        if (type === `${msg.type}_response` && e.data.resKey === resKey) {
+        if (type === `${msg.type}_response` && e.data._ipcReqId === _ipcReqId) {
           clearTimeout(timeout)
           resolve(payload)
           window.removeEventListener("message", handleMessage)
         }
 
-        if (type === `${msg.type}_error` && e.data.resKey === resKey) {
+        if (type === `${msg.type}_error` && e.data._ipcReqId === _ipcReqId) {
           clearTimeout(timeout)
           reject(new Error(payload))
           window.removeEventListener("message", handleMessage)

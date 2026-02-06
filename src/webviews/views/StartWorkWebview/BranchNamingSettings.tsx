@@ -20,7 +20,7 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
   return (
     <Modal size="sm" backdrop="static" open={open} onClose={onClose}>
       <Modal.Header>
-        <Modal.Title>Branch Naming Settings</Modal.Title>
+        <Modal.Title>Git Settings</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <FormQueueField

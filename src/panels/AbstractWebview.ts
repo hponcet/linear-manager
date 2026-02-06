@@ -232,14 +232,14 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
       return this._panel!.webview.postMessage({
         type: `${type}_error`,
         error: payload,
-        resKey: msg.resKey,
+        _ipcReqId: msg._ipcReqId,
       })
     }
 
     return this._panel!.webview.postMessage({
       type: `${type}_response`,
       payload,
-      resKey: msg.resKey,
+      _ipcReqId: msg._ipcReqId,
     })
   }
 

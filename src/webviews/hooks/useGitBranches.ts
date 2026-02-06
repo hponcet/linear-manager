@@ -19,6 +19,7 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
     getCurrentBranch,
     checkout,
     getGitStatus,
+    startWork,
     hasUncommittedChanges: checkHasUncommittedChanges,
   } = useRequestDataUpdate()
 
@@ -90,6 +91,7 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
       }
     } catch (error) {
       console.error("Failed to checkout branch", error)
+      await startWork(issueId)
     }
   }
 

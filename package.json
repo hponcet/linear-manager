@@ -3,7 +3,7 @@
   "displayName": "Linear Manager",
   "description": "Unofficial Linear extension for VS Code to manage issues within the editor.",
   "icon": "resources/images/linear_dark.png",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "hpon",
   "repository": "https://github.com/hponcet/linear-manager",
   "engines": {

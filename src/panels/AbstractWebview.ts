@@ -126,7 +126,7 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
           http-equiv="Content-Security-Policy"
           content="default-src 'self' ${
             panel.webview.cspSource
-          }; img-src 'self' https: data:; script-src ${
+          } https://*.linear.app; img-src 'self' https: data:; script-src ${
             IS_PRODUCTION
               ? `${panel.webview.cspSource} 'nonce-${nonce}'`
               : `${panel.webview.cspSource} 'unsafe-eval'`

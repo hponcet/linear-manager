@@ -24,6 +24,7 @@ import {
 import { MAX_FILE_SIZE } from "src/webviews/components/Editor/lib/tiptap-utils"
 
 import { Details, DetailsContent, DetailsSummary } from "./markdownPlugins/DetailsPlugin"
+import { Video } from "./markdownPlugins/VideosPlugin/VideoPlugin"
 import { getImageFileToBase64 } from "./uploadImage"
 
 import "src/webviews/components/Editor/components/tiptap-node/blockquote-node/blockquote-node.scss"
@@ -73,6 +74,7 @@ export function Editor(props: EditorProps) {
         gapcursor: false,
         horizontalRule: false,
       }),
+      Video,
       Details,
       DetailsContent,
       DetailsSummary,

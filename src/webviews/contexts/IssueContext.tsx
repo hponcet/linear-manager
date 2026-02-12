@@ -38,6 +38,7 @@ export type IssueContextValueData = {
   me: User | null
   meLoading: boolean
   issue: Issue
+  linearAccessToken: string
   update: {
     issue: (issueId: string, issue: Parameters<LinearClient["updateIssue"]>[1]) => Promise<void>
     comments: {
@@ -94,6 +95,7 @@ const IssueContextValue = createContext<IssueContextValueData>({
   me: null,
   meLoading: false,
   issue: {} as Issue,
+  linearAccessToken: "",
   update: {
     issue: async () => Promise.reject(),
     comments: {
@@ -438,6 +440,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       me,
       meLoading,
       issue: issue!,
+      linearAccessToken,
       priorities: priorities || [],
       prioritiesLoading,
       issueLabels: issueLabels || [],
@@ -490,6 +493,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       me,
       meLoading,
       issue,
+      linearAccessToken,
       priorities,
       prioritiesLoading,
       issueLabels,

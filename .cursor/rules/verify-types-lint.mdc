@@ -1,0 +1,15 @@
+---
+description: After code changes, run typecheck and ESLint
+alwaysApply: true
+---
+
+# Post-change verification
+
+After any code change in this repository:
+
+1. `npm run check:types` must complete with no errors
+2. `npm run lint` must complete with no errors (max warnings: 0)
+
+If either command fails, fix the issues before considering the work done.
+
+You can run both: `npm run check:types && npm run lint`

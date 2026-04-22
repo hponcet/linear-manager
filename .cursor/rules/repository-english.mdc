@@ -1,0 +1,12 @@
+---
+description: All text written in this repository must be in English
+alwaysApply: true
+---
+
+# Repository language
+
+- **English** is the only language for content added to this repository.
+- This applies to: `.cursor` rules, comments, docstrings, documentation, `README` content, and any new copy unless the file is explicitly a localization asset (e.g. `*fr.json`) or a third-party / vendored file.
+- User-visible UI copy should stay consistent with the rest of the extension (prefer English in new strings).
+
+When the AI or a contributor adds or edits text, write it in **English** unless the user explicitly requests another language for a specific artifact.

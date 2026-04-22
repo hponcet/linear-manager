@@ -27,4 +27,5 @@ export type SettingsVscState = {
   prefixByLabel?: boolean
   prefixByLabelList?: { label: IssueLabelSetting; prefix: string }[]
   uppercaseIssueIdentifier?: boolean
+  stashBeforeCreate?: boolean
 }

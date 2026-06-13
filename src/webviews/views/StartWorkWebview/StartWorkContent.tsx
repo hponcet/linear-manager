@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Ref } from "src/types/GitAPI"
 import { IssueVscState } from "src/vscStates"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
@@ -37,6 +37,13 @@ export function StartWorkContent(props: StartWorkContentProps) {
   const { branchesSettings, branchesSettingsAreLoading } = useSettings()
 
   const [branchNamingSettingsOpen, setBranchNamingSettingsOpen] = useState(false)
+  const [stashChanges, setStashChanges] = useState(!!branchesSettings.stashBeforeCreate)
+
+  useEffect(() => {
+    if (!branchesSettingsAreLoading) {
+      setStashChanges(!!branchesSettings.stashBeforeCreate)
+    }
+  }, [branchesSettings.stashBeforeCreate, branchesSettingsAreLoading])
 
   const initialBranchName = useMemo(
     () =>
@@ -80,6 +87,8 @@ export function StartWorkContent(props: StartWorkContentProps) {
         matchingBranches={matchingBranches}
         existingBranch={existingBranch}
         issueSettings={issueSettings}
+        stashChanges={stashChanges}
+        setStashChanges={setStashChanges}
         updateIssueSettings={updateIssueSettings}
       >
         <StartWorkBranchCreation
@@ -89,6 +98,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
           issueSettings={issueSettings}
           updateIssueSettings={updateIssueSettings}
           initialBranchName={initialBranchName}
+          stashChanges={stashChanges}
         />
       </StartWorkBanner>
       <BranchNamingSettings

@@ -74,11 +74,13 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
           return this.postMessage(msg.type, branch, msg)
         }
         case "createBranch": {
-          const branch = await Controller.git.createBranch(msg.branchName, msg.from)
+          const branch = await Controller.git.createBranch(msg.branchName, msg.from, {
+            stashChanges: msg.stashChanges,
+          })
           return this.postMessage(msg.type, branch, msg)
         }
         case "checkout": {
-          await Controller.git.checkout(msg.branch)
+          await Controller.git.checkout(msg.branch, { stashChanges: msg.stashChanges })
           return this.postMessage(msg.type, void 0, msg)
         }
         case "hasUncommittedChanges": {

@@ -78,6 +78,14 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
           disabled={!branchesSettings?.uppercaseIssueIdentifier}
           onToggleChange={(open) => updateSettings({ uppercaseIssueIdentifier: open })}
         />
+        <FormQueueField
+          key="stash-changes-on-create"
+          indexKey="stash-changes-on-create"
+          label="Stash and reapply changes when starting work"
+          showToggle={true}
+          disabled={!branchesSettings?.stashBeforeCreate}
+          onToggleChange={(stashBeforeCreate) => updateSettings({ stashBeforeCreate })}
+        />
       </Modal.Body>
     </Modal>
   )

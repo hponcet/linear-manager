@@ -23,6 +23,7 @@ type StartWorkContentProps = {
   branches?: Ref[]
   currentBranch?: Ref | null
   initialBranchName: string
+  stashChanges: boolean
   issueSettings: IssueVscState[Issue["id"]]
   updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void
   style?: React.CSSProperties
@@ -35,6 +36,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
     branches,
     currentBranch,
     initialBranchName,
+    stashChanges,
     issueSettings,
     updateIssueSettings,
     style,
@@ -147,6 +149,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
               issue={issue}
               onClick={update.panelActions.closePanel}
               appearance="primary"
+              stashChanges={stashChanges}
             />
           )}
         </div>
@@ -183,7 +186,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
           }
           onProcess={async () => {
             if (fromBranch) {
-              await update.panelActions.checkout(fromBranch)
+              await update.panelActions.checkout(fromBranch, stashChanges)
               updateIssueSettings({
                 branch: fromBranch,
                 branchInitialized: true,
@@ -231,7 +234,11 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
           }
           onProcess={async () => {
             if (fromBranch) {
-              const ref = await update.panelActions.createBranch(branchName, fromBranch)
+              const ref = await update.panelActions.createBranch(
+                branchName,
+                fromBranch,
+                stashChanges,
+              )
               updateIssueSettings({ branch: ref, branchInitialized: true })
             } else {
               throw new Error("Base branch is required")

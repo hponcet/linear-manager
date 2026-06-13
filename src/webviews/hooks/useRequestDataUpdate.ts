@@ -18,23 +18,23 @@ const vscApi = {
     const _ipcReqId = Math.random().toString(36).substring(2, 15)
     VsCodeApi.postMessage({ ...msg, _ipcReqId })
     return new Promise((resolve, reject) => {
-      function handleMessage(e: MessageEvent<Ipc<"res">>) {
+      function handleMessage(e: MessageEvent<Ipc<"res", T> | Ipc<"err", T>>) {
         const timeout = setTimeout(() => {
           reject(new Error("Timeout waiting for response"))
           window.removeEventListener("message", handleMessage)
         }, 30000)
 
-        const { type, payload } = e.data
+        const { type } = e.data
 
         if (type === `${msg.type}_response` && e.data._ipcReqId === _ipcReqId) {
           clearTimeout(timeout)
-          resolve(payload)
+          resolve((e.data as unknown as Ipc<"res", T>).payload)
           window.removeEventListener("message", handleMessage)
         }
 
         if (type === `${msg.type}_error` && e.data._ipcReqId === _ipcReqId) {
           clearTimeout(timeout)
-          reject(new Error(payload))
+          reject(new Error((e.data as unknown as Ipc<"err", T>).error))
           window.removeEventListener("message", handleMessage)
         }
       }
@@ -78,10 +78,11 @@ export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) 
     getGitStatus: () => vscApi.postMessage({ type: "getGitStatus", key: "gitStatus" }),
     getAllBranches: () => vscApi.postMessage({ type: "getAllBranches" }),
     getCurrentBranch: () => vscApi.postMessage({ type: "getCurrentBranch" }),
-    createBranch: (branchName: string, from: Ref) =>
-      vscApi.postMessage({ type: "createBranch", branchName, from }),
+    createBranch: (branchName: string, from: Ref, stashChanges?: boolean) =>
+      vscApi.postMessage({ type: "createBranch", branchName, from, stashChanges }),
     hasUncommittedChanges: () => vscApi.postMessage({ type: "hasUncommittedChanges" }),
-    checkout: (branch: Ref) => vscApi.postMessage({ type: "checkout", branch }),
+    checkout: (branch: Ref, stashChanges?: boolean) =>
+      vscApi.postMessage({ type: "checkout", branch, stashChanges }),
   }
 }
 

@@ -83,10 +83,10 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
     issueId,
   })
 
-  async function checkoutBranch() {
+  async function checkoutBranch(stashChanges?: boolean) {
     try {
       if (issueSettings.branch) {
-        await checkout(issueSettings.branch)
+        await checkout(issueSettings.branch, stashChanges)
         await fetchCurrentBranch()
       }
     } catch (error) {

@@ -60,10 +60,10 @@ export type Message<K extends keyof Props = any> =
   | Action<"getGitStatus", { key: string }, { repoActive: boolean; apiActive: boolean }>
   | Action<"getAllBranches", void, Branch[]>
   | Action<"getCurrentBranch", void, Ref | null>
-  | Action<"createBranch", { branchName: string; from: Ref }, Ref>
+  | Action<"createBranch", { branchName: string; from: Ref; stashChanges?: boolean }, Ref>
   | Action<"startWork", { issueId: Issue["id"] }>
   | Action<"hasUncommittedChanges", void, boolean>
-  | Action<"checkout", { branch: Ref }>
+  | Action<"checkout", { branch: Ref; stashChanges?: boolean }>
   | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>
   | Action<"setState", { key: VscStateKeys; value: any; timestamp: number }>
 

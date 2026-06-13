@@ -11,10 +11,11 @@ export type CheckoutButtonProps = ButtonProps & {
   inline?: "icon"
   className?: string
   style?: React.CSSProperties
+  stashChanges?: boolean
 }
 
 export function CheckoutButton(props: CheckoutButtonProps) {
-  const { issue, className, style, size, inline, onClick, ...buttonProps } = props
+  const { issue, className, style, size, inline, onClick, stashChanges, ...buttonProps } = props
 
   const {
     checkoutBranch,
@@ -29,7 +30,7 @@ export function CheckoutButton(props: CheckoutButtonProps) {
   })
 
   async function handleClick() {
-    await checkoutBranch()
+    await checkoutBranch(stashChanges)
     await onClick?.()
   }
 
@@ -44,11 +45,11 @@ export function CheckoutButton(props: CheckoutButtonProps) {
       style={style}
       className={className}
       onClick={handleClick}
-      disabled={!repoInitialized || hasUncommittedChanges}
+      disabled={!repoInitialized || (hasUncommittedChanges && !stashChanges)}
       tooltip={
         !repoInitialized ? (
           "Git repository is not initialized"
-        ) : hasUncommittedChanges ? (
+        ) : hasUncommittedChanges && !stashChanges ? (
           "You have uncommitted changes"
         ) : (
           <span>

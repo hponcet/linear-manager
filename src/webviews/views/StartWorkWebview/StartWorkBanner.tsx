@@ -11,6 +11,8 @@ type StartWorkBannerProps = {
   repoInitialized: boolean
   gitInitialized: boolean
   fromCheckout: boolean
+  stashChanges: boolean
+  setStashChanges: (v: boolean) => void
   existingBranch?: Ref | null
   hasUncommittedChanges: boolean
   matchingBranches?: Ref[]
@@ -24,6 +26,7 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
     issue,
     repoInitialized,
     gitInitialized,
+    stashChanges,
     fromCheckout,
     existingBranch,
     hasUncommittedChanges,
@@ -31,6 +34,7 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
     children,
     issueSettings,
     updateIssueSettings,
+    setStashChanges,
   } = props
 
   const [askUseBranchAsDefault, setAskUseBranchAsDefault] = useState(!!existingBranch)
@@ -135,12 +139,20 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
     )
   }
 
-  if (hasUncommittedChanges) {
+  if (hasUncommittedChanges && !stashChanges) {
     return (
       <div className="startWorkBannerError">
         <Banner type="warning" style={{ marginBottom: 30 }}>
-          You have uncommitted changes in your working directory. Please commit or stash your
-          changes before starting work on this issue.
+          <div>
+            You have uncommitted changes in your working directory. Stash them before changing
+            branches, then reapply them after the branch changes.
+          </div>
+          <Button
+            style={{ marginLeft: "auto", display: "table" }}
+            onClick={() => setStashChanges(true)}
+          >
+            Stash changes and continue
+          </Button>
         </Banner>
       </div>
     )

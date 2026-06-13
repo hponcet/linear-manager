@@ -1,13 +1,19 @@
+import { simpleGit } from "simple-git"
 import { extensions, window, workspace } from "vscode"
 
 import { filterEvent, isDescendant, onceEvent, uniqBy } from "./utils"
 
 import { Branch, BranchQuery, GitAPI, GitExtension, Ref, Repository } from "../types/GitAPI"
 
+type BranchChangeOptions = {
+  stashChanges?: boolean
+}
+
 export class GitClient {
   #api: GitAPI | null = null
   #repository: Repository | null = null
   #branchesCache: Map<string, Ref> | null = null
+  #rootPath: string | null = null
 
   onStatusChange?: ({ repoActive, apiActive }: { repoActive: boolean; apiActive: boolean }) => void
 
@@ -51,6 +57,7 @@ export class GitClient {
     if (repository) {
       this.#api = api
       this.#repository = repository
+      this.#rootPath = rootPath
       this.onStatusChange?.({ repoActive: true, apiActive: true })
     } else {
       this.onStatusChange?.({ repoActive: false, apiActive: true })
@@ -60,6 +67,7 @@ export class GitClient {
       onceEvent(onDidOpenRelevantRepository)((r) => {
         this.#api = api
         this.#repository = r
+        this.#rootPath = rootPath
         this.onStatusChange?.({ repoActive: true, apiActive: true })
       })
     }
@@ -112,10 +120,19 @@ export class GitClient {
     if (!this.#repository) {
       throw new Error("No repository available")
     }
-    return this.#repository.state.workingTreeChanges.length > 0
+    await this.#repository.status()
+    return (
+      this.#repository.state.indexChanges.length > 0 ||
+      this.#repository.state.workingTreeChanges.length > 0 ||
+      this.#repository.state.mergeChanges.length > 0
+    )
   }
 
-  async checkout(branch: Ref, retry?: boolean): Promise<void> {
+  async checkout(branch: Ref, options?: BranchChangeOptions): Promise<void> {
+    return this.withOptionalStash(() => this.checkoutBranch(branch), options)
+  }
+
+  private async checkoutBranch(branch: Ref, retry?: boolean): Promise<void> {
     if (!this.#repository) {
       throw new Error("No repository available")
     }
@@ -124,7 +141,7 @@ export class GitClient {
       if (!branch.remote) {
         await this.#repository.checkout(branch.name || "")
       } else {
-        await this.createBranch(branch.name || "", branch)
+        await this.createBranchFromRef(branch.name || "", branch)
       }
     } catch (error) {
       if (error.stderr) {
@@ -133,7 +150,7 @@ export class GitClient {
             // This error can happen when trying to checkout a branch that was just created remotely and not fetched locally yet
             // In this case, we can try to fetch and checkout again
             await this.#repository?.fetch({ all: true, prune: true })
-            return this.checkout(branch, true)
+            return this.checkoutBranch(branch, true)
           }
         }
 
@@ -143,7 +160,11 @@ export class GitClient {
     }
   }
 
-  async createBranch(branchName: string, from: Ref): Promise<Ref> {
+  async createBranch(branchName: string, from: Ref, options?: BranchChangeOptions): Promise<Ref> {
+    return this.withOptionalStash(() => this.createBranchFromRef(branchName, from), options)
+  }
+
+  private async createBranchFromRef(branchName: string, from: Ref): Promise<Ref> {
     try {
       if (!this.#repository) {
         throw new Error("No repository available")
@@ -156,6 +177,64 @@ export class GitClient {
       }
       throw new Error(error.stderr || "Failed to create branch")
     }
+  }
+
+  private async withOptionalStash<T>(
+    operation: () => Promise<T>,
+    options?: BranchChangeOptions,
+  ): Promise<T> {
+    if (!options?.stashChanges || !(await this.hasUncommittedChanges())) {
+      return operation()
+    }
+
+    const stashRef = await this.createStash()
+
+    try {
+      const result = await operation()
+      await this.applyStash(stashRef)
+      await this.dropStash(stashRef)
+      return result
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      throw new Error(
+        `${message}\n\nYour changes were saved in ${stashRef}. Resolve the issue and apply it manually if needed.`,
+      )
+    }
+  }
+
+  private getSimpleGit() {
+    if (!this.#rootPath) {
+      throw new Error("No repository available")
+    }
+
+    return simpleGit(this.#rootPath)
+  }
+
+  private async createStash(): Promise<string> {
+    const git = this.getSimpleGit()
+    const stashMessage = `linear-manager-start-work-${Date.now()}`
+
+    await git.stash(["push", "--include-untracked", "-m", stashMessage])
+
+    const stashList = await git.stash(["list", "--format=%gd%x00%s"])
+    const stashLine = stashList
+      .split("\n")
+      .find((line) => line.includes(stashMessage))
+      ?.split("\0")[0]
+
+    if (!stashLine) {
+      throw new Error("Failed to create stash")
+    }
+
+    return stashLine
+  }
+
+  private async applyStash(stashRef: string): Promise<void> {
+    await this.getSimpleGit().stash(["apply", "--index", stashRef])
+  }
+
+  private async dropStash(stashRef: string): Promise<void> {
+    await this.getSimpleGit().stash(["drop", stashRef])
   }
 
   async branchExists(branchName: string): Promise<Ref | null> {
@@ -178,5 +257,6 @@ export class GitClient {
     this.#api = null
     this.#repository = null
     this.#branchesCache = null
+    this.#rootPath = null
   }
 }

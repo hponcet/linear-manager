@@ -1,11 +1,15 @@
-import { IssueHistory as LinearHistory, User } from "@linear/sdk"
+import { SerializedIssueHistory, SerializedUser } from "src/types/SerializedLinear"
 import { addKeyOnItem } from "src/utils/addKeyOnItem"
 
-export type History = ReturnType<typeof addKeyOnItem<LinearHistory, "history">> & {
-  actor: User | null
+export type History = ReturnType<typeof addKeyOnItem<SerializedIssueHistory, "history">> & {
+  actor: SerializedUser | null
+  resolved?: SerializedIssueHistory["resolved"]
 }
 
-export function orderHistory(allHistory: LinearHistory[], users: User[]): History[] {
+export function orderHistory(
+  allHistory: SerializedIssueHistory[],
+  users: SerializedUser[],
+): History[] {
   return allHistory.map((history) => {
     let actor = users.find((u) => u.id === history.actorId) || null
 
@@ -14,7 +18,9 @@ export function orderHistory(allHistory: LinearHistory[], users: User[]): Histor
         id: "linear-bot",
         displayName: "Linear",
         email: "Linear",
-      } as User
+        name: "Linear",
+        active: true,
+      }
     }
 
     return {

@@ -1,6 +1,6 @@
-import { Issue } from "@linear/sdk"
 import { useMemo } from "react"
 import { TagPicker, type TagPickerProps } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { Label } from "./Label"
@@ -9,7 +9,7 @@ import { LabelIcon } from "./LabelIcon"
 import "./LabelsPicker.css"
 
 type LabelsPickerProps = Omit<TagPickerProps, "onChange" | "value" | "data" | "size"> & {
-  issue: Issue
+  issue: SerializedIssue
   inline?: boolean
   size?: number
   onChange: (labelIds: string[]) => void

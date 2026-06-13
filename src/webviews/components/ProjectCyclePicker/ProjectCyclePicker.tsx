@@ -1,6 +1,6 @@
-import { Cycle, Issue } from "@linear/sdk"
 import { useMemo } from "react"
 import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { SerializedCycle, SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { ProjectCycle } from "./ProjectCycle"
@@ -11,7 +11,7 @@ export type ProjectCyclePickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue
+  issue: SerializedIssue
   onChange: (value: string | null) => void
   size?: number
   inline?: "text" | "icon"
@@ -57,7 +57,7 @@ export function ProjectCyclePicker(props: ProjectCyclePickerProps) {
           value={issue.cycleId || null}
           placeholder={<ProjectCycle projectCycle={null} inline={inline} />}
           onChange={(cycleId) => onChange?.(cycleId === "no-cycle" ? null : cycleId)}
-          renderOption={(_, item: { cycle: Cycle | null }) => (
+          renderOption={(_, item: { cycle: SerializedCycle | null }) => (
             <ProjectCycle projectCycle={item.cycle} showDate />
           )}
           renderValue={(_, item) => {

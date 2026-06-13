@@ -1,5 +1,7 @@
 import { Issue } from "@linear/sdk"
 import { Controller } from "src/controller"
+import { formatLinearError } from "src/linear/formatLinearError"
+import { handleLinearIpcMessage } from "src/panels/linearIpcHandlers"
 import { Ipc, Props } from "src/types/ActionMessage"
 import { Stores } from "src/utils/Stores"
 import { MyIssuesView } from "src/views/myIssues"
@@ -41,9 +43,22 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
     }
 
     try {
+      const linearResult = await handleLinearIpcMessage(
+        msg,
+        this.issueActions,
+        Controller.linearService,
+      )
+      if (linearResult.handled) {
+        return this.postMessage(msg.type, linearResult.payload, msg)
+      }
+
       switch (msg.type) {
         case "updateIssue": {
           await this.issueActions.updateIssue(msg.issueId)
+          return this.postMessage(msg.type, void 0, msg)
+        }
+        case "syncIssue": {
+          await this.issueActions.syncIssue(msg.payload)
           return this.postMessage(msg.type, void 0, msg)
         }
         case "openIssue": {
@@ -89,12 +104,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
         }
       }
     } catch (error) {
-      return this.postMessage(
-        msg.type,
-        (error as Error).message || String(error) || "Unknown error",
-        msg,
-        true,
-      )
+      return this.postMessage(msg.type, formatLinearError(error), msg, true)
     }
 
     return Promise.resolve(false)
@@ -113,7 +123,7 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
 
   override onVisibilityChange(visible: boolean): void {
     if (visible) {
-      this.postListenerMessage("updateIssue", undefined)
+      this.postListenerMessage("updateIssue", this.issue?.updatedAt?.getTime())
     }
   }
 }

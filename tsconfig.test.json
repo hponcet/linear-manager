@@ -6,6 +6,11 @@
   },
   "include": [
     "src/test/**/*",
+    "src/linear/**/*.ts",
+    "src/panels/linearIpcHandlers.ts",
+    "src/panels/commons/worflowStates.ts",
+    "src/types/**/*.ts",
+    "src/views/myIssues/types.ts",
     "src/webviews/utils/branches.ts",
     "src/types/GitAPI.ts",
     "src/vscStates.ts"

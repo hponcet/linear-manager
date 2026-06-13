@@ -1,13 +1,13 @@
-import { Issue } from "@linear/sdk"
 import { useMemo, useState } from "react"
 import { Ref } from "src/types/GitAPI"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueVscState } from "src/vscStates"
 import { Banner } from "src/webviews/components/Banner/Banner"
 import { Branch } from "src/webviews/components/BranchPicker/Branch"
 import { Button } from "src/webviews/components/Button/Button"
 
 type StartWorkBannerProps = {
-  issue: Issue
+  issue: SerializedIssue
   repoInitialized: boolean
   gitInitialized: boolean
   fromCheckout: boolean
@@ -16,8 +16,8 @@ type StartWorkBannerProps = {
   existingBranch?: Ref | null
   hasUncommittedChanges: boolean
   matchingBranches?: Ref[]
-  issueSettings: IssueVscState[Issue["id"]]
-  updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void
+  issueSettings: IssueVscState[SerializedIssue["id"]]
+  updateIssueSettings: (value: Partial<IssueVscState[SerializedIssue["id"]]>) => void
   children: React.ReactNode
 }
 

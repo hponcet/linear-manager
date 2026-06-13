@@ -1,5 +1,5 @@
-import { Issue } from "@linear/sdk"
 import { useDialog } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { AssigneePicker } from "../Assignee/AssigneePicker"
@@ -16,7 +16,7 @@ import { WorkflowStatePicker } from "../WorklfowStatePicker/WorkflowStatePicker"
 import "./InlineIssue.scss"
 
 export type InlineIssueProps = {
-  issue: Issue
+  issue: SerializedIssue
   className?: string
   style?: React.CSSProperties
 }

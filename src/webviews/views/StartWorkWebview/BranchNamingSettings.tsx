@@ -1,5 +1,5 @@
-import { Issue } from "@linear/sdk"
 import { Modal } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField"
 import { InfoIcon } from "src/webviews/components/Icons/InfoIcon"
 import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker"
@@ -7,7 +7,7 @@ import { Tooltip } from "src/webviews/components/Tooltip/Tooltip"
 import { useSettings } from "src/webviews/hooks/useSettings"
 
 type BranchNamingSettingsProps = {
-  issue: Issue
+  issue: SerializedIssue
   open: boolean
   onClose?: () => void
 }

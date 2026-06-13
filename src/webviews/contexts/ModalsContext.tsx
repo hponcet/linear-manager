@@ -1,5 +1,5 @@
-import { Attachment } from "@linear/sdk"
 import { ReactNode, createContext, useContext, useState } from "react"
+import { SerializedAttachment } from "src/types/SerializedLinear"
 
 import { useIssueContext } from "./IssueContext"
 
@@ -11,7 +11,7 @@ type ModalsContextProviderProps = {
 }
 
 type AttachmentCreationModalProps = {
-  attachmentId?: Attachment["id"]
+  attachmentId?: SerializedAttachment["id"]
   title?: string
   url?: string
 }

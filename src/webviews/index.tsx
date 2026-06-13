@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom/client"
 import { CustomProvider } from "rsuite"
 
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
+import { LinearApiErrorToasts } from "./components/LinearApiErrorToasts/LinearApiErrorToasts"
 import IssueWebview from "./views/IssueWebview/IssueWebview"
 import { StartWorkWebview } from "./views/StartWorkWebview/StartWorkWebview"
 
@@ -45,6 +46,7 @@ function getViewContent() {
 
 reactRoot.render(
   <CustomProvider theme="dark">
+    <LinearApiErrorToasts />
     <ErrorBoundary>{getViewContent()}</ErrorBoundary>
   </CustomProvider>,
 )

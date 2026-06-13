@@ -1,14 +1,14 @@
-import { Issue } from "@linear/sdk"
 import { useEffect, useState } from "react"
 import { GlobalListenerMessage } from "src/types/ActionMessage"
 import { Ref } from "src/types/GitAPI"
+import { SerializedIssue } from "src/types/SerializedLinear"
 
 import { useAsyncEffect } from "./useAsyncEffect"
 import { useIssueSettings } from "./useIssueSettings"
 import { useRequestDataUpdate } from "./useRequestDataUpdate"
 
 type UseIssueBranchesParams = {
-  issueId: Issue["id"]
+  issueId: SerializedIssue["id"]
 }
 
 export function useIssueBranches(params: UseIssueBranchesParams) {

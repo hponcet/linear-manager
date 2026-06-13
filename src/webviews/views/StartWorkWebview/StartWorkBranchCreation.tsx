@@ -1,9 +1,9 @@
-import { Issue } from "@linear/sdk"
 import cx from "classnames"
 import { useEffect, useMemo, useState } from "react"
 import { useDialog } from "rsuite"
 import { getFirstStateOfType } from "src/panels/commons/worflowStates"
 import { Ref } from "src/types/GitAPI"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueVscState } from "src/vscStates"
 import { BranchNameInput } from "src/webviews/components/BranchNameInput/BranchNameInput"
 import { Branch } from "src/webviews/components/BranchPicker/Branch"
@@ -19,13 +19,13 @@ import { useSettings } from "src/webviews/hooks/useSettings"
 import { validateBranchName } from "src/webviews/utils/branches"
 
 type StartWorkContentProps = {
-  issue: Issue
+  issue: SerializedIssue
   branches?: Ref[]
   currentBranch?: Ref | null
   initialBranchName: string
   stashChanges: boolean
-  issueSettings: IssueVscState[Issue["id"]]
-  updateIssueSettings: (value: Partial<IssueVscState[Issue["id"]]>) => void
+  issueSettings: IssueVscState[SerializedIssue["id"]]
+  updateIssueSettings: (value: Partial<IssueVscState[SerializedIssue["id"]]>) => void
   style?: React.CSSProperties
   className?: string
 }
@@ -55,8 +55,8 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [branchName, setBranchName] = useState(initialBranchName)
   const [fromBranch, setFromBranch] = useState<Ref | null>(currentBranch || null)
-  const [stateId, setStateId] = useState<Issue["stateId"] | undefined>()
-  const [cycleId, setCycleId] = useState<Issue["cycleId"] | undefined>()
+  const [stateId, setStateId] = useState<SerializedIssue["stateId"] | undefined>()
+  const [cycleId, setCycleId] = useState<SerializedIssue["cycleId"] | undefined>()
   const [useExistingBranch, setUseExistingBranch] = useState(false)
 
   const branchExists = useMemo(() => {
@@ -252,7 +252,13 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
         indexKey="issue-state"
         label="Update issue state to"
         disabled={stateId === issue.stateId || undefined}
-        input={<WorkflowStatePicker issue={{ stateId } as Issue} onChange={setStateId} size={16} />}
+        input={
+          <WorkflowStatePicker
+            issue={{ stateId } as SerializedIssue}
+            onChange={setStateId}
+            size={16}
+          />
+        }
         onProcess={() => update.issue(issue.id, { stateId: stateId })}
       />
       {!!updateCycle ? (
@@ -263,7 +269,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
           disabled={cycleId === issue.cycleId || undefined}
           input={
             <ProjectCyclePicker
-              issue={{ cycleId } as Issue}
+              issue={{ cycleId } as SerializedIssue}
               onChange={(cycleId) => setCycleId(cycleId || undefined)}
               size={16}
             />

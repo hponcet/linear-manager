@@ -1,4 +1,4 @@
-import { Issue } from "@linear/sdk"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
 import { useRequestDataUpdate } from "src/webviews/hooks/useRequestDataUpdate"
 
@@ -6,7 +6,7 @@ import { Button, ButtonProps } from "../Button/Button"
 import { BranchIcon } from "../Icons/BranchIcon"
 
 export type ConfigureBranchButtonProps = ButtonProps & {
-  issue: Issue
+  issue: SerializedIssue
   size?: number
   inline?: "icon"
   className?: string

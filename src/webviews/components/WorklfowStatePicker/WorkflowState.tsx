@@ -1,11 +1,11 @@
-import { WorkflowStateWithStateProgress } from "src/types/Linear"
+import { SerializedWorkflowState } from "src/types/SerializedLinear"
 
 import { WorkflowStateIcon } from "./WorkflowStateIcon"
 
 export type WorkflowStateProps = {
   style?: React.CSSProperties
   className?: string
-  workflowState?: WorkflowStateWithStateProgress
+  workflowState?: SerializedWorkflowState
   inline?: "text" | "icon"
   size?: number
 }

@@ -1,9 +1,9 @@
-import { IssueLabel } from "@linear/sdk"
+import { SerializedIssueLabel } from "src/types/SerializedLinear"
 
 import "./Label.scss"
 
 type LabelProps = {
-  issueLabel?: IssueLabel | null
+  issueLabel?: SerializedIssueLabel | null
   inline?: boolean
   size?: number
 }

@@ -4,13 +4,13 @@ import { useAsyncMemo } from "src/webviews/hooks/useAsyncMemo"
 import { Issue } from "../Issue/Issue"
 
 export function IssueParent() {
-  const { issue } = useIssueContext()
+  const { issue, update } = useIssueContext()
 
   const [parent, parentLoading] = useAsyncMemo(async () => {
     if (!issue?.parentId) {
       return null
     }
-    return issue.parent
+    return update.panelActions.getIssue(issue.parentId)
   }, [issue?.parentId])
 
   if (!parent || parentLoading) {

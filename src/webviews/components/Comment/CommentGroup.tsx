@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Animation } from "rsuite"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
-import { Comment as CommentType } from "src/webviews/utils/comments"
+import { Comment as CommentType, isCommentThreadResolved } from "src/webviews/utils/comments"
 
 import { Comment } from "./Comment"
 import { CommentExpander } from "./CommentExpander"
@@ -18,13 +18,19 @@ type CommentGroupProps = {
 
 export function CommentGroup(props: CommentGroupProps) {
   const { comment } = props
-  const { id, resolvingCommentId, resolvingUserId, childrenComments } = comment
+  const { id, childrenComments } = comment
+  const threadResolved = isCommentThreadResolved(comment)
+  const { resolvingCommentId, resolvingUserId } = comment
 
   const { users, update } = useIssueContext()
 
   const [replyValue, setReplyValue] = useState<string | null>(null)
-  const [expanded, setExpanded] = useState(!resolvingCommentId && !resolvingUserId)
+  const [expanded, setExpanded] = useState(!threadResolved)
   const [resetEditor, setResetEditor] = useState(0)
+
+  useEffect(() => {
+    setExpanded(!isCommentThreadResolved(comment))
+  }, [comment.resolvingCommentId, comment.resolvingUserId, comment.resolvedAt])
 
   function onKeyDown(e: KeyboardEvent) {
     if (childrenComments?.length) return
@@ -62,7 +68,7 @@ export function CommentGroup(props: CommentGroupProps) {
               user={user}
               setExpanded={setExpanded}
               parentCommentId={comment.id}
-              isResolved={!!resolvingCommentId || !!resolvingUserId}
+              isResolved={threadResolved}
               startReply={
                 index === 0 && !c.childrenComments?.length
                   ? () => {

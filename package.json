@@ -229,6 +229,17 @@
       }
     ]
   },
+  "configuration": {
+    "title": "Linear Manager",
+    "properties": {
+      "linearManager.autoRefreshIntervalSeconds": {
+        "type": "number",
+        "default": 180,
+        "minimum": 0,
+        "description": "Interval in seconds for automatically refreshing the My Issues tree view. Set to 0 to disable auto-refresh."
+      }
+    }
+  },
   "extensionDependencies": [
     "linear.linear-connect",
     "vscode.git"

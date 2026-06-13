@@ -1,5 +1,5 @@
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
-import { Comment as CommentType } from "src/webviews/utils/comments"
+import { Comment as CommentType, isCommentThreadResolved } from "src/webviews/utils/comments"
 
 import { CollapseIcon } from "../Icons/CollapseIcon"
 import { ExpandIcon } from "../Icons/ExpandIcon"
@@ -18,7 +18,7 @@ export function CommentExpander(props: CommentExpanderProps) {
 
   const { users } = useIssueContext()
 
-  if ((!comment.resolvingCommentId && !comment.resolvingUserId) || !comment.childrenComments) {
+  if (!isCommentThreadResolved(comment) || !comment.childrenComments) {
     return null
   }
 

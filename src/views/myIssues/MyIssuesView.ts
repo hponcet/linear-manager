@@ -1,10 +1,11 @@
-import { LinearClient, User } from "@linear/sdk"
+import { User } from "@linear/sdk"
 import { Commands, Views } from "src/constants"
 import { Controller } from "src/controller"
-import { getLinearClient } from "src/linear/auth"
+import { logLinearApiCall } from "src/linear/LinearApiLogger"
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
 import { IssueWebview } from "src/panels/IssueWebview"
 import { StartWorkWebview } from "src/panels/StartWorkWebview"
+import { IssueSyncPayload } from "src/types/IssueSync"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
 import { Stores } from "src/utils/Stores"
 import {
@@ -20,15 +21,9 @@ import {
   commands,
   Disposable,
   Uri,
+  workspace,
 } from "vscode"
 
-import {
-  fetchMe,
-  fetchTeams,
-  fetchWorkflowStates,
-  fetchIssues,
-  fetchCurrentCycleIssues,
-} from "./dataFetching"
 import {
   registerDropProvider,
   registerLinearIssueContentProvider,
@@ -40,8 +35,7 @@ import {
   WorkflowState,
   Issue,
   MIME_TYPE_ISSUE,
-  AUTO_REFRESH_INTERVAL_MS,
-  addKeyOnItem,
+  DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS,
   ViewMode,
 } from "./types"
 
@@ -59,7 +53,6 @@ export class MyIssuesView
   #treeItems = new Map<string, TreeItem>()
 
   #context: ExtensionContext
-  #linearClient = getLinearClient() as LinearClient
   protected issuesStore: ReturnType<Stores["issuesStore"]>
 
   #me: User | null = null
@@ -72,6 +65,7 @@ export class MyIssuesView
   #startWorkWebviews: Map<string, StartWorkWebview> = new Map()
 
   #autoRefreshInterval: NodeJS.Timeout | null = null
+  #windowFocused = true
 
   #disposables: Disposable[] = []
 
@@ -89,6 +83,23 @@ export class MyIssuesView
   public async initialize(context: ExtensionContext): Promise<void> {
     await this.fetchDatas()
     this._startAutoRefresh()
+
+    const focusDisposable = window.onDidChangeWindowState((state) => {
+      this.#windowFocused = state.focused
+      if (state.focused) {
+        this._refreshIssues()
+      }
+    })
+    context.subscriptions.push(focusDisposable)
+    this.#disposables.push(focusDisposable)
+
+    const configDisposable = workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration("linearManager.autoRefreshIntervalSeconds")) {
+        this._restartAutoRefresh()
+      }
+    })
+    context.subscriptions.push(configDisposable)
+    this.#disposables.push(configDisposable)
 
     // Create TreeView
     this.#treeView = window.createTreeView(Views.myIssues, {
@@ -138,15 +149,18 @@ export class MyIssuesView
   // ============================================================
 
   public async fetchDatas() {
-    this.#me = await fetchMe(this.#linearClient, this.#me)
-    this.#teams = await fetchTeams(this.#linearClient, this.#me)
-    this.#workflowStatesByTeam = await fetchWorkflowStates(this.#linearClient, this.#teams)
+    const service = Controller.linearService
+    this.#me = await service.getViewer()
+    this.#teams = await service.getTeams()
+    this.#workflowStatesByTeam = await service.getWorkflowStatesByTeam()
     await this._refreshIssues()
   }
 
   private async _refetchIssue(issueId: Issue["id"]): Promise<Issue | null> {
     try {
-      const issue = addKeyOnItem(await this.#linearClient.issue(issueId), "issue")
+      const issue = Controller.linearService.toTreeIssue(
+        await Controller.linearService.getIssue(issueId, { bypassCache: true }),
+      )
       this.#myIssues.set(issue.id, issue)
       this._updateWebviewsIfNeeded(issue)
       this.#onDidChangeTreeData.fire()
@@ -160,12 +174,13 @@ export class MyIssuesView
   }
 
   private async _refreshIssues() {
+    logLinearApiCall(`MyIssuesView.refreshIssues:${this.#viewMode}`)
     let issues: Issue[]
 
     if (this.#viewMode === "myIssues") {
-      issues = await fetchIssues(this.#me)
+      issues = await Controller.linearService.getAssignedIssues()
     } else {
-      issues = await fetchCurrentCycleIssues(this.#linearClient, this.#teams)
+      issues = await Controller.linearService.getCurrentCycleIssues()
     }
 
     // Clear previous issues and add new ones
@@ -213,11 +228,41 @@ export class MyIssuesView
     }
   }
 
+  private _getAutoRefreshIntervalMs(): number | null {
+    const seconds = workspace
+      .getConfiguration("linearManager")
+      .get<number>("autoRefreshIntervalSeconds", DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS)
+
+    if (seconds <= 0) {
+      return null
+    }
+
+    return seconds * 1000
+  }
+
+  private _restartAutoRefresh() {
+    if (this.#autoRefreshInterval) {
+      clearInterval(this.#autoRefreshInterval)
+      this.#autoRefreshInterval = null
+    }
+    this._startAutoRefresh()
+  }
+
   private _startAutoRefresh() {
     if (this.#autoRefreshInterval) {
       return
     }
-    this.#autoRefreshInterval = setInterval(() => this._refreshIssues(), AUTO_REFRESH_INTERVAL_MS)
+
+    const intervalMs = this._getAutoRefreshIntervalMs()
+    if (!intervalMs) {
+      return
+    }
+
+    this.#autoRefreshInterval = setInterval(() => {
+      if (this.#windowFocused) {
+        this._refreshIssues()
+      }
+    }, intervalMs)
   }
 
   // ============================================================
@@ -262,8 +307,9 @@ export class MyIssuesView
 
         if (!issue) {
           try {
-            const fetchedIssue = await this.#linearClient.issue(issueId)
-            issue = addKeyOnItem(fetchedIssue, "issue")
+            issue = Controller.linearService.toTreeIssue(
+              await Controller.linearService.getIssue(issueId),
+            )
           } catch {
             window.showErrorMessage("Failed to fetch issue from Linear")
             return
@@ -304,7 +350,8 @@ export class MyIssuesView
     }
 
     const issue =
-      this.#myIssues.get(issueId) || addKeyOnItem(await this.#linearClient.issue(issueId), "issue")
+      this.#myIssues.get(issueId) ||
+      Controller.linearService.toTreeIssue(await Controller.linearService.getIssue(issueId))
 
     if (!issue) return
 
@@ -332,8 +379,9 @@ export class MyIssuesView
       if (issue) {
         await this.openIssue(issue)
       } else {
-        const fetchedIssue = await this.#linearClient.issue(issueId)
-        const issueWithKey = addKeyOnItem(fetchedIssue, "issue")
+        const issueWithKey = Controller.linearService.toTreeIssue(
+          await Controller.linearService.getIssue(issueId),
+        )
         this.#myIssues.set(issueWithKey.id, issueWithKey)
         await this.openIssue(issueWithKey)
       }
@@ -343,10 +391,39 @@ export class MyIssuesView
       if (!issueId) return
 
       if (this.#myIssues.has(issueId)) {
-        const issue = await this.#linearClient.issue(issueId)
-        this.#myIssues.set(issue.id, addKeyOnItem(issue, "issue"))
+        const issue = Controller.linearService.toTreeIssue(
+          await Controller.linearService.getIssue(issueId, { bypassCache: true }),
+        )
+        this.#myIssues.set(issue.id, issue)
         this.#onDidChangeTreeData.fire()
       }
+    },
+    syncIssue: async (payload: IssueSyncPayload) => {
+      const cached = this.#myIssues.get(payload.issueId)
+      if (!cached) {
+        return
+      }
+
+      if (payload.stateId && payload.stateId !== cached.stateId) {
+        await this._refetchIssue(payload.issueId)
+        return
+      }
+
+      if (payload.title !== undefined) {
+        Object.assign(cached, { title: payload.title })
+      }
+      if (payload.identifier !== undefined) {
+        Object.assign(cached, { identifier: payload.identifier })
+      }
+      if (payload.priority !== undefined) {
+        Object.assign(cached, { priority: payload.priority })
+      }
+      if (payload.updatedAt) {
+        Object.assign(cached, { updatedAt: new Date(payload.updatedAt) })
+      }
+
+      this._updateWebviewsIfNeeded(cached)
+      this.#onDidChangeTreeData.fire()
     },
     startWork: async (issueId: Issue["id"]) => {
       if (!issueId) return
@@ -355,13 +432,15 @@ export class MyIssuesView
       if (issue) {
         await this.startWork(issue)
       } else {
-        const fetchedIssue = await this.#linearClient.issue(issueId)
-        const issueWithKey = addKeyOnItem(fetchedIssue, "issue")
+        const issueWithKey = Controller.linearService.toTreeIssue(
+          await Controller.linearService.getIssue(issueId),
+        )
         this.#myIssues.set(issueWithKey.id, issueWithKey)
         await this.startWork(issueWithKey)
       }
     },
     refetchIssue: this._refetchIssue.bind(this) as typeof this._refetchIssue,
+    refreshIssues: this._refreshIssues.bind(this) as typeof this._refreshIssues,
     checkoutToIssueBranch: this.checkoutToIssueBranch.bind(
       this,
     ) as typeof this.checkoutToIssueBranch,
@@ -482,7 +561,7 @@ export class MyIssuesView
           // @ts-expect-error
           target.__key === "workflowState" ? target.id : target._state.id
 
-        await this.#linearClient.updateIssue(issue.id, {
+        await Controller.linearService.updateIssue(issue.id, {
           stateId: targetStateId,
         })
 

@@ -1,5 +1,6 @@
 import { WorkflowState } from "@linear/sdk"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
+import { SerializedWorkflowState } from "src/types/SerializedLinear"
 
 const workflowStateTypes = [
   "backlog",
@@ -40,9 +41,9 @@ export function filterWorkflowStatesByType(
 }
 
 export function getFirstStateOfType(
-  workflowStates: WorkflowStateWithStateProgress[],
+  workflowStates: Array<WorkflowStateWithStateProgress | SerializedWorkflowState>,
   type: (typeof workflowStateTypes)[number],
-): WorkflowStateWithStateProgress | null {
+): WorkflowStateWithStateProgress | SerializedWorkflowState | null {
   const filteredStates = workflowStates
     .filter((state) => state.type === type)
     .sort((a, b) => a.position - b.position)

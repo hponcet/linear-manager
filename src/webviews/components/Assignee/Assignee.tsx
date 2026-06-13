@@ -1,11 +1,11 @@
-import { User } from "@linear/sdk"
 import { ReactNode } from "react"
+import { SerializedUser } from "src/types/SerializedLinear"
 import { UserAvatar } from "src/webviews/components/UserAvatar/UserAvatar"
 
 type AssigneeProps = {
   style?: React.CSSProperties
   className?: string
-  user?: User | null
+  user?: SerializedUser | null
   label?: ReactNode
   inline?: "text" | "icon"
   size?: number

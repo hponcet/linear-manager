@@ -1,12 +1,12 @@
-import { Attachment, Issue } from "@linear/sdk"
 import { useEffect, useState } from "react"
 import { Button, Input, Modal } from "rsuite"
+import { SerializedAttachment, SerializedIssue } from "src/types/SerializedLinear"
 
 import { LinkIcon } from "../Icons/LinkIcon"
 
 type AttachmentCreationModalProps = {
-  issue: Issue
-  attachmentId?: Attachment["id"]
+  issue: SerializedIssue
+  attachmentId?: SerializedAttachment["id"]
   title?: string
   url?: string
   open?: boolean

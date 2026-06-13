@@ -1,11 +1,11 @@
-import { Project as LinearProject } from "@linear/sdk"
+import { SerializedProject } from "src/types/SerializedLinear"
 
 import { ProjectIcon, ProjectIconProps } from "./ProjectIcon"
 
 export type ProjectProps = ProjectIconProps & {
   style?: React.CSSProperties
   className?: string
-  project: LinearProject | null
+  project: SerializedProject | null
   inline?: "text" | "icon"
 }
 

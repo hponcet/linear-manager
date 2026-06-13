@@ -1,15 +1,30 @@
-import { Issue } from "@linear/sdk"
+import { IssuePriorityValue } from "@linear/sdk"
+import {
+  CreateReactionInput,
+  IssueHistoryPage,
+  IssueHistoryRequest,
+  IssueUpdateFields,
+} from "src/linear/LinearService"
+import {
+  SerializedAttachment,
+  SerializedComment,
+  SerializedIssue,
+  SerializedTeam,
+  SerializedTeamMetadata,
+  SerializedUser,
+} from "src/types/SerializedLinear"
 import { VscStateKeys } from "src/vscStates"
 
 import { Branch, Ref } from "./GitAPI"
+import { IssueSyncPayload } from "./IssueSync"
 
 export type Props = {
   issue: {
-    issueId: Issue["id"] | null
+    issueId: SerializedIssue["id"] | null
     linearAccessToken: string | undefined
   }
   startWork: {
-    issueId: Issue["id"] | null
+    issueId: SerializedIssue["id"] | null
     linearAccessToken: string | undefined
     fromCheckout: boolean
     repoInitialized: boolean
@@ -53,15 +68,50 @@ export type Listener<Type extends string, Payload> = {
 export type Message<K extends keyof Props = any> =
   | Action<"props", void, Props[K]>
   | Action<"closePanel">
-  | Action<"openExternal", { issueIdentifier?: Issue["identifier"] }>
+  | Action<"openExternal", { issueIdentifier?: SerializedIssue["identifier"] }>
   | Action<"openExternalUrl", { url: string }>
-  | Action<"updateIssue", { issueId: Issue["id"] }>
-  | Action<"openIssue", { issueId: Issue["id"] }>
+  | Action<"updateIssue", { issueId: SerializedIssue["id"] }>
+  | Action<"syncIssue", { payload: IssueSyncPayload }>
+  | Action<"getIssue", { issueId: SerializedIssue["id"]; bypassCache?: boolean }, SerializedIssue>
+  | Action<"getViewer", void, SerializedUser>
+  | Action<"getTeam", { teamId: string }, SerializedTeam>
+  | Action<"getTeamMetadata", { teamId: string }, SerializedTeamMetadata>
+  | Action<"getWorkspaceUsers", void, SerializedUser[]>
+  | Action<"getPriorities", void, IssuePriorityValue[]>
+  | Action<"getComments", { issueId: SerializedIssue["id"] }, SerializedComment[]>
+  | Action<"getSubIssues", { issueId: SerializedIssue["id"] }, SerializedIssue[]>
+  | Action<
+      "getAttachments",
+      { issueId: SerializedIssue["id"]; bypassCache?: boolean },
+      SerializedAttachment[]
+    >
+  | Action<"getIssueHistory", IssueHistoryRequest, IssueHistoryPage>
+  | Action<
+      "linearUpdateIssue",
+      { issueId: SerializedIssue["id"]; fields: IssueUpdateFields },
+      SerializedIssue
+    >
+  | Action<"createComment", { issueId: string; body: string; parentId?: string }>
+  | Action<"updateComment", { commentId: string; body: string }>
+  | Action<"deleteComment", { commentId: string }>
+  | Action<"commentResolve", { commentId: string; resolvingCommentId?: string }>
+  | Action<"commentUnresolve", { commentId: string }>
+  | Action<"createReaction", CreateReactionInput>
+  | Action<"deleteReaction", { reactionId: string; issueId?: SerializedIssue["id"] }>
+  | Action<"deleteAttachment", { attachmentId: string; issueId?: SerializedIssue["id"] }>
+  | Action<"createAttachment", { issueId: string; url: string; title: string; iconUrl?: string }>
+  | Action<
+      "createSubIssue",
+      { parentId: SerializedIssue["id"]; teamId: string; fields: IssueUpdateFields },
+      SerializedIssue
+    >
+  | Action<"deleteSubIssue", { issueId: SerializedIssue["id"] }>
+  | Action<"openIssue", { issueId: SerializedIssue["id"] }>
   | Action<"getGitStatus", { key: string }, { repoActive: boolean; apiActive: boolean }>
   | Action<"getAllBranches", void, Branch[]>
   | Action<"getCurrentBranch", void, Ref | null>
   | Action<"createBranch", { branchName: string; from: Ref; stashChanges?: boolean }, Ref>
-  | Action<"startWork", { issueId: Issue["id"] }>
+  | Action<"startWork", { issueId: SerializedIssue["id"] }>
   | Action<"hasUncommittedChanges", void, boolean>
   | Action<"checkout", { branch: Ref; stashChanges?: boolean }>
   | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>

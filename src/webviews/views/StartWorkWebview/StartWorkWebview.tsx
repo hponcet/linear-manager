@@ -1,5 +1,5 @@
 import { Container } from "src/webviews/components/Container/Container"
-import { IssueContextProvider } from "src/webviews/contexts/IssueContext"
+import { StartWorkContextProvider } from "src/webviews/contexts/StartWorkContext"
 import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
 import { useProps } from "src/webviews/hooks/useProps"
 
@@ -25,7 +25,7 @@ export function StartWorkWebview() {
   }
 
   return (
-    <IssueContextProvider
+    <StartWorkContextProvider
       isLoading={!loaded}
       issueId={issueId}
       linearAccessToken={linearAccessToken}
@@ -41,6 +41,6 @@ export function StartWorkWebview() {
           updateIssueSettings={updateIssueSettings}
         />
       </Container>
-    </IssueContextProvider>
+    </StartWorkContextProvider>
   )
 }

@@ -1,9 +1,9 @@
 import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { Issue } from "@linear/sdk"
 import { useMemo, useState } from "react"
 import { Input, SelectPicker } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueLabelSetting, SettingsVscState } from "src/vscStates"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
@@ -19,7 +19,7 @@ import "./PrefixByLabelPicker.scss"
 type LabelPrefixes = SettingsVscState["prefixByLabelList"]
 
 type PrefixByLabelPickerProps = {
-  issue: Issue
+  issue: SerializedIssue
   value: LabelPrefixes
   onChange: (value: LabelPrefixes) => void
 }

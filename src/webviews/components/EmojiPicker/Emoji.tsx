@@ -1,4 +1,4 @@
-import { Reaction } from "@linear/sdk"
+import { SerializedReaction } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { emojis } from "../emojis"
@@ -7,7 +7,7 @@ import "./Emoji.scss"
 
 type EmojiProps = {
   emoji: string
-  reactions: Reaction[]
+  reactions: SerializedReaction[]
   add?: (emoji: string) => void
   remove?: (id: string) => void
 }

@@ -24,7 +24,7 @@ export function Attachments(props: AttachmentsProps) {
 
   const [collapsed, setCollapsed] = useState(false)
 
-  if (!attachments || attachments.length === 0) {
+  if (attachments === null) {
     return null
   }
 
@@ -59,19 +59,30 @@ export function Attachments(props: AttachmentsProps) {
           {(props, ref) => (
             <div ref={ref} {...props}>
               <div className="attachmentsList">
-                {attachments?.map((attachment) => (
-                  <Attachment
-                    key={attachment.id}
-                    attachment={attachment}
-                    editAttachment={() =>
-                      setIsCreatingAttachment({
-                        attachmentId: attachment.id,
-                        title: attachment.title,
-                        url: attachment.url,
-                      })
-                    }
-                  />
-                ))}
+                {attachments.length === 0 ? (
+                  <div
+                    style={{
+                      color: "var(--rs-text-secondary)",
+                      fontSize: "var(--font-size-xsmall)",
+                    }}
+                  >
+                    No resources yet.
+                  </div>
+                ) : (
+                  attachments.map((attachment) => (
+                    <Attachment
+                      key={attachment.id}
+                      attachment={attachment}
+                      editAttachment={() =>
+                        setIsCreatingAttachment({
+                          attachmentId: attachment.id,
+                          title: attachment.title,
+                          url: attachment.url,
+                        })
+                      }
+                    />
+                  ))
+                )}
               </div>
             </div>
           )}

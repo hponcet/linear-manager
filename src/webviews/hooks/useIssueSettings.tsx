@@ -1,11 +1,11 @@
-import { Issue } from "@linear/sdk"
 import { useMemo } from "react"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueVscState, VscStateKeys } from "src/vscStates"
 
 import { useVSCState } from "./useVSCState"
 
 type UseIssueSettingsParams = {
-  issueId: Issue["id"]
+  issueId: SerializedIssue["id"]
 }
 
 const defaultIssueSettings: IssueVscState[string] = {

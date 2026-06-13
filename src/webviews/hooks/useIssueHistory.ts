@@ -1,25 +1,25 @@
-import { Issue, IssueHistory, IssueHistoryConnection, PaginationOrderBy, User } from "@linear/sdk"
 import { useMemo, useState } from "react"
+import { IssueHistoryPage, IssueHistoryRequest } from "src/linear/LinearService"
+import { SerializedIssueHistory, SerializedUser } from "src/types/SerializedLinear"
 
 import { useAsyncEffect } from "./useAsyncEffect"
 
 import { orderHistory } from "../utils/history"
 
 type UseIssueHistoryParams = {
-  issue: Issue | null
-  users: User[] | null
+  issueId: string | undefined
+  getIssueHistory: (request: IssueHistoryRequest) => Promise<IssueHistoryPage>
+  users: SerializedUser[] | null
   historyRefetch?: number
 }
 
 export function useIssueHistory(params: UseIssueHistoryParams) {
-  const { issue, users, historyRefetch } = params
+  const { issueId, getIssueHistory, users, historyRefetch } = params
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [history, setHistory] = useState<Record<string, IssueHistory>>({})
+  const [history, setHistory] = useState<Record<string, SerializedIssueHistory>>({})
 
-  function updateHistory(res: IssueHistoryConnection) {
-    const { nodes } = res
-
+  function updateHistory(nodes: SerializedIssueHistory[]) {
     setHistory((prev) => {
       const newHistory = { ...prev }
       nodes.forEach((h) => {
@@ -30,33 +30,21 @@ export function useIssueHistory(params: UseIssueHistoryParams) {
   }
 
   useAsyncEffect(async () => {
-    if (!issue) return
-
-    const res = await issue.history({
-      first: 50,
-    })
-    updateHistory(res)
-
-    // Impossible to call history by last to first, pagination does not work properly
-    // so we need to fetch all pages until the end and then order them in the UI
-    let fetchedEndCursor = res.pageInfo.endCursor || null
-    while (fetchedEndCursor) {
-      const moreRes = await issue.history({
-        before: fetchedEndCursor,
-        last: 50,
-        orderBy: PaginationOrderBy.CreatedAt,
-      })
-      updateHistory(moreRes)
-      fetchedEndCursor = moreRes.pageInfo.endCursor || null
+    if (!issueId) {
+      return
     }
 
+    setIsLoading(true)
+    setHistory({})
+
+    const res = await getIssueHistory({ issueId })
+    updateHistory(res.nodes)
+
     setIsLoading(false)
-  }, [issue, historyRefetch])
+  }, [issueId, historyRefetch])
 
   const orderedHistory = useMemo(() => {
-    if (!users) return []
-    const ordered = orderHistory(Object.values(history), users)
-    return ordered
+    return orderHistory(Object.values(history), users ?? [])
   }, [history, users])
 
   return [orderedHistory, isLoading] as const

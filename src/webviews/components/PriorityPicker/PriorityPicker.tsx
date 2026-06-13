@@ -1,6 +1,6 @@
-import { Issue } from "@linear/sdk"
 import { useMemo } from "react"
 import { SelectPicker, type SelectPickerProps } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { Priority } from "./Priority"
@@ -11,7 +11,7 @@ export type PriorityPickerProps = Omit<
   SelectPickerProps,
   "data" | "value" | "onChange" | "size"
 > & {
-  issue: Issue
+  issue: SerializedIssue
   onChange: (value: number | null) => void
   inline?: "text" | "icon"
   size?: number

@@ -70,6 +70,7 @@ export async function linearConnect(context: ExtensionContext) {
 export async function linearDisconnect(context: ExtensionContext) {
   await context.secrets.delete(LinearSecretKeys.accessToken)
   linearClient = null
+  Controller.linearService?.invalidateAll()
   Controller.dispose()
   setCommandContext(CommandContext.linearAccountConnected, false)
   window.showInformationMessage("Successfully disconnected from Linear API")

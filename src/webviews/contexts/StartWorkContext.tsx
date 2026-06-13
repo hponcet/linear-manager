@@ -1,0 +1,203 @@
+import { LinearClient } from "@linear/sdk"
+import { ReactNode, useMemo, useState } from "react"
+import {
+  SerializedCycle,
+  SerializedIssue,
+  SerializedIssueLabel,
+  SerializedProject,
+  SerializedWorkflowState,
+} from "src/types/SerializedLinear"
+
+import { IssueContextReact, IssueContextValueData } from "./IssueContext"
+
+import { Container } from "../components/Container/Container"
+import { useAsyncEffect } from "../hooks/useAsyncEffect"
+import { useAsyncMemo } from "../hooks/useAsyncMemo"
+import { useLinearApi, vscApi } from "../hooks/useRequestDataUpdate"
+import {
+  createEstimateDataItems,
+  EstimateDataItem,
+  issueEstimationByType,
+} from "../utils/issueEstimateByType"
+
+type StartWorkContextProviderProps = {
+  issueId: string
+  linearAccessToken: string
+  isLoading?: boolean
+  children: ReactNode
+}
+
+const emptyHistoryFields = {
+  comments: null as IssueContextValueData["comments"],
+  commentsLoading: false,
+  history: null as IssueContextValueData["history"],
+  historyLoading: false,
+  subIssues: null as IssueContextValueData["subIssues"],
+  subIssuesLoading: false,
+  attachments: null as IssueContextValueData["attachments"],
+  attachmentsLoading: false,
+}
+
+export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
+  const { children, issueId, linearAccessToken, isLoading: externalLoading } = props
+
+  const [issue, setIssue] = useState<SerializedIssue | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  async function fetchIssue(updatedAt?: number) {
+    if (updatedAt && issue && issue.updatedAt.getTime() >= updatedAt) {
+      return
+    }
+
+    if (issueId) {
+      const fetchedIssue = await vscApi.postMessage({ type: "getIssue", issueId })
+      setIssue((fetchedIssue as SerializedIssue) || null)
+    }
+  }
+
+  const panelActions = useLinearApi({
+    updateIssue: fetchIssue,
+  })
+
+  useAsyncEffect(async () => {
+    setIsLoading(true)
+    try {
+      await fetchIssue()
+    } catch (error) {
+      console.error("Failed to load issue:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [issueId])
+
+  async function updateIssue(
+    id: string,
+    updatedFields: Parameters<LinearClient["updateIssue"]>[1],
+  ) {
+    try {
+      const updatedIssue = (await panelActions.linearUpdateIssue(
+        id,
+        updatedFields,
+      )) as SerializedIssue | void
+
+      if (updatedIssue && id === issueId) {
+        setIssue(updatedIssue)
+      }
+    } catch (error) {
+      console.error("Failed to update issue:", error)
+    }
+  }
+
+  const [priorities = [], prioritiesLoading] = useAsyncMemo(async () => {
+    return panelActions.getPriorities()
+  }, [issueId])
+
+  const [teamMetadata, teamMetadataLoading] = useAsyncMemo(async () => {
+    if (!issue?.teamId) {
+      return null
+    }
+    return panelActions.getTeamMetadata(issue.teamId)
+  }, [issueId, issue?.teamId])
+
+  const issueLabels: SerializedIssueLabel[] = teamMetadata?.labels ?? []
+  const issueLabelsLoading = teamMetadataLoading
+  const projects: SerializedProject[] = teamMetadata?.projects ?? []
+  const projectsLoading = teamMetadataLoading
+  const cycles: SerializedCycle[] = teamMetadata?.cycles ?? []
+  const cyclesLoading = teamMetadataLoading
+  const workflowStates: SerializedWorkflowState[] = teamMetadata?.workflowStates ?? []
+  const workflowStatesLoading = teamMetadataLoading
+
+  const [issueEstimations, issueEstimationsLoading] = useAsyncMemo(async (): Promise<
+    EstimateDataItem[] | null
+  > => {
+    if (!issue?.teamId) {
+      return null
+    }
+    const team = await panelActions.getTeam(issue.teamId)
+    if (!team?.issueEstimationType || team.issueEstimationType === "notUsed") {
+      return null
+    }
+    return createEstimateDataItems(team.issueEstimationType as keyof typeof issueEstimationByType)
+  }, [issueId, issue?.teamId])
+
+  const [users = [], usersLoading] = useAsyncMemo(async () => {
+    return panelActions.getWorkspaceUsers()
+  }, [issueId])
+
+  const rejectAsync = async () => Promise.reject(new Error("Not available in Start Work"))
+
+  const context = useMemo(
+    (): IssueContextValueData => ({
+      me: null,
+      meLoading: false,
+      issue: issue!,
+      linearAccessToken,
+      priorities: priorities || [],
+      prioritiesLoading,
+      issueLabels,
+      issueLabelsLoading,
+      projects,
+      projectsLoading,
+      cycles,
+      cyclesLoading,
+      workflowStates,
+      workflowStatesLoading,
+      users: users ?? [],
+      usersLoading,
+      issueEstimations,
+      issueEstimationsLoading,
+      ...emptyHistoryFields,
+      update: {
+        issue: updateIssue,
+        comments: {
+          addComment: rejectAsync,
+          updateComment: rejectAsync,
+          deleteComment: rejectAsync,
+          sendCommentReply: rejectAsync,
+          resolveComment: rejectAsync,
+          unresolveComment: rejectAsync,
+        },
+        reactions: {
+          addReaction: rejectAsync,
+          removeReaction: rejectAsync,
+        },
+        attachments: {
+          delete: rejectAsync,
+          create: rejectAsync,
+          update: rejectAsync,
+        },
+        subIssues: {
+          createSubIssue: rejectAsync,
+          deleteSubIssue: rejectAsync,
+        },
+        panelActions,
+      },
+    }),
+    [
+      issue,
+      linearAccessToken,
+      priorities,
+      prioritiesLoading,
+      issueLabels,
+      issueLabelsLoading,
+      projects,
+      projectsLoading,
+      cycles,
+      cyclesLoading,
+      workflowStates,
+      workflowStatesLoading,
+      users,
+      usersLoading,
+      issueEstimations,
+      issueEstimationsLoading,
+      panelActions,
+    ],
+  )
+
+  if (!issue || isLoading || externalLoading) {
+    return <Container loading={true} />
+  }
+
+  return <IssueContextReact.Provider value={context}>{children}</IssueContextReact.Provider>
+}

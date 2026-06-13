@@ -1,6 +1,7 @@
-import { Issue, LinearClient } from "@linear/sdk"
+import { LinearClient } from "@linear/sdk"
 import { useEffect, useState } from "react"
 import { Button, Input } from "rsuite"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { AssigneePicker } from "../Assignee/AssigneePicker"
@@ -44,7 +45,7 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
       <div className="createSubIssueStatePadding">
         <WorkflowStatePicker
           inline="icon"
-          issue={issue as Issue}
+          issue={issue as SerializedIssue}
           onChange={(stateId) => setIssue({ ...issue, stateId })}
         />
       </div>
@@ -65,27 +66,27 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
         />
         <div className="createSubIssueActions">
           <PriorityPicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(priority) => setIssue({ ...issue, priority: priority || undefined })}
           />
           <AssigneePicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(assigneeId) => setIssue({ ...issue, assigneeId: assigneeId || undefined })}
           />
           <EstimatePicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(estimate) => setIssue({ ...issue, estimate })}
           />
           <ProjectCyclePicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(cycleId) => setIssue({ ...issue, cycleId: cycleId || undefined })}
           />
           <IssueProjectPicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(projectId) => setIssue({ ...issue, projectId: projectId || undefined })}
           />
           <LabelsPicker
-            issue={issue as Issue}
+            issue={issue as SerializedIssue}
             onChange={(labelIds) => setIssue({ ...issue, labelIds: labelIds || [] })}
           />
           <div className="createSubIssueButtons">

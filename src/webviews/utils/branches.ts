@@ -1,5 +1,5 @@
-import { Issue } from "@linear/sdk"
 import { Ref } from "src/types/GitAPI"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { SettingsVscState } from "src/vscStates"
 
 const issueKeyRegex = (projectKey: string, issueNumber: string) =>
@@ -22,7 +22,7 @@ function getBranchNameTitle(branchName: string, projectKey: string): string | nu
 
 export function checkPossiblyExistingBranchName(
   branchName: string,
-  issueIdentifier: Issue["identifier"],
+  issueIdentifier: SerializedIssue["identifier"],
   branches: Ref[] = [],
 ): [Ref[], Ref | undefined] {
   const [projectKey, issueNumber] = issueIdentifier.toLowerCase().split("-")
@@ -87,7 +87,7 @@ export function validateBranchName(branchName?: string, branches: Ref[] = []): P
 }
 
 export function getDefaultBranchName(
-  issue: Issue,
+  issue: SerializedIssue,
   branchesSettings: SettingsVscState,
   labelIds: string[],
 ): string {

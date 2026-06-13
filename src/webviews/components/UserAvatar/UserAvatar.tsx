@@ -1,6 +1,6 @@
-import { User } from "@linear/sdk"
+import { SerializedUser } from "src/types/SerializedLinear"
 type UserAvatarProps = {
-  user?: User | null
+  user?: SerializedUser | null
   size?: number
   style?: React.CSSProperties
   className?: string

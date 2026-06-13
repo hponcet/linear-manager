@@ -1,11 +1,11 @@
-import { Issue } from "@linear/sdk"
+import { SerializedIssue } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { Button } from "../Button/Button"
 import { OpenExternalIcon } from "../Icons/OpenExternalIcon"
 
 export type OpenExternalIssueProps = {
-  issue: Issue
+  issue: SerializedIssue
   size?: number
   className?: string
   style?: React.CSSProperties

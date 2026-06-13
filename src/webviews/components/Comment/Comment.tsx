@@ -1,8 +1,8 @@
-import { User } from "@linear/sdk"
 import { Editor as EditorType } from "@tiptap/core"
 import moment from "moment"
 import { useEffect, useRef, useState } from "react"
 import { useDialog } from "rsuite"
+import { SerializedUser } from "src/types/SerializedLinear"
 import { UserAvatar } from "src/webviews/components/UserAvatar/UserAvatar"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 import { Comment as CommentType } from "src/webviews/utils/comments"
@@ -19,7 +19,7 @@ import "./Comment.scss"
 
 type CommentProps = {
   comment: CommentType
-  user: User | null
+  user: SerializedUser | null
   isChildren?: boolean
   isResolved: boolean
   parentCommentId: string

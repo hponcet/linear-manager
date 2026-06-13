@@ -2,7 +2,8 @@ import { Issue as LIssue, Team as LTeam, WorkflowState as LWorkflowState } from 
 
 export const MIME_TYPE_ISSUE = "application/vnd.code.issueViewer.issue"
 export const LINEAR_ISSUE_SCHEME = "linear-issue"
-export const AUTO_REFRESH_INTERVAL_MS = 30 * 1000 // 30 seconds
+/** Default auto-refresh interval: 3 minutes */
+export const DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS = 180
 
 /**
  * View mode for the TreeView

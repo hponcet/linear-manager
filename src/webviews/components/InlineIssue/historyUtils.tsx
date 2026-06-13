@@ -1,8 +1,16 @@
 /* eslint-disable react/jsx-key */
-import { IssueHistory, IssueLabel } from "@linear/sdk"
 import moment from "moment"
 import { ReactNode } from "react"
+import { WorkflowStateWithStateProgress } from "src/types/Linear"
+import {
+  SerializedCycle,
+  SerializedIssueHistory,
+  SerializedIssueLabel,
+  SerializedProject,
+  SerializedUser,
+} from "src/types/SerializedLinear"
 import { IssueContextValueData } from "src/webviews/contexts/IssueContext"
+import { History } from "src/webviews/utils/history"
 
 import { Assignee } from "../Assignee/Assignee"
 import { Estimate } from "../EstimatePicker/Estimate"
@@ -26,6 +34,7 @@ const historyFieldsOfInterest = [
   "autoClosed",
   "customerNeedId",
   "descriptionUpdatedBy",
+  "updatedDescription",
   "fromAssigneeId",
   "fromCycleId",
   "fromDueDate",
@@ -61,25 +70,29 @@ export function getHistoryType(key: (typeof historyFieldsOfInterest)[number]): s
   return key.replace(/^(from|to)/, "")
 }
 
-export function getFirstHistoryType(history: IssueHistory): string | null {
+export function getFirstHistoryType(history: History | SerializedIssueHistory): string | null {
+  const entry = history as SerializedIssueHistory
   for (const field of historyFieldsOfInterest) {
-    if (history[field]) {
+    if (entry[field as keyof SerializedIssueHistory]) {
       return getHistoryType(field) as PossibleHistoryType
     }
   }
   return null
 }
 
-export function getAllHistoryTypes(history: IssueHistory): PossibleHistoryType[] {
+export function getAllHistoryTypes(
+  history: History | SerializedIssueHistory,
+): PossibleHistoryType[] {
+  const entry = history as SerializedIssueHistory
   return historyFieldsOfInterest.filter((field) => {
-    if (!!history[field]) {
+    if (!!entry[field as keyof SerializedIssueHistory]) {
       return true
     }
     if (field.startsWith("from") || field.startsWith("to")) {
       const correspondingKey = `${
         field.startsWith("from") ? "to" : "from"
       }${field.replace(/^(from|to)/, "")}`
-      if (history[correspondingKey as PossibleHistoryType] !== undefined) {
+      if (entry[correspondingKey as keyof SerializedIssueHistory] !== undefined) {
         return true
       }
     }
@@ -87,13 +100,21 @@ export function getAllHistoryTypes(history: IssueHistory): PossibleHistoryType[]
   })
 }
 
+function getResolved(
+  activity: History | SerializedIssueHistory,
+): SerializedIssueHistory["resolved"] {
+  return activity.resolved ?? (activity as SerializedIssueHistory).resolved
+}
+
 function getHistoryContent(
   contextValues: IssueContextValueData,
   type: string,
   from: any,
   to: any,
+  activity: History | SerializedIssueHistory,
 ): [ReactNode, ReactNode | null] | null {
   const { users, projects, cycles, priorities, workflowStates, issueEstimations } = contextValues
+  const resolved = getResolved(activity)
 
   switch (type) {
     // 1 value
@@ -101,7 +122,7 @@ function getHistoryContent(
       return [
         <>
           <span>added label(s) </span>
-          {(from as IssueLabel[]).map((label) => (
+          {(from as SerializedIssueLabel[]).map((label) => (
             <Label inline key={label.id} issueLabel={label} />
           ))}
         </>,
@@ -112,7 +133,7 @@ function getHistoryContent(
       return [
         <>
           <span>removed label(s) </span>
-          {(from as IssueLabel[]).map((label) => (
+          {(from as SerializedIssueLabel[]).map((label) => (
             <Label inline key={label.id} issueLabel={label} />
           ))}
         </>,
@@ -131,7 +152,8 @@ function getHistoryContent(
     case "customerNeedId": {
       return [<span>changed the customer needs</span>, null]
     }
-    case "descriptionUpdatedBy": {
+    case "descriptionUpdatedBy":
+    case "updatedDescription": {
       return [<span>updated the description</span>, null]
     }
     case "issueImport": {
@@ -153,23 +175,23 @@ function getHistoryContent(
 
     // 2 values to compare
     case "AssigneeId": {
-      const fromUser = users.find((user) => user.id === from)!
-      const toUser = users.find((user) => user.id === to)!
+      const fromUser = resolved?.fromAssignee ?? users.find((user) => user.id === from)
+      const toUser = resolved?.toAssignee ?? users.find((user) => user.id === to)
 
       if (from && !to) {
         return [<span>removed assignee</span>, null]
-      } else if (!from && to) {
+      } else if (!from && to && toUser) {
         return [
           <span>
-            assigned to <Assignee inline="text" user={toUser} />
+            assigned to <Assignee inline="text" user={toUser as SerializedUser} />
           </span>,
           null,
         ]
       } else if (fromUser && toUser) {
         return [
           <span>
-            changed assignee from <Assignee inline="text" user={fromUser} /> to{" "}
-            <Assignee inline="text" user={toUser} />
+            changed assignee from <Assignee inline="text" user={fromUser as SerializedUser} /> to{" "}
+            <Assignee inline="text" user={toUser as SerializedUser} />
           </span>,
           null,
         ]
@@ -177,25 +199,26 @@ function getHistoryContent(
       return null
     }
     case "CycleId": {
-      const fromCycle = cycles.find((c) => c.id === from)
-      const toCycle = cycles.find((c) => c.id === to)
+      const fromCycle = resolved?.fromCycle ?? cycles.find((c) => c.id === from)
+      const toCycle = resolved?.toCycle ?? cycles.find((c) => c.id === to)
 
       if (fromCycle && !toCycle) {
         return [<span>removed cycle</span>, <ProjectCycleIcon size={13} cycle={null} />]
       } else if (!fromCycle && toCycle) {
         return [
           <span>
-            added cycle <ProjectCycle projectCycle={toCycle} inline="text" />
+            added cycle <ProjectCycle projectCycle={toCycle as SerializedCycle} inline="text" />
           </span>,
-          <ProjectCycleIcon size={13} cycle={toCycle} />,
+          <ProjectCycleIcon size={13} cycle={toCycle as SerializedCycle} />,
         ]
       } else if (fromCycle && toCycle) {
         return [
           <span>
-            changed cycle from <ProjectCycle projectCycle={fromCycle} inline="text" /> to{" "}
-            <ProjectCycle projectCycle={toCycle} inline="text" />
+            changed cycle from{" "}
+            <ProjectCycle projectCycle={fromCycle as SerializedCycle} inline="text" /> to{" "}
+            <ProjectCycle projectCycle={toCycle as SerializedCycle} inline="text" />
           </span>,
-          <ProjectCycleIcon size={13} cycle={toCycle} />,
+          <ProjectCycleIcon size={13} cycle={toCycle as SerializedCycle} />,
         ]
       }
       return null
@@ -249,8 +272,9 @@ function getHistoryContent(
       }
     }
     case "Priority": {
-      const fromPriority = priorities.find((p) => p.priority === (from || 0))!
-      const toPriority = priorities.find((p) => p.priority === (to || 0))!
+      const fromPriority =
+        resolved?.fromPriority ?? priorities.find((p) => p.priority === (from ?? 0))
+      const toPriority = resolved?.toPriority ?? priorities.find((p) => p.priority === (to ?? 0))
 
       if (fromPriority && !toPriority) {
         return [<span>removed priority</span>, <PriorityIcon size={13} />]
@@ -273,23 +297,24 @@ function getHistoryContent(
       return null
     }
     case "ProjectId": {
-      const fromProject = projects.find((p) => p.id === from)
-      const toProject = projects.find((p) => p.id === to)
+      const fromProject = resolved?.fromProject ?? projects.find((p) => p.id === from)
+      const toProject = resolved?.toProject ?? projects.find((p) => p.id === to)
 
       if (fromProject && !toProject) {
         return [<span>removed project</span>, <ProjectIcon size={13} />]
       } else if (!fromProject && toProject) {
         return [
           <span>
-            added project <Project inline="text" project={toProject} />
+            added project <Project inline="text" project={toProject as SerializedProject} />
           </span>,
           <ProjectIcon size={13} />,
         ]
       } else if (fromProject && toProject) {
         return [
           <span>
-            changed project from <Project inline="text" project={fromProject} /> to{" "}
-            <Project inline="text" project={toProject} />
+            changed project from{" "}
+            <Project inline="text" project={fromProject as SerializedProject} /> to{" "}
+            <Project inline="text" project={toProject as SerializedProject} />
           </span>,
           <ProjectIcon size={13} />,
         ]
@@ -297,25 +322,37 @@ function getHistoryContent(
       return null
     }
     case "StateId": {
-      const fromState = workflowStates.find((s) => s.id === from)
-      const toState = workflowStates.find((s) => s.id === to)
+      const fromState = resolved?.fromState ?? workflowStates.find((s) => s.id === from)
+      const toState = resolved?.toState ?? workflowStates.find((s) => s.id === to)
 
       if (fromState && !toState) {
         return [<span>removed state</span>, null]
       } else if (!fromState && toState) {
         return [
           <span>
-            added state <WorkflowState workflowState={toState} inline="text" />
+            added state{" "}
+            <WorkflowState
+              workflowState={toState as WorkflowStateWithStateProgress}
+              inline="text"
+            />
           </span>,
-          <WorkflowStateIcon size={13} workflowState={toState} />,
+          <WorkflowStateIcon size={13} workflowState={toState as WorkflowStateWithStateProgress} />,
         ]
       } else if (fromState && toState) {
         return [
           <span>
-            changed state from <WorkflowState workflowState={fromState} inline="text" /> to{" "}
-            <WorkflowState workflowState={toState} inline="text" />
+            changed state from{" "}
+            <WorkflowState
+              workflowState={fromState as WorkflowStateWithStateProgress}
+              inline="text"
+            />{" "}
+            to{" "}
+            <WorkflowState
+              workflowState={toState as WorkflowStateWithStateProgress}
+              inline="text"
+            />
           </span>,
-          <WorkflowStateIcon size={13} workflowState={toState} />,
+          <WorkflowStateIcon size={13} workflowState={toState as WorkflowStateWithStateProgress} />,
         ]
       }
       return null
@@ -338,7 +375,7 @@ function getHistoryContent(
       ]
     }
     case "ConvertedProjectId": {
-      const toProject = projects.find((p) => p.id === to)
+      const toProject = resolved?.toProject ?? projects.find((p) => p.id === to)
 
       if (!toProject) {
         return null
@@ -346,7 +383,8 @@ function getHistoryContent(
 
       return [
         <span>
-          has converted the project to <Project inline="text" project={toProject} />
+          has converted the project to{" "}
+          <Project inline="text" project={toProject as SerializedProject} />
         </span>,
         null,
       ]
@@ -358,7 +396,7 @@ function getHistoryContent(
 
 export function getActivity(
   contextValues: IssueContextValueData,
-  activity: IssueHistory,
+  activity: History | SerializedIssueHistory,
 ): [ReactNode[], ReactNode | null] {
   const activityTypes = getAllHistoryTypes(activity).sort((a, b) =>
     getHistoryType(a).localeCompare(getHistoryType(b)),
@@ -377,9 +415,16 @@ export function getActivity(
 
   let icon = null
   const concatContent: ReactNode[] = []
+  const entry = activity as SerializedIssueHistory
 
   Object.entries(activitiesCount).forEach(([type, [from, to]]) => {
-    const content = getHistoryContent(contextValues, type, activity[from], activity[to])
+    const content = getHistoryContent(
+      contextValues,
+      type,
+      entry[from as keyof SerializedIssueHistory],
+      entry[to as keyof SerializedIssueHistory],
+      activity,
+    )
 
     if (!content) {
       return

@@ -1,12 +1,12 @@
-import { Cycle } from "@linear/sdk"
 import moment from "moment"
+import { SerializedCycle } from "src/types/SerializedLinear"
 
 import { ProjectCycleIcon } from "./ProjectCycleIcon"
 
 import "./ProjectCycle.css"
 
 export type ProjectCycleProps = {
-  projectCycle: Cycle | null
+  projectCycle: SerializedCycle | null
   showDate?: boolean
   inline?: "text" | "icon"
   size?: number

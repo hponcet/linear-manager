@@ -1,6 +1,6 @@
-import { Attachment as LinearAttachment } from "@linear/sdk"
 import moment from "moment"
 import { useState } from "react"
+import { SerializedAttachment } from "src/types/SerializedLinear"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 
 import { EditIcon } from "../Icons/EditIcon"
@@ -14,7 +14,7 @@ import "./Attachment.scss"
 type AttachmentProps = {
   style?: React.CSSProperties
   className?: string
-  attachment: LinearAttachment
+  attachment: SerializedAttachment
   editAttachment: () => void
 }
 

@@ -1,9 +1,9 @@
-import { Cycle } from "@linear/sdk"
+import { SerializedCycle } from "src/types/SerializedLinear"
 
 type CycleIconProps = {
   style?: React.CSSProperties
   className?: string
-  cycle?: Cycle | null
+  cycle?: SerializedCycle | null
   size?: number
 }
 

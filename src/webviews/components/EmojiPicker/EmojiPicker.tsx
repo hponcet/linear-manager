@@ -1,7 +1,7 @@
-import { Reaction } from "@linear/sdk"
 import Picker, { Theme } from "emoji-picker-react"
 import { useMemo } from "react"
 import { Popover, Whisper, type WhisperProps } from "rsuite"
+import { SerializedReaction } from "src/types/SerializedLinear"
 
 import { Emoji } from "./Emoji"
 
@@ -14,7 +14,7 @@ type EmojiPickerProps = {
   onSelect?: (emoji: string) => void
   onUnselect?: (id: string) => void
   size?: number
-  reactions?: Reaction[]
+  reactions?: SerializedReaction[]
   placement?: WhisperProps["placement"]
 }
 
@@ -30,7 +30,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
           acc[reaction.emoji].push(reaction)
           return acc
         },
-        {} as Record<string, Reaction[]>,
+        {} as Record<string, SerializedReaction[]>,
       ),
     [reactions],
   )

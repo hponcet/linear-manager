@@ -1,0 +1,18 @@
+---
+description: Agent chat language vs repository English content
+alwaysApply: true
+---
+
+# Agent communication
+
+## Chat with the user
+
+- Reply in the **language the user uses** in the conversation (e.g. French if they write in French).
+- Keep explanations clear and proportional to the task.
+
+## Repository content
+
+- Write **all repository artifacts in English**: source code, comments, docstrings, UI strings, rules, README, CHANGELOG, commit messages, and PR descriptions.
+- Exception: localization assets (e.g. `*fr.json`) or when the user explicitly requests another language for a specific artifact.
+
+This rule complements [repository-english.mdc](./repository-english.mdc): conversation language is flexible; the codebase stays English.

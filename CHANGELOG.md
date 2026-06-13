@@ -6,4 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Initial release
+### Added
+
+- Cursor agent rules for communication, feature testing, and changelog maintenance
+- Unit and integration test scaffolding with example branch and extension tests
+
+### Changed
+
+- Post-change verification now includes `npm run test` alongside typecheck and lint

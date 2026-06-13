@@ -9,7 +9,8 @@ After any code change in this repository:
 
 1. `npm run check:types` must complete with no errors
 2. `npm run lint` must complete with no errors (max warnings: 0)
+3. `npm run test` must complete with no errors
 
-If either command fails, fix the issues before considering the work done.
+If any command fails, fix the issues before considering the work done.
 
-You can run both: `npm run check:types && npm run lint`
+You can run all three: `npm run check:types && npm run lint && npm run test`

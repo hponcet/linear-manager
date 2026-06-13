@@ -1,0 +1,38 @@
+---
+description: Keep CHANGELOG.md updated for user-visible changes
+alwaysApply: true
+---
+
+# Changelog
+
+Update [CHANGELOG.md](../../CHANGELOG.md) when shipping a user-visible **feature** or **fix**.
+
+## When to update
+
+- **Yes:** new features, bug fixes, breaking changes, notable behavior changes visible to users
+- **No:** refactors, internal-only changes, dependency bumps, contributor-only rule/doc updates (unless they change how others work on the repo)
+
+## Format
+
+Follow [Keep a Changelog](https://keepachangelog.com/). Add bullets under `[Unreleased]` using:
+
+- `### Added`
+- `### Changed`
+- `### Fixed`
+- `### Removed`
+
+Use **past tense** for entries. One concise bullet per change.
+
+Example:
+
+```markdown
+## [Unreleased]
+
+### Added
+- Stash and reapply local changes when starting work on a branch
+
+### Fixed
+- Skip redundant issue refetch when switching back to an open webview tab
+```
+
+Do not edit plan files in `.cursor/plans/`.

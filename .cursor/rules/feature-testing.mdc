@@ -1,0 +1,50 @@
+---
+description: Test requirements for new features and fixes
+alwaysApply: true
+---
+
+# Feature testing
+
+Before marking work done, classify the change and add the appropriate tests.
+
+## Change types
+
+| Change | Required testing |
+|--------|------------------|
+| Pure logic (utils, parsers, cache helpers) | Unit test in `src/test/unit/` |
+| Extension host (commands, IPC, services) | Integration test in `src/test/integration/` or unit test on extracted core |
+| Webview UI only | Manual smoke checklist in the PR summary; automated checks still required |
+| Bug fix | Regression test at the lowest feasible layer (prefer unit) |
+
+## Mandatory checks
+
+Run in order and fix failures before finishing:
+
+```bash
+npm run check:types && npm run lint && npm run test
+```
+
+## File conventions
+
+- Unit: `src/test/unit/<module>.test.ts`
+- Integration: `src/test/integration/<area>.test.ts`
+- Import application code with **relative paths** (e.g. `../../webviews/utils/branches`) so compiled tests resolve at runtime
+- Use Mocha `describe` / `it`; name tests after behavior, not implementation.
+- Cover the happy path and at least one meaningful edge case per new public function.
+
+## Mocks
+
+- Never call the real Linear API in automated tests.
+- Stub `LinearClient`, `GitClient`, or extract pure logic for unit testing.
+
+## Manual smoke template (webview features)
+
+Document briefly when UI cannot be automated yet:
+
+1. **Setup** — Extension Development Host, workspace state
+2. **Steps** — open panel, trigger action
+3. **Expected** — observable outcome
+
+## Do not skip tests
+
+Once test scaffolding exists in this repo, do not claim missing infrastructure as a reason to skip automated tests for testable logic.

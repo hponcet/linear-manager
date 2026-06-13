@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/test/**/*",
+    "src/webviews/utils/branches.ts",
+    "src/types/GitAPI.ts",
+    "src/vscStates.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

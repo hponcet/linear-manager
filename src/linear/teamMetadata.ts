@@ -1,7 +1,8 @@
-import { Cycle, IssueLabel, LinearClient, Project } from "@linear/sdk"
+import { Cycle, IssueLabel, LinearClient, Project, ProjectLabel } from "@linear/sdk"
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
 
+import { flattenAssignableLabels } from "./flattenAssignableLabels"
 import { logLinearApiCall } from "./LinearApiLogger"
 import { fetchAllPreviousPages } from "./pagination"
 
@@ -39,7 +40,7 @@ export async function fetchTeamMetadata(
     ])
 
   const [labels, cycles, projects, workflowStateNodes] = await Promise.all([
-    fetchAllPreviousPages(labelsConnection),
+    fetchAllPreviousPages(labelsConnection).then(flattenAssignableLabels),
     fetchAllPreviousPages(cyclesConnection),
     fetchAllPreviousPages(projectsConnection),
     fetchAllPreviousPages(workflowStatesConnection),
@@ -51,6 +52,19 @@ export async function fetchTeamMetadata(
     workflowStates: filterWorkflowStatesByType(workflowStateNodes),
     projects,
   }
+}
+
+export async function fetchProjectLabels(
+  client: LinearClient,
+  projectId: string,
+): Promise<ProjectLabel[]> {
+  logLinearApiCall(`fetchProjectLabels:${projectId}`)
+
+  const project = await client.project(projectId)
+  const labelsConnection = await project.labels()
+  const labels = await fetchAllPreviousPages(labelsConnection)
+
+  return flattenAssignableLabels(labels)
 }
 
 export async function fetchWorkspaceUsers(client: LinearClient) {

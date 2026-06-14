@@ -12,6 +12,7 @@ export const CACHE_TTL_BY_PREFIX: Record<string, number> = {
   assignedIssues: SHORT_CACHE_TTL_MS,
   "cycleIssues:": SHORT_CACHE_TTL_MS,
   "teamMetadata:": DEFAULT_CACHE_TTL_MS,
+  "projectLabels:": DEFAULT_CACHE_TTL_MS,
   workspaceUsers: DEFAULT_CACHE_TTL_MS,
   "team:": DEFAULT_CACHE_TTL_MS,
   viewer: LONG_CACHE_TTL_MS,

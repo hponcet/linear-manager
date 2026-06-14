@@ -8,6 +8,7 @@ import { StartWorkWebview } from "src/panels/StartWorkWebview"
 import { IssueSyncPayload } from "src/types/IssueSync"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
 import { Stores } from "src/utils/Stores"
+import { SettingsVscState, VscStateKeys } from "src/vscStates"
 import {
   ProviderResult,
   TreeDataProvider,
@@ -334,9 +335,18 @@ export class MyIssuesView
   }
 
   public async checkoutToIssueBranch(issueId: Issue["id"]) {
+    await this.#notifyUncommittedChangesIfAny()
+
     const issueState = this.issuesStore.get(issueId)
 
     if (issueState.branchInitialized && issueState.branch) {
+      if (!this.#isStashBeforeCreateEnabled()) {
+        const issue = await this.#getIssueById(issueId)
+        if (!issue) return
+        await this.startWork(issue)
+        return
+      }
+
       try {
         await Controller.git.checkout(issueState.branch)
         return
@@ -349,13 +359,55 @@ export class MyIssuesView
       }
     }
 
-    const issue =
-      this.#myIssues.get(issueId) ||
-      Controller.linearService.toTreeIssue(await Controller.linearService.getIssue(issueId))
+    const issue = await this.#getIssueById(issueId)
 
     if (!issue) return
 
     this.startWork(issue, true)
+  }
+
+  #isStashBeforeCreateEnabled(): boolean {
+    const branchesSettings =
+      this.#context.globalState.get<SettingsVscState>(VscStateKeys.branchesSettings) || {}
+
+    return !!branchesSettings.stashBeforeCreate
+  }
+
+  async #notifyUncommittedChangesIfAny(): Promise<void> {
+    if (!Controller.git.repositoryActive) {
+      return
+    }
+
+    try {
+      const hasUncommittedChanges = await Controller.git.hasUncommittedChanges()
+      if (!hasUncommittedChanges) {
+        return
+      }
+
+      window.showInformationMessage(
+        "You have uncommitted changes in your working directory. Stash them before changing branches, then reapply them after the branch changes.",
+      )
+    } catch {
+      // Ignore git status errors and continue with the checkout flow.
+    }
+  }
+
+  async #getIssueById(issueId: Issue["id"]): Promise<Issue | undefined> {
+    const cachedIssue = this.#myIssues.get(issueId)
+    if (cachedIssue) {
+      return cachedIssue
+    }
+
+    try {
+      const issue = Controller.linearService.toTreeIssue(
+        await Controller.linearService.getIssue(issueId),
+      )
+      this.#myIssues.set(issue.id, issue)
+      return issue
+    } catch {
+      window.showErrorMessage("Failed to fetch issue from Linear")
+      return undefined
+    }
   }
 
   public changeGitStatus(gitStatus: { repoActive: boolean; apiActive: boolean }) {

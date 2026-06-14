@@ -38,6 +38,7 @@ const LINEAR_API_OPERATIONS = new Set<IpcType<"req">>([
   "getViewer",
   "getTeam",
   "getTeamMetadata",
+  "getProjectLabels",
   "getWorkspaceUsers",
   "getPriorities",
   "getComments",
@@ -162,6 +163,8 @@ export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) 
       getViewer: () => vscApi.postMessage({ type: "getViewer" }),
       getTeam: (teamId: string) => vscApi.postMessage({ type: "getTeam", teamId }),
       getTeamMetadata: (teamId: string) => vscApi.postMessage({ type: "getTeamMetadata", teamId }),
+      getProjectLabels: (projectId: string) =>
+        vscApi.postMessage({ type: "getProjectLabels", projectId }),
       getWorkspaceUsers: () => vscApi.postMessage({ type: "getWorkspaceUsers" }),
       getPriorities: () => vscApi.postMessage({ type: "getPriorities" }),
       getComments: (issueId: SerializedIssue["id"]) =>

@@ -2,6 +2,7 @@ import {
   serializeAttachment,
   serializeComment,
   serializeIssue,
+  serializeProjectLabel,
   serializeTeam,
   serializeTeamMetadata,
   serializeUser,
@@ -51,6 +52,10 @@ export async function handleLinearIpcMessage(
     case "getTeamMetadata": {
       const metadata = await service.getTeamMetadata(msg.teamId)
       return { handled: true, payload: serializeTeamMetadata(metadata) }
+    }
+    case "getProjectLabels": {
+      const labels = await service.getProjectLabels(msg.projectId)
+      return { handled: true, payload: labels.map(serializeProjectLabel) }
     }
     case "getWorkspaceUsers": {
       const users = await service.getWorkspaceUsers()

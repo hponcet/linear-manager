@@ -21,7 +21,12 @@ import {
   fetchViewer,
   fetchWorkflowStatesByTeam,
 } from "src/linear/linearFetchers"
-import { fetchTeamMetadata, fetchWorkspaceUsers, TeamMetadata } from "src/linear/teamMetadata"
+import {
+  fetchProjectLabels,
+  fetchTeamMetadata,
+  fetchWorkspaceUsers,
+  TeamMetadata,
+} from "src/linear/teamMetadata"
 import { SerializedIssueHistory } from "src/types/SerializedLinear"
 import {
   Issue as TreeIssue,
@@ -96,6 +101,13 @@ export class LinearService {
     return this.#cache.getOrFetch(`teamMetadata:${teamId}`, async () => {
       const client = this.#requireClient()
       return fetchTeamMetadata(client, teamId)
+    })
+  }
+
+  async getProjectLabels(projectId: string) {
+    return this.#cache.getOrFetch(`projectLabels:${projectId}`, async () => {
+      const client = this.#requireClient()
+      return fetchProjectLabels(client, projectId)
     })
   }
 

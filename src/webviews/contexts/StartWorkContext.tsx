@@ -3,7 +3,6 @@ import { ReactNode, useMemo, useState } from "react"
 import {
   SerializedCycle,
   SerializedIssue,
-  SerializedIssueLabel,
   SerializedProject,
   SerializedWorkflowState,
 } from "src/types/SerializedLinear"
@@ -13,6 +12,7 @@ import { IssueContextReact, IssueContextValueData } from "./IssueContext"
 import { Container } from "../components/Container/Container"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useAsyncMemo } from "../hooks/useAsyncMemo"
+import { useIssuePickerLabels } from "../hooks/useIssuePickerLabels"
 import { useLinearApi, vscApi } from "../hooks/useRequestDataUpdate"
 import {
   createEstimateDataItems,
@@ -92,15 +92,13 @@ export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
     return panelActions.getPriorities()
   }, [issueId])
 
-  const [teamMetadata, teamMetadataLoading] = useAsyncMemo(async () => {
-    if (!issue?.teamId) {
-      return null
-    }
-    return panelActions.getTeamMetadata(issue.teamId)
-  }, [issueId, issue?.teamId])
+  const { teamMetadata, teamMetadataLoading, issueLabels, issueLabelsLoading, branchPrefixLabels } =
+    useIssuePickerLabels({
+      issue,
+      getTeamMetadata: panelActions.getTeamMetadata,
+      getProjectLabels: panelActions.getProjectLabels,
+    })
 
-  const issueLabels: SerializedIssueLabel[] = teamMetadata?.labels ?? []
-  const issueLabelsLoading = teamMetadataLoading
   const projects: SerializedProject[] = teamMetadata?.projects ?? []
   const projectsLoading = teamMetadataLoading
   const cycles: SerializedCycle[] = teamMetadata?.cycles ?? []
@@ -137,6 +135,7 @@ export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
       prioritiesLoading,
       issueLabels,
       issueLabelsLoading,
+      branchPrefixLabels,
       projects,
       projectsLoading,
       cycles,
@@ -181,6 +180,7 @@ export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
       prioritiesLoading,
       issueLabels,
       issueLabelsLoading,
+      branchPrefixLabels,
       projects,
       projectsLoading,
       cycles,

@@ -47,7 +47,8 @@ export function StartWorkContent(props: StartWorkContentProps) {
 
   const initialBranchName = useMemo(
     () =>
-      issueSettings.branch?.name || getDefaultBranchName(issue, branchesSettings, issue.labelIds),
+      issueSettings.branch?.name ||
+      getDefaultBranchName(issue, branchesSettings, issue.labelIds ?? []),
     [issue, branchesSettings, issueSettings.branch?.name],
   )
 

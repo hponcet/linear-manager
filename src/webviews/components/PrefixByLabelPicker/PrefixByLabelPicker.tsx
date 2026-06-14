@@ -1,7 +1,7 @@
 import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Input, SelectPicker } from "rsuite"
 import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueLabelSetting, SettingsVscState } from "src/vscStates"
@@ -27,28 +27,48 @@ type PrefixByLabelPickerProps = {
 export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
   const { issue, value, onChange } = props
 
-  const { issueLabels, issueLabelsLoading } = useIssueContext()
+  const { issueLabelsLoading, branchPrefixLabels } = useIssueContext()
 
   const sensors = useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
   })
 
+  const pickerLabels = useMemo(() => {
+    const byId = new Map<string, (typeof branchPrefixLabels)[number]>()
+
+    for (const label of branchPrefixLabels) {
+      byId.set(label.id, label)
+    }
+
+    for (const entry of value ?? []) {
+      if (entry.label?.id) {
+        byId.set(entry.label.id, entry.label)
+      }
+    }
+
+    return Array.from(byId.values())
+  }, [branchPrefixLabels, value])
+
   const cacheData = useMemo(
     () =>
-      issueLabels
+      pickerLabels
         ?.map((label) => ({
           label: label.name,
           value: label.id,
           issueLabel: label,
         }))
         .sort((a, b) => a.label.localeCompare(b.label))
-        .sort((a) => (issue?.labelIds.includes(a.value) ? -1 : 1)) || [],
-    [issueLabels, issue.labelIds],
+        .sort((a) => (issue?.labelIds?.includes(a.value) ? -1 : 1)) || [],
+    [pickerLabels, issue?.labelIds],
   )
 
   const [labelsWithPrefixes, setLabelsWithPrefixes] = useState<
     { label: IssueLabelSetting | null; prefix: string }[]
   >(value || [])
+
+  useEffect(() => {
+    setLabelsWithPrefixes(value || [])
+  }, [value])
 
   function handleLabelPrefixChange<F extends "label" | "prefix">(
     index: number,
@@ -135,17 +155,19 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
                     placeholder="Select a label"
                     loading={issueLabelsLoading}
                     cleanable={false}
-                    renderOption={(_, item) => (
-                      <Label key={item.value} issueLabel={item.issueLabel} inline />
-                    )}
-                    renderValue={(_, item) => (
-                      <Label
-                        key={item.value}
-                        issueLabel={item.issueLabel}
-                        inline={true}
-                        size={14}
-                      />
-                    )}
+                    renderOption={(_, item) =>
+                      item ? <Label key={item.value} issueLabel={item.issueLabel} inline /> : null
+                    }
+                    renderValue={(_, item) =>
+                      item ? (
+                        <Label
+                          key={item.value}
+                          issueLabel={item.issueLabel}
+                          inline={true}
+                          size={14}
+                        />
+                      ) : null
+                    }
                     style={{ flex: 1 }}
                   />
                   <Input

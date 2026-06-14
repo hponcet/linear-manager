@@ -6,6 +6,7 @@ import {
   IssueHistory,
   IssueLabel,
   Project,
+  ProjectLabel,
   Reaction,
   Team,
   User,
@@ -65,7 +66,12 @@ export function serializeTeam(team: Team): SerializedTeam {
   }
 }
 
-export function serializeIssueLabel(label: IssueLabel): SerializedIssueLabel {
+function serializePickerLabel(label: {
+  id: string
+  name: string
+  color: string
+  parentId?: string | null
+}): SerializedIssueLabel {
   const serialized: SerializedIssueLabel = {
     id: label.id,
     name: label.name,
@@ -78,6 +84,14 @@ export function serializeIssueLabel(label: IssueLabel): SerializedIssueLabel {
   }
 
   return serialized
+}
+
+export function serializeIssueLabel(label: IssueLabel): SerializedIssueLabel {
+  return serializePickerLabel(label)
+}
+
+export function serializeProjectLabel(label: ProjectLabel): SerializedIssueLabel {
+  return serializePickerLabel(label)
 }
 
 export function serializeCycle(cycle: Cycle): SerializedCycle {
@@ -145,7 +159,7 @@ export function serializeIssue(issue: Issue): SerializedIssue {
     number: issue.number,
     priority: issue.priority,
     priorityLabel: issue.priorityLabel,
-    labelIds: issue.labelIds,
+    labelIds: issue.labelIds ?? [],
     estimate: undefinedIfNull(issue.estimate),
     branchName: issue.branchName,
     dueDate: undefinedIfNull(issue.dueDate),

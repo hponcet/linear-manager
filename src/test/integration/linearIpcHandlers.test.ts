@@ -72,6 +72,15 @@ suite("linearIpcHandlers integration", () => {
         workflowStates: [],
         projects: [],
       }),
+      getProjectLabels: async () => [
+        {
+          id: "project-label-1",
+          name: "Backend",
+          color: "#ff0000",
+          parentId: undefined,
+          isGroup: false,
+        },
+      ],
       getComments: async () => [],
       updateIssue: async (issueId: string, fields: { title?: string; stateId?: string }) => {
         const stateId = fields.stateId ?? "state-1"
@@ -147,6 +156,27 @@ suite("linearIpcHandlers integration", () => {
 
     const metadata = result.payload as { workflowStates: unknown[] }
     assert.ok(Array.isArray(metadata.workflowStates))
+  })
+
+  test("getProjectLabels delegates to LinearService and serializes labels", async () => {
+    const { issueActions } = createIssueActions()
+    const service = createMockService()
+
+    const result = await handleLinearIpcMessage(
+      { type: "getProjectLabels", projectId: "project-1" },
+      issueActions,
+      service,
+    )
+
+    assert.strictEqual(result.handled, true)
+    if (!result.handled) {
+      return
+    }
+
+    const labels = result.payload as { id: string; name: string; color: string }[]
+    assert.strictEqual(labels.length, 1)
+    assert.strictEqual(labels[0]?.id, "project-label-1")
+    assert.strictEqual(labels[0]?.name, "Backend")
   })
 
   test("createSubIssue refreshes My Issues and returns the created issue", async () => {

@@ -14,6 +14,7 @@ import { Container } from "../components/Container/Container"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useAsyncMemo } from "../hooks/useAsyncMemo"
 import { useIssueHistory } from "../hooks/useIssueHistory"
+import { useIssuePickerLabels } from "../hooks/useIssuePickerLabels"
 import { useLinearApi, vscApi } from "../hooks/useRequestDataUpdate"
 import { Comment, applyThreadResolvedState, orderComments } from "../utils/comments"
 import { History } from "../utils/history"
@@ -89,6 +90,7 @@ export type IssueContextValueData = {
   prioritiesLoading: boolean
   issueLabels: SerializedIssueLabel[]
   issueLabelsLoading: boolean
+  branchPrefixLabels: SerializedIssueLabel[]
   projects: SerializedProject[]
   projectsLoading: boolean
   cycles: SerializedCycle[]
@@ -135,6 +137,7 @@ const IssueContextReact = createContext<IssueContextValueData>({
       updateIssue: () => Promise.reject(),
       syncIssue: () => Promise.reject(),
       getTeamMetadata: () => Promise.reject(),
+      getProjectLabels: () => Promise.reject(),
       getWorkspaceUsers: () => Promise.reject(),
       getPriorities: () => Promise.reject(),
       getIssue: () => Promise.reject(),
@@ -179,6 +182,7 @@ const IssueContextReact = createContext<IssueContextValueData>({
   prioritiesLoading: false,
   issueLabels: [],
   issueLabelsLoading: false,
+  branchPrefixLabels: [],
   projects: [],
   projectsLoading: false,
   cycles: [],
@@ -454,15 +458,13 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     return panelActions.getPriorities()
   }, [issueId])
 
-  const [teamMetadata, teamMetadataLoading] = useAsyncMemo(async () => {
-    if (!issue?.teamId) {
-      return null
-    }
-    return panelActions.getTeamMetadata(issue.teamId)
-  }, [issueId, issue?.teamId])
+  const { teamMetadata, teamMetadataLoading, issueLabels, issueLabelsLoading, branchPrefixLabels } =
+    useIssuePickerLabels({
+      issue,
+      getTeamMetadata: panelActions.getTeamMetadata,
+      getProjectLabels: panelActions.getProjectLabels,
+    })
 
-  const issueLabels = teamMetadata?.labels ?? []
-  const issueLabelsLoading = teamMetadataLoading
   const projects = teamMetadata?.projects ?? []
   const projectsLoading = teamMetadataLoading
   const cycles = teamMetadata?.cycles ?? []
@@ -507,6 +509,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       prioritiesLoading,
       issueLabels: issueLabels || [],
       issueLabelsLoading,
+      branchPrefixLabels: branchPrefixLabels || [],
       projects: projects || [],
       projectsLoading,
       cycles: cycles || [],
@@ -560,6 +563,7 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
       prioritiesLoading,
       issueLabels,
       issueLabelsLoading,
+      branchPrefixLabels,
       projects,
       projectsLoading,
       cycles,

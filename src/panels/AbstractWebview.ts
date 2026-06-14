@@ -1,6 +1,8 @@
 import { IS_PRODUCTION } from "src/constants"
+import { Controller } from "src/controller"
 import { Props, Ipc, IpcResponse, GlobalListenerMessage } from "src/types/ActionMessage"
 import { makeid } from "src/utils/makeid"
+import { VscStateKeys } from "src/vscStates"
 import {
   Disposable,
   env,
@@ -267,6 +269,10 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
         case "setState": {
           const { key, value, timestamp } = msg
           await this._context.globalState.update(key, value)
+
+          if (key === VscStateKeys.branchesSettings) {
+            await Controller.gitProviderService?.refreshAuthContext()
+          }
 
           this.postListenerMessage("stateUpdate", { value, timestamp, key })
           return this.postMessage(msg.type, undefined, msg)

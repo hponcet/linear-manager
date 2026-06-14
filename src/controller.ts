@@ -2,6 +2,7 @@ import { ExtensionContext } from "vscode"
 
 import { CommandContext, setCommandContext } from "./commandsContext"
 import { GitClient } from "./git/GitClient"
+import { GitProviderService } from "./gitProviders/GitProviderService"
 import { getLinearClient } from "./linear/auth"
 import { LinearService } from "./linear/LinearService"
 import { Resources } from "./resources"
@@ -11,9 +12,13 @@ export class Controller {
   static resources: Resources
   static git = new GitClient(this.onGitStatusChange.bind(this))
   static linearService: LinearService
+  static gitProviderService: GitProviderService
 
   static async initialize(context: ExtensionContext) {
     await this.git.init()
+
+    this.gitProviderService = new GitProviderService(context, this.git)
+    await this.gitProviderService.initialize()
 
     this.resources = new Resources(context)
     this.linearService = new LinearService(getLinearClient)

@@ -3,6 +3,7 @@ import { AssigneePicker } from "src/webviews/components/Assignee/AssigneePicker"
 import { CheckoutButton } from "src/webviews/components/ConfigureBranchButton/CheckoutButton"
 import { ConfigureBranchButton } from "src/webviews/components/ConfigureBranchButton/ConfigureBranchButton"
 import { EstimatePicker } from "src/webviews/components/EstimatePicker/EstimatePicker"
+import { CogIcon } from "src/webviews/components/Icons/CogIcon"
 import { LinkIcon } from "src/webviews/components/Icons/LinkIcon"
 import { TrashIcon } from "src/webviews/components/Icons/TrashIcon"
 import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker"
@@ -11,6 +12,7 @@ import { OpenExternalIssue } from "src/webviews/components/OpenExternalIssue/Ope
 import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker"
 import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker"
 import { IssueProjectPicker } from "src/webviews/components/ProjectPicker/ProjectPicker"
+import { PullRequestButton } from "src/webviews/components/PullRequestButton/PullRequestButton"
 import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 import { useModalsContext } from "src/webviews/contexts/ModalsContext"
@@ -82,6 +84,11 @@ export function IssueHeader() {
           {!issue.trashed && (
             <>
               <CheckoutButton issue={issue} style={{ marginLeft: 6, padding: 0 }} inline="icon" />
+              <PullRequestButton
+                issue={issue}
+                style={{ marginLeft: 6, padding: 0 }}
+                inline="icon"
+              />
               <ConfigureBranchButton
                 issue={issue}
                 style={{ marginLeft: 6, padding: 0 }}
@@ -101,6 +108,11 @@ export function IssueHeader() {
                 label: "Copy issue link",
                 action: () => window.navigator.clipboard.writeText(issue.url),
                 icon: <LinkIcon size={14} />,
+              },
+              {
+                label: "Settings",
+                action: () => update.panelActions.openSettings(),
+                icon: <CogIcon size={14} />,
               },
               {
                 label: "Delete issue",

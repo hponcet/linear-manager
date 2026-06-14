@@ -1,5 +1,6 @@
 import { Issue } from "@linear/sdk"
 
+import { BitbucketAuthMethod, GitProviderId } from "./gitProviders/types"
 import { Ref } from "./types/GitAPI"
 
 export enum VscStateKeys {
@@ -28,4 +29,11 @@ export type SettingsVscState = {
   prefixByLabelList?: { label: IssueLabelSetting; prefix: string }[]
   uppercaseIssueIdentifier?: boolean
   stashBeforeCreate?: boolean
+  gitProvider?: GitProviderId
+  gitlabInstanceUrl?: string
+  bitbucketAuthMethod?: BitbucketAuthMethod
+  bitbucketAtlassianEmail?: string
+  bitbucketOAuthClientId?: string
 }
+
+export type { GitProviderId }

@@ -4,6 +4,7 @@ import { Controller } from "src/controller"
 import { logLinearApiCall } from "src/linear/LinearApiLogger"
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
 import { IssueWebview } from "src/panels/IssueWebview"
+import { SettingsWebview } from "src/panels/SettingsWebview"
 import { StartWorkWebview } from "src/panels/StartWorkWebview"
 import { IssueSyncPayload } from "src/types/IssueSync"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
@@ -70,6 +71,7 @@ export class MyIssuesView
 
   #issuesWebviews: Map<string, IssueWebview> = new Map()
   #startWorkWebviews: Map<string, StartWorkWebview> = new Map()
+  #settingsWebview: SettingsWebview | undefined
 
   #autoRefreshInterval: NodeJS.Timeout | null = null
   #windowFocused = true
@@ -144,6 +146,10 @@ export class MyIssuesView
       ),
       commands.registerCommand(Commands.refresh, () => this.fetchDatas()),
       commands.registerCommand(Commands.toggleViewMode, () => this.toggleViewMode()),
+      commands.registerCommand(Commands.openPullRequest, (issue: Issue) =>
+        this.openPullRequestForIssue(issue),
+      ),
+      commands.registerCommand(Commands.openSettings, (issue: Issue) => this.openSettings(issue)),
       dropProvider,
     ]
 
@@ -392,6 +398,30 @@ export class MyIssuesView
     await webview.open(issue, ViewColumn.Active)
   }
 
+  public async openSettings(issue: Issue, options?: { tab?: "git" | "workflow" }): Promise<void> {
+    if (!this.#settingsWebview) {
+      this.#settingsWebview = new SettingsWebview(this.#context, this.issuesActions)
+    }
+    await this.#settingsWebview.open(issue, ViewColumn.Active, options)
+  }
+
+  public async openPullRequestForIssue(issue: Issue) {
+    const issueState = this.issuesStore.get(issue.id)
+    if (!issueState?.branchInitialized || !issueState.branch?.name) {
+      window.showWarningMessage(`No branch configured for issue ${issue.identifier}.`)
+      return
+    }
+
+    await Controller.gitProviderService.openPullRequestForIssue(
+      {
+        identifier: issue.identifier,
+        title: issue.title,
+        url: issue.url,
+      },
+      issueState.branch.name,
+    )
+  }
+
   public async checkoutToIssueBranch(issueId: Issue["id"]) {
     await this.#notifyUncommittedChangesIfAny()
 
@@ -563,6 +593,20 @@ export class MyIssuesView
     checkoutToIssueBranch: this.checkoutToIssueBranch.bind(
       this,
     ) as typeof this.checkoutToIssueBranch,
+    openSettings: async (issueId: Issue["id"], options?: { tab?: "git" | "workflow" }) => {
+      if (!issueId) return
+
+      const issue = this.#myIssues.get(issueId)
+      if (issue) {
+        await this.openSettings(issue, options)
+      } else {
+        const issueWithKey = Controller.linearService.toTreeIssue(
+          await Controller.linearService.getIssue(issueId),
+        )
+        this.#myIssues.set(issueWithKey.id, issueWithKey)
+        await this.openSettings(issueWithKey, options)
+      }
+    },
   }
 
   // ============================================================
@@ -713,6 +757,8 @@ export class MyIssuesView
     this.#issuesWebviews.clear()
     this.#startWorkWebviews.forEach((webview) => webview.dispose())
     this.#startWorkWebviews.clear()
+    this.#settingsWebview?.dispose()
+    this.#settingsWebview = undefined
 
     this.#treeItems.clear()
     this.#myIssues.clear()

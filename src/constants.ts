@@ -7,6 +7,7 @@ export enum Views {
 export enum Webviews {
   issueWebview = "issue",
   startWorkWebview = "startWork",
+  settingsWebview = "settings",
 }
 
 export enum Commands {
@@ -20,4 +21,6 @@ export enum Commands {
   checkoutIssue = "linearManager.commands.checkoutIssue",
   refresh = "linearManager.commands.refresh",
   toggleViewMode = "linearManager.commands.toggleViewMode",
+  openPullRequest = "linearManager.commands.openPullRequest",
+  openSettings = "linearManager.commands.openSettings",
 }

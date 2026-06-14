@@ -4,6 +4,7 @@ export enum CommandContext {
   linearAccountConnected = "linearManager:isLinearAuthenticated",
   linearExtensionLoaded = "linearManager:isLinearExtensionLoaded",
   gitExtensionLoaded = "linearManager:isGitExtensionLoaded",
+  gitProviderAuthenticated = "linearManager:isGitProviderAuthenticated",
 }
 
 export function setCommandContext(key: CommandContext | string, value: any) {

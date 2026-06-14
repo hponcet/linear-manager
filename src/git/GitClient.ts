@@ -3,7 +3,7 @@ import { extensions, window, workspace } from "vscode"
 
 import { filterEvent, isDescendant, onceEvent, uniqBy } from "./utils"
 
-import { Branch, BranchQuery, GitAPI, GitExtension, Ref, Repository } from "../types/GitAPI"
+import { Branch, BranchQuery, GitAPI, GitExtension, Ref, Remote, Repository } from "../types/GitAPI"
 
 type BranchChangeOptions = {
   stashChanges?: boolean
@@ -85,6 +85,35 @@ export class GitClient {
       throw new Error("No repository available")
     }
     return this.#repository.state.HEAD || null
+  }
+
+  getOriginRemote(): Remote | null {
+    if (!this.#repository) {
+      return null
+    }
+
+    const remotes = this.#repository.state.remotes
+    const origin = remotes.find((remote) => remote.name === "origin")
+    return origin ?? remotes.find((remote) => remote.fetchUrl || remote.pushUrl) ?? null
+  }
+
+  getDefaultBranch(): string {
+    const preferred = ["main", "master"]
+
+    if (this.#branchesCache) {
+      for (const branchName of preferred) {
+        if (this.#branchesCache.has(branchName)) {
+          return branchName
+        }
+      }
+    }
+
+    const head = this.#repository?.state.HEAD?.name
+    if (head && !head.includes("HEAD")) {
+      return head
+    }
+
+    return "main"
   }
 
   async getBranches(query: BranchQuery): Promise<Ref[]> {

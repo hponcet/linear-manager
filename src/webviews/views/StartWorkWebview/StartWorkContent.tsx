@@ -6,7 +6,6 @@ import { useIssueBranches } from "src/webviews/hooks/useGitBranches"
 import { useSettings } from "src/webviews/hooks/useSettings"
 import { checkPossiblyExistingBranchName, getDefaultBranchName } from "src/webviews/utils/branches"
 
-import { BranchNamingSettings } from "./BranchNamingSettings"
 import { StartWorkBanner } from "./StartWorkBanner"
 import { StartWorkBranchCreation } from "./StartWorkBranchCreation"
 import { StartWorkHeader } from "./StartWorkHeader"
@@ -36,7 +35,6 @@ export function StartWorkContent(props: StartWorkContentProps) {
   const { hasUncommittedChanges } = useIssueBranches({ issueId: issue.id })
   const { branchesSettings, branchesSettingsAreLoading } = useSettings()
 
-  const [branchNamingSettingsOpen, setBranchNamingSettingsOpen] = useState(false)
   const [stashChanges, setStashChanges] = useState(!!branchesSettings.stashBeforeCreate)
 
   useEffect(() => {
@@ -74,7 +72,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
 
   return (
     <div>
-      <StartWorkHeader setBranchNamingSettingsOpen={setBranchNamingSettingsOpen} />
+      <StartWorkHeader />
       <h5>
         {fromCheckout ? "Create branch for issue" : "Start work on issue"} {issue.identifier}
       </h5>
@@ -102,11 +100,6 @@ export function StartWorkContent(props: StartWorkContentProps) {
           stashChanges={stashChanges}
         />
       </StartWorkBanner>
-      <BranchNamingSettings
-        issue={issue}
-        open={branchNamingSettingsOpen}
-        onClose={() => setBranchNamingSettingsOpen(false)}
-      />
     </div>
   )
 }

@@ -7,19 +7,14 @@ import { LabelsPicker } from "src/webviews/components/LabelsPicker/LabelsPicker"
 import { Menu } from "src/webviews/components/Menu/Menu"
 import { PriorityPicker } from "src/webviews/components/PriorityPicker/PriorityPicker"
 import { ProjectCyclePicker } from "src/webviews/components/ProjectCyclePicker/ProjectCyclePicker"
+import { PullRequestButton } from "src/webviews/components/PullRequestButton/PullRequestButton"
 import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker/WorkflowStatePicker"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 import { useIssueSettings } from "src/webviews/hooks/useIssueSettings"
 
 import "./StartWorkHeader.scss"
 
-export type StartWorkHeaderProps = {
-  setBranchNamingSettingsOpen: (open: boolean) => void
-}
-
-export function StartWorkHeader(props: StartWorkHeaderProps) {
-  const { setBranchNamingSettingsOpen } = props
-
+export function StartWorkHeader() {
   const { issue, update } = useIssueContext()
 
   const { updateIssueSettings } = useIssueSettings({ issueId: issue.id })
@@ -76,6 +71,7 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
             onChange={(assigneeId) => update.issue(issue.id, { assigneeId })}
             placement="bottomEnd"
           />
+          <PullRequestButton issue={issue} inline="icon" size={14} />
           <Menu
             items={[
               {
@@ -94,8 +90,8 @@ export function StartWorkHeader(props: StartWorkHeaderProps) {
                 icon: <ResetIcon size={14} />,
               },
               {
-                label: "Git Settings",
-                action: () => setBranchNamingSettingsOpen(true),
+                label: "Settings",
+                action: () => update.panelActions.openSettings(),
                 icon: <CogIcon size={14} />,
               },
             ]}

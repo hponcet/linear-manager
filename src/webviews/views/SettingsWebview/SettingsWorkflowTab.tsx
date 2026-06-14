@@ -1,28 +1,21 @@
-import { Modal } from "rsuite"
-import { SerializedIssue } from "src/types/SerializedLinear"
 import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField"
 import { InfoIcon } from "src/webviews/components/Icons/InfoIcon"
 import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker"
 import { Tooltip } from "src/webviews/components/Tooltip/Tooltip"
+import { useIssueContext } from "src/webviews/contexts/IssueContext"
 import { useSettings } from "src/webviews/hooks/useSettings"
+import { GitSettingsSection } from "src/webviews/views/StartWorkWebview/GitSettingsSection"
 
-type BranchNamingSettingsProps = {
-  issue: SerializedIssue
-  open: boolean
-  onClose?: () => void
-}
-
-export function BranchNamingSettings(props: BranchNamingSettingsProps) {
-  const { issue, open, onClose } = props
-
+export function SettingsWorkflowTab() {
+  const { issue } = useIssueContext()
   const { updateSettings, branchesSettings } = useSettings()
 
   return (
-    <Modal size="sm" backdrop="static" open={open} onClose={onClose}>
-      <Modal.Header>
-        <Modal.Title>Git Settings</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+    <GitSettingsSection
+      title="Branch & workflow"
+      description="Options applied when starting work on an issue."
+    >
+      <div className="git-settings-branch-fields">
         <FormQueueField
           key="prefix-by-label"
           indexKey="prefix-by-label"
@@ -86,7 +79,7 @@ export function BranchNamingSettings(props: BranchNamingSettingsProps) {
           disabled={!branchesSettings?.stashBeforeCreate}
           onToggleChange={(stashBeforeCreate) => updateSettings({ stashBeforeCreate })}
         />
-      </Modal.Body>
-    </Modal>
+      </div>
+    </GitSettingsSection>
   )
 }

@@ -137,6 +137,18 @@
         "enablement": "linearManager:isLinearAuthenticated"
       },
       {
+        "command": "linearManager.commands.openPullRequest",
+        "title": "Create pull request",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.openSettings",
+        "title": "Settings",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
         "command": "linearManager.commands.openCurrentBranchIssue",
         "title": "Open Issue for Current Branch",
         "category": "Linear manager",
@@ -163,6 +175,10 @@
         },
         {
           "command": "linearManager.commands.checkoutIssue",
+          "when": "false"
+        },
+        {
+          "command": "linearManager.commands.openPullRequest",
           "when": "false"
         }
       ],
@@ -202,6 +218,11 @@
         {
           "command": "linearManager.commands.checkoutIssue",
           "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "group": "2issueActions"
+        },
+        {
+          "command": "linearManager.commands.openPullRequest",
+          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded && linearManager:isGitProviderAuthenticated",
           "group": "2issueActions"
         },
         {
@@ -347,6 +368,7 @@
     "react-player": "^3.4.0",
     "rsuite": "^6.1.1",
     "serve": "^14.2.5",
-    "simple-git": "^3.30.0"
+    "simple-git": "^3.30.0",
+    "uuid": "^13.0.2"
   }
 }

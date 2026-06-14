@@ -5,6 +5,7 @@ import { CustomProvider } from "rsuite"
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
 import { LinearApiErrorToasts } from "./components/LinearApiErrorToasts/LinearApiErrorToasts"
 import IssueWebview from "./views/IssueWebview/IssueWebview"
+import { SettingsWebview } from "./views/SettingsWebview/SettingsWebview"
 import { StartWorkWebview } from "./views/StartWorkWebview/StartWorkWebview"
 
 import { Webviews } from "../constants"
@@ -39,6 +40,8 @@ function getViewContent() {
       return <IssueWebview />
     case Webviews.startWorkWebview:
       return <StartWorkWebview />
+    case Webviews.settingsWebview:
+      return <SettingsWebview />
     default:
       throw new Error("Unknown webview content")
   }

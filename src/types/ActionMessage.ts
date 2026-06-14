@@ -19,6 +19,15 @@ import { VscStateKeys } from "src/vscStates"
 import { Branch, Ref } from "./GitAPI"
 import { IssueSyncPayload } from "./IssueSync"
 
+import {
+  BitbucketAuthMethod,
+  GitProviderId,
+  GitProviderOAuthSetup,
+  GitProviderStatus,
+  OpenPullRequestResult,
+  PullRequestStatus,
+} from "../gitProviders/types"
+
 export type Props = {
   issue: {
     issueId: SerializedIssue["id"] | null
@@ -30,6 +39,11 @@ export type Props = {
     fromCheckout: boolean
     repoInitialized: boolean
     gitInitialized: boolean
+  }
+  settings: {
+    issueId: SerializedIssue["id"] | null
+    linearAccessToken: string | undefined
+    initialTab?: "git" | "workflow"
   }
 }
 
@@ -114,15 +128,42 @@ export type Message<K extends keyof Props = any> =
   | Action<"getCurrentBranch", void, Ref | null>
   | Action<"createBranch", { branchName: string; from: Ref; stashChanges?: boolean }, Ref>
   | Action<"startWork", { issueId: SerializedIssue["id"] }>
+  | Action<"openSettings", { tab?: "git" | "workflow" }>
   | Action<"hasUncommittedChanges", void, boolean>
   | Action<"checkout", { branch: Ref; stashChanges?: boolean }>
   | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>
   | Action<"setState", { key: VscStateKeys; value: any; timestamp: number }>
+  | Action<"getGitProviderStatus", void, GitProviderStatus>
+  | Action<
+      "getGitProviderOAuthSetup",
+      { provider: GitProviderId; bitbucketAuthMethod?: BitbucketAuthMethod },
+      GitProviderOAuthSetup
+    >
+  | Action<
+      "connectGitProvider",
+      { bitbucketApiToken?: string; bitbucketOAuthClientSecret?: string },
+      GitProviderStatus
+    >
+  | Action<"disconnectGitProvider", void, GitProviderStatus>
+  | Action<"getPullRequestStatus", { sourceBranch: string }, PullRequestStatus>
+  | Action<
+      "openPullRequest",
+      { issueId: SerializedIssue["id"]; sourceBranch: string },
+      OpenPullRequestResult
+    >
 
 export type GlobalListenerMessage =
   | Listener<"updateIssue", number | undefined>
   | Listener<"stateUpdate", { value: any; timestamp: number; key: string }>
   | Listener<"gitActive", { repoActive: boolean; apiActive: boolean }>
+  | Listener<
+      "settingsPropsUpdate",
+      {
+        issueId: SerializedIssue["id"] | null
+        linearAccessToken: string | undefined
+        initialTab?: "git" | "workflow"
+      }
+    >
 
 export type Ipc<
   K extends "req" | "res" | "err",

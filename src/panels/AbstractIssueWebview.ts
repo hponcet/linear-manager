@@ -1,6 +1,7 @@
 import { Issue } from "@linear/sdk"
 import { Controller } from "src/controller"
 import { formatLinearError } from "src/linear/formatLinearError"
+import { handleGitProviderIpcMessage } from "src/panels/gitProviderIpcHandlers"
 import { handleLinearIpcMessage } from "src/panels/linearIpcHandlers"
 import { Ipc, Props } from "src/types/ActionMessage"
 import { Stores } from "src/utils/Stores"
@@ -52,6 +53,11 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
         return this.postMessage(msg.type, linearResult.payload, msg)
       }
 
+      const gitProviderResult = await handleGitProviderIpcMessage(msg)
+      if (gitProviderResult.handled) {
+        return this.postMessage(msg.type, gitProviderResult.payload, msg)
+      }
+
       switch (msg.type) {
         case "updateIssue": {
           await this.issueActions.updateIssue(msg.issueId)
@@ -74,6 +80,13 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
         }
         case "startWork": {
           await this.issueActions.startWork(msg.issueId)
+          return this.postMessage(msg.type, void 0, msg)
+        }
+        case "openSettings": {
+          if (!this.issue?.id) {
+            throw new Error("Issue is not available")
+          }
+          await this.issueActions.openSettings(this.issue.id, { tab: msg.tab })
           return this.postMessage(msg.type, void 0, msg)
         }
         case "getGitStatus": {

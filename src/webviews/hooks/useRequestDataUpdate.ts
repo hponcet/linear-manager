@@ -210,6 +210,8 @@ export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) 
         vscApi.postMessage({ type: "openIssue", issueId }),
       startWork: (issueId: SerializedIssue["id"]) =>
         vscApi.postMessage({ type: "startWork", issueId }),
+      openSettings: (options?: { tab?: "git" | "workflow" }) =>
+        vscApi.postMessage({ type: "openSettings", ...options }),
       getGitStatus: () => vscApi.postMessage({ type: "getGitStatus", key: "gitStatus" }),
       getAllBranches: () => vscApi.postMessage({ type: "getAllBranches" }),
       getCurrentBranch: () => vscApi.postMessage({ type: "getCurrentBranch" }),

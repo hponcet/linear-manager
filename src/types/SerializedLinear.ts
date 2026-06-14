@@ -12,6 +12,8 @@ export type SerializedUser = {
   initials?: string
   active: boolean
   isMe?: boolean
+  isMentionable?: boolean
+  profileUrl?: string
 }
 
 export type SerializedTeam = {

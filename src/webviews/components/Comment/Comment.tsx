@@ -137,6 +137,7 @@ export function Comment(props: CommentProps) {
             key={typeof updateValue === "string" ? "editing" : comment.body}
             value={updateValue || comment.body}
             editable={typeof updateValue === "string"}
+            mentionable
             onChange={setUpdateValue}
             getEditor={(editor) => (commentEditorRef.current = editor)}
           />

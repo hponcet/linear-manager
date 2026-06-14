@@ -59,6 +59,7 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
         />
         <Editor
           editable
+          mentionable
           className="createSubIssueEditor"
           value={issue.description || ""}
           placeholder="Add a description..."

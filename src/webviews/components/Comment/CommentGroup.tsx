@@ -121,6 +121,7 @@ export function CommentGroup(props: CommentGroupProps) {
               key={resetEditor}
               placeholder={`Leave a reply...`}
               editable
+              mentionable
               value={replyValue || ""}
               onChange={setReplyValue}
               getEditor={(editor) => {

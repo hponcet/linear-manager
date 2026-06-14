@@ -1,0 +1,48 @@
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+
+.mentionList {
+  min-width: 220px;
+  max-width: 320px;
+  padding: 4px;
+  border: 1px solid var(--vscode-widget-border, rgb(255 255 255 / 12%));
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #252526);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 24%);
+}
+
+.mentionListEmpty {
+  padding: 8px 10px;
+  color: var(--vscode-descriptionForeground, #9d9d9d);
+  font-size: 12px;
+}
+
+.mentionListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-foreground, #cccccc);
+  cursor: pointer;
+  text-align: left;
+}
+
+.mentionListItem.is-selected,
+.mentionListItem:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+}
+
+.mentionListItemLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mentionListItemMeta {
+  margin-left: auto;
+  color: var(--vscode-descriptionForeground, #9d9d9d);
+  font-size: 12px;
+}

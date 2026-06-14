@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- `@` user mentions with autocomplete in issue comments, replies, and sub-issue descriptions
 - Pull requests sidebar view listing open PRs for the current repository via the connected git provider
 - Git provider configuration (GitHub, GitLab, Bitbucket Cloud) in Git Settings with OAuth
 - Create/View pull request actions when an issue branch is configured, with VS Code Quick Pick to choose the target branch before opening the compare page

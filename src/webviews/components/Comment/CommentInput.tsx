@@ -30,6 +30,7 @@ export function CommentInput() {
         placeholder="Leave a comment..."
         value={value}
         editable
+        mentionable
         onChange={setValue}
       />
       <div className="commentActions">

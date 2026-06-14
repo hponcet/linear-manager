@@ -53,6 +53,8 @@ export function serializeUser(user: User): SerializedUser {
     initials: user.initials,
     active: user.active,
     isMe: user.isMe,
+    isMentionable: user.isMentionable,
+    profileUrl: user.url,
   }
 }
 

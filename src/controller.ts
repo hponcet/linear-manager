@@ -7,6 +7,7 @@ import { getLinearClient } from "./linear/auth"
 import { LinearService } from "./linear/LinearService"
 import { Resources } from "./resources"
 import { MyIssuesView } from "./views/myIssues"
+import { PullRequestsView } from "./views/pullRequests"
 
 export class Controller {
   static resources: Resources
@@ -24,20 +25,27 @@ export class Controller {
     this.linearService = new LinearService(getLinearClient)
     this._issueViewer = new MyIssuesView(context)
     await this._issueViewer.initialize(context)
+
+    this._pullRequestsView = new PullRequestsView()
+    await this._pullRequestsView.initialize(context)
   }
 
   static onGitStatusChange(gitStatus: { repoActive: boolean; apiActive: boolean }) {
     setCommandContext(CommandContext.gitExtensionLoaded, gitStatus.repoActive)
     this._issueViewer?.changeGitStatus(gitStatus)
+    this._pullRequestsView?.changeGitStatus()
   }
 
   private static _issueViewer: MyIssuesView
+  private static _pullRequestsView: PullRequestsView
+
   public static get issueViewer() {
     return this._issueViewer
   }
 
   public static dispose() {
     this._issueViewer?.dispose()
+    this._pullRequestsView?.dispose()
     this.linearService?.invalidateAll()
     this.git.dispose()
   }

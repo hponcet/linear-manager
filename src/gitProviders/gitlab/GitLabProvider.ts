@@ -116,6 +116,46 @@ export class GitLabProvider extends GitProvider {
     }
   }
 
+  async listOpenPullRequests(remote: ParsedRemote): Promise<PullRequestInfo[]> {
+    const instanceUrl = remote.host ?? DEFAULT_GITLAB_INSTANCE
+    const accessToken = await this.getValidAccessToken(instanceUrl)
+    if (!accessToken) {
+      throw new Error("GitLab access token is not available.")
+    }
+
+    const projectPath = encodeURIComponent(`${remote.owner}/${remote.repo}`)
+    const url = `${instanceUrl}/api/v4/projects/${projectPath}/merge_requests?state=opened&per_page=50`
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(30000),
+    })
+
+    if (!response.ok) {
+      throw new Error(`GitLab API error: HTTP ${response.status}`)
+    }
+
+    const mergeRequests = (await response.json()) as Array<{
+      iid: number
+      web_url: string
+      title: string
+      source_branch?: string
+      target_branch?: string
+      author?: { username?: string; name?: string }
+      draft?: boolean
+    }>
+
+    return mergeRequests.map((mr) => ({
+      id: mr.iid,
+      url: mr.web_url,
+      title: mr.title,
+      sourceBranch: mr.source_branch,
+      targetBranch: mr.target_branch,
+      authorLabel: mr.author?.username || mr.author?.name,
+      draft: mr.draft,
+    }))
+  }
+
   buildCreatePullRequestUrl(input: CreatePullRequestUrlInput): string {
     const host = (input.remote.host ?? DEFAULT_GITLAB_INSTANCE).replace(/\/$/, "")
     const projectPath = `${input.remote.owner}/${input.remote.repo}`

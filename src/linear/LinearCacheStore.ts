@@ -9,6 +9,7 @@ export const SHORT_CACHE_TTL_MS = 60 * 1000
 
 export const CACHE_TTL_BY_PREFIX: Record<string, number> = {
   "issue:": SHORT_CACHE_TTL_MS,
+  "issueIdentifier:": SHORT_CACHE_TTL_MS,
   assignedIssues: SHORT_CACHE_TTL_MS,
   "cycleIssues:": SHORT_CACHE_TTL_MS,
   "teamMetadata:": DEFAULT_CACHE_TTL_MS,

@@ -1,6 +1,7 @@
 import { simpleGit } from "simple-git"
 import { extensions, window, workspace } from "vscode"
 
+import { openPullRequestMultiDiff } from "./openPullRequestMultiDiff"
 import { filterEvent, isDescendant, onceEvent, uniqBy } from "./utils"
 
 import { Branch, BranchQuery, GitAPI, GitExtension, Ref, Remote, Repository } from "../types/GitAPI"
@@ -264,6 +265,22 @@ export class GitClient {
 
   private async dropStash(stashRef: string): Promise<void> {
     await this.getSimpleGit().stash(["drop", stashRef])
+  }
+
+  async openPullRequestMultiDiff(options: {
+    sourceBranch: string
+    targetBranch: string
+    title?: string
+  }): Promise<void> {
+    if (!this.#repository || !this.#api) {
+      throw new Error("No git repository available")
+    }
+
+    await openPullRequestMultiDiff({
+      repository: this.#repository,
+      api: this.#api,
+      ...options,
+    })
   }
 
   async branchExists(branchName: string): Promise<Ref | null> {

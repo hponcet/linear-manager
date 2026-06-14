@@ -1,5 +1,7 @@
 import { authentication, ExtensionContext, window } from "vscode"
 
+import { mapGitHubPullRequests } from "./mapGitHubPullRequests"
+
 import { GitProvider } from "../GitProvider"
 import { GitProviderSecretKeys } from "../secrets"
 import {
@@ -99,6 +101,32 @@ export class GitHubProvider extends GitProvider {
       url: pull.html_url,
       title: pull.title,
     }
+  }
+
+  async listOpenPullRequests(remote: ParsedRemote): Promise<PullRequestInfo[]> {
+    const session = await authentication.getSession("github", GITHUB_SCOPES, {
+      createIfNone: false,
+    })
+    if (!session) {
+      throw new Error("GitHub session is not available.")
+    }
+
+    const url = `https://api.github.com/repos/${remote.owner}/${remote.repo}/pulls?state=open&per_page=100`
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      signal: AbortSignal.timeout(30000),
+    })
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: HTTP ${response.status}`)
+    }
+
+    const pulls = (await response.json()) as Parameters<typeof mapGitHubPullRequests>[0]
+
+    return mapGitHubPullRequests(pulls)
   }
 
   buildCreatePullRequestUrl(input: CreatePullRequestUrlInput): string {

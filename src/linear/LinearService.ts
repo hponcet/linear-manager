@@ -146,6 +146,30 @@ export class LinearService {
     })
   }
 
+  async getIssueByIdentifier(identifier: string): Promise<Issue | null> {
+    const normalized = identifier.trim().toUpperCase()
+    if (!normalized.includes("-")) {
+      return null
+    }
+
+    const issueId = await this.#cache.getOrFetch<string | null>(
+      `issueIdentifier:${normalized}`,
+      async () => {
+        logLinearApiCall(`searchIssues:${normalized}`)
+        const client = this.#requireClient()
+        const result = await client.searchIssues(normalized)
+        const match = result.nodes.find((node) => node.identifier?.toUpperCase() === normalized)
+        return match?.id ?? null
+      },
+    )
+
+    if (!issueId) {
+      return null
+    }
+
+    return this.getIssue(issueId)
+  }
+
   async getAssignedIssues(): Promise<TreeIssue[]> {
     return this.#cache.getOrFetch("assignedIssues", async () => {
       const me = await this.getViewer()

@@ -1,4 +1,4 @@
-import { env, ExtensionContext, Uri, window } from "vscode"
+import { env, EventEmitter, ExtensionContext, Uri, window } from "vscode"
 
 import { GitProviderRegistry } from "./GitProviderRegistry"
 import { getOAuthSetupInfo, GitProviderOAuthSetup } from "./oauthSetupInfo"
@@ -6,6 +6,7 @@ import { parseRemoteUrl } from "./parseRemoteUrl"
 import {
   GitProviderId,
   GitProviderStatus,
+  ListPullRequestsResult,
   OpenPullRequestResult,
   ParsedRemote,
   PullRequestStatus,
@@ -25,6 +26,9 @@ type IssuePullRequestContext = {
 
 export class GitProviderService {
   readonly registry: GitProviderRegistry
+
+  #onAuthContextChanged = new EventEmitter<void>()
+  readonly onAuthContextChanged = this.#onAuthContextChanged.event
 
   constructor(
     private readonly context: ExtensionContext,
@@ -152,6 +156,47 @@ export class GitProviderService {
     }
   }
 
+  async listOpenPullRequests(): Promise<ListPullRequestsResult> {
+    const provider = this.getActiveProvider()
+    const remote = this.getParsedOriginRemote()
+
+    if (!provider) {
+      return { pullRequests: [], error: "Select a git provider in Settings." }
+    }
+
+    if (!remote) {
+      return { pullRequests: [], error: "No git remote found for this repository." }
+    }
+
+    if (!provider.matchesRemote(remote)) {
+      return {
+        pullRequests: [],
+        error: `The configured provider (${provider.displayName}) does not match the repository remote.`,
+      }
+    }
+
+    const auth = await provider.getAuthState()
+    if (!auth.connected) {
+      return {
+        pullRequests: [],
+        error: `Connect to ${provider.displayName} in Settings first.`,
+      }
+    }
+
+    try {
+      const pullRequests = await provider.listOpenPullRequests(remote)
+      pullRequests.sort((a, b) =>
+        (a.title ?? String(a.id)).localeCompare(b.title ?? String(b.id), undefined, {
+          sensitivity: "base",
+        }),
+      )
+      return { pullRequests }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      return { pullRequests: [], error: message }
+    }
+  }
+
   async openPullRequestForIssue(
     issue: IssuePullRequestContext,
     sourceBranch: string,
@@ -215,5 +260,6 @@ export class GitProviderService {
     const status = await this.getStatus()
     const isAuthenticated = Boolean(status.provider && status.connected)
     await setCommandContext(CommandContext.gitProviderAuthenticated, isAuthenticated)
+    this.#onAuthContextChanged.fire()
   }
 }

@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- Pull requests sidebar view listing open PRs for the current repository via the connected git provider
 - Git provider configuration (GitHub, GitLab, Bitbucket Cloud) in Git Settings with OAuth
 - Create/View pull request actions when an issue branch is configured, with VS Code Quick Pick to choose the target branch before opening the compare page
 - Cursor agent rules for communication, feature testing, and changelog maintenance
@@ -15,7 +16,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
-- Settings open in a dedicated editor tab with Git / Workflow vertical tabs instead of an in-panel modal
+- Pull requests sidebar items open the linked Linear issue on click (or the PR on the web when no ticket is found), show the linked assignee icon from My Issues when a ticket is found, and expose diff / checkout / web PR actions in the context menu with inline diff and web buttons on hover
 - Bitbucket Git Settings now default to HTTP access tokens (Atlassian account) with step-by-step setup; OAuth consumer flow documents the correct workspace settings path instead of personal settings
 - Provider connection panel collapses when signed in, showing only status and Sign out until expanded
 - Reworked Git Settings layout with a dedicated provider connection panel, collapsible setup instructions, and a separate branch & workflow section

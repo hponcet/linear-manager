@@ -2,6 +2,7 @@ export const IS_PRODUCTION = process.env.NODE_ENV !== "development"
 
 export enum Views {
   myIssues = "linearManager.views.myIssues",
+  pullRequests = "linearManager.views.pullRequests",
 }
 
 export enum Webviews {
@@ -23,4 +24,9 @@ export enum Commands {
   toggleViewMode = "linearManager.commands.toggleViewMode",
   openPullRequest = "linearManager.commands.openPullRequest",
   openSettings = "linearManager.commands.openSettings",
+  refreshPullRequests = "linearManager.commands.refreshPullRequests",
+  openPullRequestDiff = "linearManager.commands.openPullRequestDiff",
+  openPullRequestLinkedIssue = "linearManager.commands.openPullRequestLinkedIssue",
+  openPullRequestUrl = "linearManager.commands.openPullRequestUrl",
+  checkoutPullRequestBranch = "linearManager.commands.checkoutPullRequestBranch",
 }

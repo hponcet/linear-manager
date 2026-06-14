@@ -100,6 +100,44 @@ export class BitbucketProvider extends GitProvider {
     }
   }
 
+  async listOpenPullRequests(remote: ParsedRemote): Promise<PullRequestInfo[]> {
+    const accessToken = await this.getValidAccessToken()
+    if (!accessToken) {
+      throw new Error("Bitbucket access token is not available.")
+    }
+
+    const url = `https://api.bitbucket.org/2.0/repositories/${remote.owner}/${remote.repo}/pullrequests?q=${encodeURIComponent('state="OPEN"')}&pagelen=50`
+    const response = await this.authenticatedFetch(url, accessToken)
+    if (!response) {
+      throw new Error("Bitbucket credentials are not configured.")
+    }
+
+    if (!response.ok) {
+      const detail = await this.readBitbucketError(response)
+      throw new Error(`Bitbucket API error: ${detail}`)
+    }
+
+    const data = (await response.json()) as {
+      values?: Array<{
+        id: number
+        title: string
+        links: { html: { href: string } }
+        source?: { branch?: { name?: string } }
+        destination?: { branch?: { name?: string } }
+        author?: { display_name?: string; nickname?: string }
+      }>
+    }
+
+    return (data.values ?? []).map((pr) => ({
+      id: pr.id,
+      url: pr.links.html.href,
+      title: pr.title,
+      sourceBranch: pr.source?.branch?.name,
+      targetBranch: pr.destination?.branch?.name,
+      authorLabel: pr.author?.display_name || pr.author?.nickname,
+    }))
+  }
+
   buildCreatePullRequestUrl(input: CreatePullRequestUrlInput): string {
     const url = new URL(
       `https://bitbucket.org/${input.remote.owner}/${input.remote.repo}/pull-requests/new`,

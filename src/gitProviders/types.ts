@@ -43,6 +43,15 @@ export type PullRequestInfo = {
   id: string | number
   url: string
   title?: string
+  sourceBranch?: string
+  targetBranch?: string
+  authorLabel?: string
+  draft?: boolean
+}
+
+export type ListPullRequestsResult = {
+  pullRequests: PullRequestInfo[]
+  error?: string
 }
 
 export type GitProviderStatus = {

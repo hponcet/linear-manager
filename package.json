@@ -74,6 +74,12 @@
           "name": "My issues",
           "icon": "resources/images/linear_dark.png",
           "when": "linearManager:isLinearAuthenticated"
+        },
+        {
+          "id": "linearManager.views.pullRequests",
+          "name": "Pull requests",
+          "icon": "resources/images/linear_dark.png",
+          "when": "linearManager:isLinearAuthenticated"
         }
       ]
     },
@@ -153,6 +159,39 @@
         "title": "Open Issue for Current Branch",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
+      },
+      {
+        "command": "linearManager.commands.refreshPullRequests",
+        "title": "Refresh pull requests",
+        "icon": "$(refresh)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.openPullRequestDiff",
+        "title": "Open pull request diff",
+        "icon": "$(git-compare)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
+      },
+      {
+        "command": "linearManager.commands.openPullRequestLinkedIssue",
+        "title": "Open linked Linear issue",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.openPullRequestUrl",
+        "title": "Open pull request on web",
+        "icon": "$(link-external)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.checkoutPullRequestBranch",
+        "title": "Checkout source branch",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
       }
     ],
     "menus": {
@@ -180,6 +219,22 @@
         {
           "command": "linearManager.commands.openPullRequest",
           "when": "false"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestDiff",
+          "when": "false"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestLinkedIssue",
+          "when": "false"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestUrl",
+          "when": "false"
+        },
+        {
+          "command": "linearManager.commands.checkoutPullRequestBranch",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -191,6 +246,11 @@
         {
           "command": "linearManager.commands.toggleViewMode",
           "when": "view == linearManager.views.myIssues",
+          "group": "navigation"
+        },
+        {
+          "command": "linearManager.commands.refreshPullRequests",
+          "when": "view == linearManager.views.pullRequests",
           "group": "navigation"
         }
       ],
@@ -234,6 +294,31 @@
           "command": "linearManager.commands.checkoutIssue",
           "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
           "group": "inline"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestDiff",
+          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "group": "inline@1"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestUrl",
+          "when": "viewItem =~ /^pullRequestItem/",
+          "group": "inline@2"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestDiff",
+          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "group": "1open"
+        },
+        {
+          "command": "linearManager.commands.checkoutPullRequestBranch",
+          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "group": "1open"
+        },
+        {
+          "command": "linearManager.commands.openPullRequestUrl",
+          "when": "viewItem =~ /^pullRequestItem/",
+          "group": "1open"
         }
       ]
     },

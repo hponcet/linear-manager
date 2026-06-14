@@ -15,6 +15,7 @@ export abstract class GitProvider {
   abstract disconnect(): Promise<void>
   abstract getAuthState(): Promise<GitProviderAuthState>
   abstract findPullRequest(input: FindPullRequestInput): Promise<PullRequestInfo | null>
+  abstract listOpenPullRequests(remote: ParsedRemote): Promise<PullRequestInfo[]>
   abstract buildCreatePullRequestUrl(input: CreatePullRequestUrlInput): string
   abstract matchesRemote(remote: ParsedRemote): boolean
 }

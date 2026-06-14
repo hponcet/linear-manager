@@ -17,7 +17,7 @@ export function addKeyOnItem<I extends object, K extends "issue" | "team" | "wor
   item: I,
   key: K,
 ): I & { __key: K } {
-  return { ...item, __key: key }
+  return Object.assign(item, { __key: key })
 }
 
 export type Team = ReturnType<typeof addKeyOnItem<LTeam, "team">>

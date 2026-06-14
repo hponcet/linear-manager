@@ -153,6 +153,25 @@ suite("LinearService integration", () => {
     assert.strictEqual(assignedFetchCount, 2)
   })
 
+  test("updateIssue with assigneeId invalidates assigned issue lists", async () => {
+    let assignedFetchCount = 0
+    const service = new LinearService(
+      () =>
+        createMockClient({
+          onAssignedIssuesFetch: () => {
+            assignedFetchCount += 1
+          },
+        }),
+      new LinearCacheStore(),
+    )
+
+    await service.getAssignedIssues()
+    await service.updateIssue("issue-1", { assigneeId: "user-2" })
+    await service.getAssignedIssues()
+
+    assert.strictEqual(assignedFetchCount, 2)
+  })
+
   test("invalidateAll clears cached data", async () => {
     let issueFetchCount = 0
     const service = new LinearService(

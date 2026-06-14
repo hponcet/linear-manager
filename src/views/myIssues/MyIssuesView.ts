@@ -8,6 +8,10 @@ import { StartWorkWebview } from "src/panels/StartWorkWebview"
 import { IssueSyncPayload } from "src/types/IssueSync"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
 import { Stores } from "src/utils/Stores"
+import {
+  buildUserAvatarIconCacheForContext,
+  UNASSIGNED_ASSIGNEE_ID,
+} from "src/utils/userAvatarIcon"
 import { SettingsVscState, VscStateKeys } from "src/vscStates"
 import {
   ProviderResult,
@@ -60,6 +64,8 @@ export class MyIssuesView
   #teams: Record<string, Team> = {}
   #workflowStatesByTeam: Record<string, Record<string, WorkflowState>> = {}
   #myIssues: Map<string, Issue> = new Map()
+  #assigneeIconByUserId: Map<string, Uri> = new Map()
+  #assigneeByUserId: Map<string, User> = new Map()
   #viewMode: ViewMode = "myIssues"
 
   #issuesWebviews: Map<string, IssueWebview> = new Map()
@@ -157,6 +163,56 @@ export class MyIssuesView
     await this._refreshIssues()
   }
 
+  private async _resolveAssigneeUsers(issues: Issue[]): Promise<User[]> {
+    const workspaceUsers = await Controller.linearService.getWorkspaceUsers()
+    const usersById = new Map(workspaceUsers.map((user) => [user.id, user]))
+
+    if (this.#me?.id) {
+      usersById.set(this.#me.id, this.#me)
+    }
+
+    const missingAssigneeIds = [
+      ...new Set(
+        issues
+          .map((issue) => issue.assigneeId)
+          .filter((assigneeId): assigneeId is string => !!assigneeId && !usersById.has(assigneeId)),
+      ),
+    ]
+
+    const issueByAssigneeId = new Map<string, Issue>()
+    for (const issue of issues) {
+      if (issue.assigneeId && !issueByAssigneeId.has(issue.assigneeId)) {
+        issueByAssigneeId.set(issue.assigneeId, issue)
+      }
+    }
+
+    await Promise.all(
+      missingAssigneeIds.map(async (assigneeId) => {
+        const issue = issueByAssigneeId.get(assigneeId)
+        if (!issue) {
+          return
+        }
+
+        try {
+          const assignee = await issue.assignee
+          if (assignee) {
+            usersById.set(assigneeId, assignee)
+          }
+        } catch {
+          // Fall back to the unassigned icon when assignee details cannot be loaded.
+        }
+      }),
+    )
+
+    return [...usersById.values()]
+  }
+
+  private async _refreshAssigneeIcons(issues: Issue[]) {
+    const users = await this._resolveAssigneeUsers(issues)
+    this.#assigneeByUserId = new Map(users.map((user) => [user.id, user]))
+    this.#assigneeIconByUserId = await buildUserAvatarIconCacheForContext(this.#context, users)
+  }
+
   private async _refetchIssue(issueId: Issue["id"]): Promise<Issue | null> {
     try {
       const issue = Controller.linearService.toTreeIssue(
@@ -164,6 +220,7 @@ export class MyIssuesView
       )
       this.#myIssues.set(issue.id, issue)
       this._updateWebviewsIfNeeded(issue)
+      await this._refreshAssigneeIcons(Array.from(this.#myIssues.values()))
       this.#onDidChangeTreeData.fire()
       return issue
     } catch (error) {
@@ -191,6 +248,7 @@ export class MyIssuesView
       this.#myIssues.set(issue.id, issue)
     })
 
+    await this._refreshAssigneeIcons(issues)
     this.#onDidChangeTreeData.fire()
   }
 
@@ -447,6 +505,7 @@ export class MyIssuesView
           await Controller.linearService.getIssue(issueId, { bypassCache: true }),
         )
         this.#myIssues.set(issue.id, issue)
+        await this._refreshAssigneeIcons(Array.from(this.#myIssues.values()))
         this.#onDidChangeTreeData.fire()
       }
     },
@@ -458,6 +517,14 @@ export class MyIssuesView
 
       if (payload.stateId && payload.stateId !== cached.stateId) {
         await this._refetchIssue(payload.issueId)
+        return
+      }
+
+      if (
+        payload.assigneeId !== undefined &&
+        (payload.assigneeId ?? null) !== (cached.assigneeId ?? null)
+      ) {
+        await this._refreshIssues()
         return
       }
 
@@ -534,7 +601,14 @@ export class MyIssuesView
     } else {
       const issueState = this.issuesStore.get(element.id)
       const branchName = issueState?.branchInitialized ? issueState.branch?.name : undefined
-      item = createIssueTreeItem(element, branchName)
+      const assigneeUserId = element.assigneeId ?? UNASSIGNED_ASSIGNEE_ID
+      const assigneeIconUri =
+        this.#assigneeIconByUserId.get(assigneeUserId) ??
+        this.#assigneeIconByUserId.get(UNASSIGNED_ASSIGNEE_ID)
+      const assigneeEmail = element.assigneeId
+        ? this.#assigneeByUserId.get(element.assigneeId)?.email
+        : undefined
+      item = createIssueTreeItem(element, branchName, assigneeIconUri, assigneeEmail)
     }
 
     this.#treeItems.set(item.id!, item)

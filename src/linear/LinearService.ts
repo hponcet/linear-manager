@@ -230,7 +230,7 @@ export class LinearService {
     }
 
     this.invalidateIssue(issueId)
-    if (fields.stateId) {
+    if (fields.stateId || fields.assigneeId !== undefined) {
       this.invalidateIssueLists()
     }
 

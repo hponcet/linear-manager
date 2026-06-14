@@ -53,7 +53,10 @@ function createMockSdkIssue(overrides: Record<string, unknown> = {}): Issue {
     teamId: { get: () => "team-1", enumerable: false },
     cycleId: { get: () => undefined, enumerable: false },
     projectId: { get: () => undefined, enumerable: false },
-    assigneeId: { get: () => undefined, enumerable: false },
+    assigneeId: {
+      get: () => (data as { _assignee?: { id?: string } })._assignee?.id,
+      enumerable: false,
+    },
     parentId: { get: () => undefined, enumerable: false },
     creatorId: { get: () => undefined, enumerable: false },
   }) as unknown as Issue
@@ -82,13 +85,17 @@ suite("linearIpcHandlers integration", () => {
         },
       ],
       getComments: async () => [],
-      updateIssue: async (issueId: string, fields: { title?: string; stateId?: string }) => {
+      updateIssue: async (
+        issueId: string,
+        fields: { title?: string; stateId?: string; assigneeId?: string | null },
+      ) => {
         const stateId = fields.stateId ?? "state-1"
         return createMockSdkIssue({
           id: issueId,
           title: fields.title ?? "Test issue",
           updatedAt: new Date("2024-06-02T12:00:00.000Z"),
           _state: { id: stateId },
+          _assignee: fields.assigneeId ? { id: fields.assigneeId } : undefined,
         })
       },
       createComment: async () => undefined,
@@ -137,6 +144,25 @@ suite("linearIpcHandlers integration", () => {
     assert.strictEqual(syncCalls[0]?.issueId, "issue-1")
     assert.strictEqual(syncCalls[0]?.title, "Updated title")
     assert.strictEqual(syncCalls[0]?.stateId, "state-2")
+  })
+
+  test("linearUpdateIssue sync payload includes assigneeId", async () => {
+    const { issueActions, syncCalls } = createIssueActions()
+    const service = createMockService()
+
+    const result = await handleLinearIpcMessage(
+      {
+        type: "linearUpdateIssue",
+        issueId: "issue-1",
+        fields: { assigneeId: "user-2" },
+      },
+      issueActions,
+      service,
+    )
+
+    assert.strictEqual(result.handled, true)
+    assert.strictEqual(syncCalls.length, 1)
+    assert.strictEqual(syncCalls[0]?.assigneeId, "user-2")
   })
 
   test("getTeamMetadata delegates to LinearService", async () => {

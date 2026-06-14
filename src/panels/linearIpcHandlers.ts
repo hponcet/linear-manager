@@ -17,6 +17,7 @@ function toSyncPayload(issue: {
   id: string
   updatedAt: Date
   stateId?: string
+  assigneeId?: string | null
   title?: string
   identifier?: string
   priority?: number
@@ -25,6 +26,7 @@ function toSyncPayload(issue: {
     issueId: issue.id,
     updatedAt: issue.updatedAt.getTime(),
     stateId: issue.stateId,
+    assigneeId: issue.assigneeId ?? null,
     title: issue.title,
     identifier: issue.identifier,
     priority: issue.priority,

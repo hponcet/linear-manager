@@ -15,7 +15,9 @@ const isProduction = process.env.NODE_ENV === "production"
 module.exports = {
   mode: isProduction ? "production" : "development",
   entry: {
-    main: resolveApp("./src/webviews/index.tsx"),
+    issue: resolveApp("./src/webviews/entries/issue.tsx"),
+    settings: resolveApp("./src/webviews/entries/settings.tsx"),
+    startWork: resolveApp("./src/webviews/entries/startWork.tsx"),
   },
   devtool: isProduction ? undefined : "eval-source-map",
 
@@ -47,14 +49,7 @@ module.exports = {
         ]
       : undefined,
     splitChunks: {
-      cacheGroups: {
-        styles: {
-          name: "main",
-          type: "css/mini-extract",
-          chunks: "all",
-          enforce: true,
-        },
-      },
+      chunks: "async",
     },
   },
   externals: ["utf-8-validate", "bufferutil", "vscode"],

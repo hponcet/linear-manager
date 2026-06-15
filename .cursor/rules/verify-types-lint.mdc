@@ -1,5 +1,5 @@
 ---
-description: After code changes, run typecheck and ESLint
+description: After code changes, run typecheck, ESLint, and Stylelint when styles changed
 alwaysApply: true
 ---
 
@@ -11,6 +11,27 @@ After any code change in this repository:
 2. `npm run lint` must complete with no errors (max warnings: 0)
 3. `npm run test` must complete with no errors
 
+If any `src/**/*.css` or `src/**/*.scss` file was added or modified, also run:
+
+4. `npm run lint:styles` must complete with no errors (max warnings: 0)
+
 If any command fails, fix the issues before considering the work done.
 
-You can run all three: `npm run check:types && npm run lint && npm run test`
+Full check (always):
+
+```bash
+npm run check:types && npm run lint && npm run test
+```
+
+When style files changed, append Stylelint:
+
+```bash
+npm run check:types && npm run lint && npm run lint:styles && npm run test
+```
+
+VS Code theme variables (`--vscode-*`) and BEM-style class names are allowed when needed; add the same file-level disables used in `Settings.scss` and `StartWorkHeader.scss`:
+
+```scss
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+```

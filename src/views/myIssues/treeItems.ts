@@ -1,6 +1,7 @@
 import { Commands } from "src/constants"
 import { Controller } from "src/controller"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
+import { getDefaultWorkflowStateExpanded } from "src/views/treeViewExpansionState"
 import { TreeItem, TreeItemCollapsibleState, Uri } from "vscode"
 
 import { Team, Issue } from "./types"
@@ -8,8 +9,11 @@ import { Team, Issue } from "./types"
 /**
  * Creates a TreeItem for a team
  */
-export function createTeamTreeItem(team: Team): TreeItem {
-  const item = new TreeItem(team.name, TreeItemCollapsibleState.Expanded)
+export function createTeamTreeItem(team: Team, expanded = true): TreeItem {
+  const item = new TreeItem(
+    team.name,
+    expanded ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed,
+  )
   item.id = team.id
   if (team.description) {
     item.description = team.description
@@ -23,12 +27,11 @@ export function createTeamTreeItem(team: Team): TreeItem {
 export function createWorkflowStateTreeItem(
   state: WorkflowStateWithStateProgress,
   issuesCount: number,
+  expanded = getDefaultWorkflowStateExpanded(state.type),
 ): TreeItem {
   const item = new TreeItem(
     state.name,
-    ["unstarted", "started"].includes(state.type)
-      ? TreeItemCollapsibleState.Expanded
-      : TreeItemCollapsibleState.Collapsed,
+    expanded ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed,
   )
   item.id = state.id
   item.description = `${issuesCount}`

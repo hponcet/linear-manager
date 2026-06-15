@@ -24,6 +24,8 @@ Run in order and fix failures before finishing:
 npm run check:types && npm run lint && npm run test
 ```
 
+If any `src/**/*.css` or `src/**/*.scss` file changed, also run `npm run lint:styles` (or use `npm run lint:all` instead of `npm run lint`).
+
 ## File conventions
 
 - Unit: `src/test/unit/<module>.test.ts`

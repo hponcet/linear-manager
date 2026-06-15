@@ -23,6 +23,7 @@
     "watch:extension": "cross-env NODE_ENV=development webpack --watch -c webpack.extension.js",
     "watch:react": "cross-env NODE_ENV=development webpack --watch -c webpack.react.js",
     "package": "webpack -c webpack.extension.js --mode production --devtool hidden-source-map && webpack -c webpack.react.js --mode production --devtool hidden-source-map",
+    "analyze:webview": "cross-env NODE_ENV=production webpack -c webpack.react.js --json > dist/webpack-stats.json && webpack-bundle-analyzer dist/webpack-stats.json",
     "------------ TESTS --------------------": "",
     "compile-tests": "tsc -p tsconfig.test.json --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
@@ -110,7 +111,8 @@
       },
       {
         "command": "linearManager.commands.openIssueExternal",
-        "title": "Open Issue on Linear.app",
+        "title": "Open on Linear",
+        "icon": "$(link-external)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
       },
@@ -168,6 +170,7 @@
       {
         "command": "linearManager.commands.openPullRequest",
         "title": "Create pull request",
+        "icon": "$(git-pull-request-create)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
       },
@@ -359,6 +362,16 @@
           "group": "inline"
         },
         {
+          "command": "linearManager.commands.openPullRequest",
+          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded && linearManager:isGitProviderAuthenticated",
+          "group": "inline@1"
+        },
+        {
+          "command": "linearManager.commands.openIssueExternal",
+          "when": "viewItem =~ /^issueItem/",
+          "group": "inline@2"
+        },
+        {
           "command": "linearManager.commands.openPullRequestDiff",
           "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
           "group": "inline@1"
@@ -434,7 +447,6 @@
     "@eslint/markdown": "^7.5.1",
     "@types/eslint": "^9.6.1",
     "@types/lodash.throttle": "^4.1.9",
-    "@types/mime-types": "^3.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/pngjs": "^6.0.5",
@@ -488,6 +500,7 @@
     "typescript-eslint": "^8.54.0",
     "vm-browserify": "^1.1.2",
     "webpack": "^5.103.0",
+    "webpack-bundle-analyzer": "^5.1.0",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
@@ -520,7 +533,6 @@
     "classnames": "^2.5.1",
     "emoji-picker-react": "^4.16.1",
     "lodash.throttle": "^4.1.1",
-    "mime-types": "^3.0.2",
     "moment": "^2.30.1",
     "pngjs": "^7.0.0",
     "prosemirror-markdown": "^1.13.4",

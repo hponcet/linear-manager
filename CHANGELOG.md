@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- My Issues tree hover actions: create pull request (when a branch is configured) and open on Linear
 - `get_issue_comments` MCP tool to load Linear issue discussion threads for Cursor agents
 - `{{editorLanguage}}` placeholder in agent prompt templates (resolved from the editor UI language)
 - Settings gear buttons in the My issues and Pull requests tree view headers open Settings on the Workflow and Git tabs respectively
@@ -23,6 +24,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Fixed
 
+- Replaced the broken pull request header icon with the VS Code `git-pull-request-create` codicon
 - My Issues checkout hover button now uses the same icon as the issue header checkout action
 - Settings tree view gear buttons now switch tabs when Settings is already open
 - Fixed Start work with agent and Review with agent opening an empty Composer tab by pasting the generated prompt after `composer.newAgentChat` opens (Cursor does not accept a `{ prompt }` command argument)
@@ -36,6 +38,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- Persisted My Issues tree view expand/collapse state per workspace and view mode
+- Split webview bundles per panel (issue, settings, startWork) so each panel loads only its own JS/CSS
 - Git provider setup instructions now include clickable links to external pages (API token creation, OAuth setup, documentation)
 - Issue and pull request review agent prompts now load issue comments via MCP and ask the agent to respond in the editor language
 - Pull request review agent prompt now asks for clear, concise feedback with code excerpts and proposed fixes

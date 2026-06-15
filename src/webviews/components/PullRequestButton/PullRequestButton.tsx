@@ -56,7 +56,13 @@ export function PullRequestButton(props: PullRequestButtonProps) {
       onClick={handleClick}
       disabled={loading}
       tooltip={label}
-      icon={<GitPullRequestIcon size={size} style={{ marginRight: inline === "icon" ? 0 : 8 }} />}
+      icon={
+        <GitPullRequestIcon
+          size={size}
+          variant={pullRequestStatus?.exists ? "view" : "create"}
+          style={{ marginRight: inline === "icon" ? 0 : 8 }}
+        />
+      }
       {...buttonProps}
     >
       {inline === "icon" ? null : label}

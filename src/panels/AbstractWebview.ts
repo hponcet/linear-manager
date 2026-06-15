@@ -101,12 +101,17 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
   }
 
   private getWebviewContent(panel: WebviewPanel) {
+    const distBaseUri = panel.webview
+      .asWebviewUri(Uri.joinPath(this._context.extensionUri, "dist"))
+      .toString()
+      .replace(/\/?$/, "/")
+
     const scriptSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", "main.js"),
+      Uri.joinPath(this._context.extensionUri, "dist", `${this.viewId}.js`),
     )
 
     const styleSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", "main.css"),
+      Uri.joinPath(this._context.extensionUri, "dist", `${this.viewId}.css`),
     )
 
     const font = panel.webview.asWebviewUri(
@@ -163,6 +168,9 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
       <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
+        <script nonce="${nonce}">
+          __webpack_public_path__ = "${distBaseUri}";
+        </script>
         <script src="${scriptSrc}" nonce="${nonce}"></script>
       </body>
     </html>

@@ -30,6 +30,7 @@ import {
   Disposable,
   Uri,
   workspace,
+  TreeItemCollapsibleState,
 } from "vscode"
 
 import {
@@ -46,6 +47,8 @@ import {
   DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS,
   ViewMode,
 } from "./types"
+
+import { getDefaultWorkflowStateExpanded, TreeViewExpansionState } from "../treeViewExpansionState"
 
 export class MyIssuesView
   implements
@@ -117,6 +120,7 @@ export class MyIssuesView
       canSelectMany: true,
     })
     this.#disposables.push(this.#treeView)
+    this.#bindTreeExpansionState()
 
     // Register drag & drop providers
     const dragDropHandlers = {
@@ -278,6 +282,43 @@ export class MyIssuesView
     commands.executeCommand("setContext", "linearManager:viewMode", this.#viewMode)
 
     await this._refreshIssues()
+  }
+
+  #getExpansionStorageKey(): string {
+    return `linearManager.myIssuesTreeExpansion.${this.#viewMode}`
+  }
+
+  #getExpansionState(): TreeViewExpansionState {
+    return new TreeViewExpansionState(this.#context.workspaceState, this.#getExpansionStorageKey())
+  }
+
+  #bindTreeExpansionState(): void {
+    if (!this.#treeView) {
+      return
+    }
+
+    this.#disposables.push(
+      this.#getExpansionState().bindTreeView(this.#treeView, {
+        getElementId: (element) => {
+          if (element.__key === "team" || element.__key === "workflowState") {
+            return element.id
+          }
+
+          return undefined
+        },
+        getDefaultExpanded: (element) => {
+          if (element.__key === "team") {
+            return true
+          }
+
+          if (element.__key === "workflowState") {
+            return getDefaultWorkflowStateExpanded(element.type)
+          }
+
+          return false
+        },
+      }),
+    )
   }
 
   private _updateWebviewsIfNeeded(issue: Issue) {
@@ -681,14 +722,24 @@ export class MyIssuesView
 
   public getTreeItem(element: Team | WorkflowState | Issue): TreeItem {
     let item: TreeItem
+    const expansionState = this.#getExpansionState()
 
     if (element.__key === "team") {
-      item = createTeamTreeItem(element)
+      const defaultExpanded = true
+      const expanded =
+        expansionState.getCollapsibleState(element.id, defaultExpanded) ===
+        TreeItemCollapsibleState.Expanded
+      item = createTeamTreeItem(element, expanded)
     } else if (element.__key === "workflowState") {
       const issuesCount = this._getIssuesCountForState(element.id)
+      const defaultExpanded = getDefaultWorkflowStateExpanded(element.type)
+      const expanded =
+        expansionState.getCollapsibleState(element.id, defaultExpanded) ===
+        TreeItemCollapsibleState.Expanded
       item = createWorkflowStateTreeItem(
         element as unknown as WorkflowStateWithStateProgress,
         issuesCount,
+        expanded,
       )
     } else {
       const issueState = this.issuesStore.get(element.id)

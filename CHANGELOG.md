@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-14
+
 ### Added
 
 - My Issues tree hover actions: create pull request (when a branch is configured) and open on Linear
@@ -21,6 +23,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Cursor agent rules for communication, feature testing, and changelog maintenance
 - Unit and integration test scaffolding with example branch and extension tests
 - `linearManager.autoRefreshIntervalSeconds` setting (default 180s, 0 to disable)
+- `LinearService` facade with TTL cache, request deduplication, and centralized invalidation
 
 ### Fixed
 
@@ -43,7 +46,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Git provider setup instructions now include clickable links to external pages (API token creation, OAuth setup, documentation)
 - Issue and pull request review agent prompts now load issue comments via MCP and ask the agent to respond in the editor language
 - Pull request review agent prompt now asks for clear, concise feedback with code excerpts and proposed fixes
-
 - Start Work shows a **Start work with agent** button after branch setup instead of a toggle during branch creation
 - Reworked Settings layout with expandable RSuite panels, clearer title hierarchy, flatter sidebar tabs without borders, unified accordion header hover, and VS Code–aligned styling
 - Settings opens on the Workflow tab by default and lists Workflow first in the sidebar
@@ -63,4 +65,3 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - `linearManager.launchAgentAfterStartWork` workspace setting and the automatic agent launch toggle from Start Work
 - Temporary Linear API call logging in development (`LinearApiLogger`)
-- `LinearService` facade with TTL cache, request deduplication, and centralized invalidation

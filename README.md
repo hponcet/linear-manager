@@ -1,169 +1,193 @@
-# Linear Manager - VS Code Extension
+# Linear Manager
 
-A powerful VS Code extension to manage your Linear issues directly from your code editor.
+Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage issues, branches, pull requests, and agent workflows without leaving the editor.
 
-## 🚀 Features
+## Features
 
-- **Complete Linear integration**: Connect your Linear account and access your issues
-- **Dedicated activity view**: View your assigned issues or current cycle issues in the VS Code sidebar
-- **Issue management**: Open, view, and start working on your issues directly from VS Code
-- **Rich user interface**: Modern React interface with rich editor and intuitive selectors
-- **Git integration**: Automatic branch creation and Git workflow management
-- **Comments and activity**: View and add comments on your issues
-- **Drag & Drop**: Drag issues from the TreeView to the editor to open them
-- **Quick branch checkout**: One-click checkout to issue branches with inline action buttons
-- **View modes**: Switch between "My Issues" and "Current Cycle" views
-- **Keyboard shortcuts**: Quick access to issues with customizable shortcuts
+### Issues and workflow
 
-## 📋 Prerequisites
+- Connect your Linear account and browse **My Issues** or **Current Cycle** in the activity bar
+- Open issues in a rich React panel (TipTap editor, comments, sub-issues, attachments, history)
+- Drag and drop issues from the tree view to open them
+- Move issues between workflow states via drag and drop (multi-select supported)
+- Persisted expand/collapse state for teams and workflow columns
+- Assignee avatar icons in the tree view
+- Inline hover actions on issues:
+  - **Start work** or **Checkout** (when a branch is configured)
+  - **Create pull request** (when a branch exists and a git provider is connected)
+  - **Open on Linear**
 
-- VS Code version 1.107.0 or higher
-- `linear.linear-connect` extension installed
-- `vscode.git` extension (usually already included)
+### Git and pull requests
 
-## 🔧 Installation
+- Start Work flow: create or bind a branch, update issue state/cycle, optional stash
+- Git provider settings for **GitHub**, **GitLab**, and **Bitbucket Cloud** (OAuth or API token)
+- **Pull requests** sidebar: open linked issues, diff, checkout source branch, open on the web
+- Create or open pull requests from issue branches (target branch picker)
 
-1. Install the extension from the VS Code marketplace
-2. Restart VS Code
-3. Click on the Linear icon in the activity bar
-4. Connect your Linear account with the "Connect to Linear" command
+### Settings
 
-## 📖 Usage
+- **Workflow**: branch naming, prefixes, stash-before-create, auto-refresh interval
+- **Git**: provider connection, credentials, setup instructions with clickable links
+- **Work with agent** (Cursor): customizable prompt templates with placeholders
 
-### Connecting to Linear
+### Cursor agent integration (Cursor only)
 
-1. Open the "Linear manager" view in the sidebar
-2. Click on "Connect to Linear" to authenticate your account
-3. Your assigned issues will appear in the "My issues" view
+- **Start work with agent**: open Composer with a prompt that loads the Linear ticket via MCP
+- **Review with agent**: review a PR diff with linked-issue context via MCP
+- Bundled **Linear Manager MCP server** (issues, comments, related issues, PR metadata, diffs)
+- Agent prompts support `{{editorLanguage}}` and instruct the agent to respond in the editor UI language
 
-### Issue management
+## Prerequisites
 
-- **Open an issue**: Click on an issue, use the context menu, or drag it to the editor
-- **Start working**: Use "Start Work" from the context menu to automatically create a Git branch
-- **Configure branch**: Once a branch is created, use "Configure branch" to modify settings
-- **Checkout to branch**: Click the branch icon on issues with initialized branches
-- **Move your issues**: From the "My Issues" view, you can change issue status with simple drag and drop. You can also select multiple issues.
+- VS Code **1.105.0** or higher (including Cursor)
+- [Linear Connect](https://marketplace.visualstudio.com/items?itemName=linear.linear-connect) extension
+- Git extension (`vscode.git`, usually built-in)
 
-### View modes
+## Installation
 
-Use the filter button in the TreeView title bar to switch between:
-- **My Issues**: View issues assigned to you
-- **Current Cycle**: View all issues from the active sprint/cycle of your teams
+1. Install **Linear Manager** from the marketplace (or load the VSIX in development)
+2. Reload the window
+3. Open the Linear activity bar view and run **Connect to Linear**
+
+## Usage
+
+### Connect and browse
+
+1. Open **Linear manager** in the activity bar
+2. Run **Connect to Linear** if you are not authenticated
+3. Use **My issues** to see assigned work, or toggle **Current Cycle** from the view title bar
+
+### Work on an issue
+
+- **Open**: click an issue, use the context menu, or drag it to the editor
+- **Start work**: create/configure a Git branch from the context menu or inline play button
+- **Checkout**: switch to the issue branch (inline button when a branch is configured)
+- **Create pull request**: inline button when a branch and git provider are configured
+- **Open on Linear**: inline external-link button or context menu
+
+### Pull requests view
+
+When a git provider is connected for the current repository:
+
+- Lists open pull requests for the origin remote
+- Click a row to open the linked Linear issue (or the PR on the web)
+- Inline actions: review with agent (Cursor), open diff, checkout branch, open on web
 
 ### Keyboard shortcuts
 
 | Shortcut | Command | Description |
 |----------|---------|-------------|
-| `Cmd+K I` (Mac) / `Ctrl+K I` (Windows/Linux) | Open Issue for Current Branch | Opens the Linear issue associated with your current Git branch |
+| `Cmd+K I` (Mac) / `Ctrl+K I` (Win/Linux) | Open Issue for Current Branch | Open the Linear issue for the current Git branch |
 
-### Available commands
+### Commands (selection)
 
 | Command | Description |
 |---------|-------------|
-| `Linear manager: Connect to Linear` | Connect your Linear account |
-| `Linear manager: Disconnect from Linear` | Disconnect your Linear account |
-| `Linear manager: Open Issue` | Open an issue in the editor |
-| `Linear manager: Open Issue on Linear.app` | Open an issue in the browser |
-| `Linear manager: Open Issue for Current Branch` | Open the issue linked to the current branch |
-| `Linear manager: Start work on issue` | Create/configure a branch for an issue |
-| `Linear manager: Configure branch for issue` | Modify branch settings for an issue |
-| `Linear manager: Checkout to branch` | Switch to the issue's branch |
-| `Linear manager: Refresh` | Refresh the issues list |
-| `Linear manager: Toggle View` | Switch between My Issues and Current Cycle views |
+| Connect / Disconnect from Linear | Authenticate or sign out |
+| Open Issue | Open issue in the editor panel |
+| Open on Linear | Open issue in the browser |
+| Start work on issue | Branch setup workflow |
+| Start work with agent | Launch Cursor Composer with issue MCP context (Cursor) |
+| Checkout to branch | Switch to the issue branch |
+| Create pull request | Open provider compare/create flow |
+| Review with agent | Review PR with MCP context (Cursor) |
+| Refresh / Toggle View | Reload data or switch My Issues ↔ Current Cycle |
+| Open settings | Workflow, Git, and agent prompt settings |
 
-### TreeView actions
-
-- **Inline buttons**: 
-  - ▶️ (Play): Start work on an issue (when no branch is configured)
-  - 🌿 (Branch): Checkout to issue branch (when branch is configured)
-- **Refresh button**: Reload all data from Linear
-- **Filter button**: Toggle between My Issues and Current Cycle views
-- **Tooltips**: Hover over issues to see the title and branch name (if configured)
-
-## 🏗️ Project structure
+## Project structure
 
 ```
 src/
-├── extension.ts           # Extension entry point
-├── commands.ts           # VS Code commands
-├── controller.ts         # Main controller
-├── constants.ts          # Constants and enums
-├── linear/              # Linear API integration
-├── git/                 # Git integration
-├── panels/              # Webview panels
-├── views/               # TreeView providers
-│   └── myIssues/        # Issues TreeView module
-│       ├── MyIssuesView.ts    # Main TreeView class
-│       ├── dataFetching.ts    # Data fetching utilities
-│       ├── dragAndDrop.ts     # Drag & drop handlers
-│       ├── treeItems.ts       # TreeItem factories
-│       ├── types.ts           # Types and constants
-│       └── index.ts           # Module exports
-├── webviews/            # React interface
-│   ├── components/      # Reusable React components
-│   └── views/           # Main views
-└── types/               # TypeScript definitions
+├── extension.ts              # Activation entry point
+├── controller.ts             # Extension lifecycle and services
+├── linear/                   # LinearService, API, caching
+├── git/                      # Git client, branch checkout, diffs
+├── gitProviders/             # GitHub, GitLab, Bitbucket integrations
+├── mcp/                      # Bundled Linear Manager MCP server
+├── cursor/                   # Agent prompts, Cursor detection, MCP registration
+├── panels/                   # Webview panels (issue, start work, settings)
+├── views/
+│   ├── myIssues/             # My Issues tree view
+│   └── pullRequests/         # Pull requests tree view
+├── webviews/                 # React UI (issue panel, settings, start work)
+└── test/                     # Unit and integration tests
 ```
 
-## 🛠️ Development
+## Development
 
-### Install dependencies
+### Install
 
 ```bash
 npm install
 ```
 
-### Development with watch mode
+### Watch mode
 
 ```bash
 npm run watch
 ```
 
-### Build the project
+Press **F5** to launch an Extension Development Host.
+
+### Build
 
 ```bash
 npm run package
 ```
 
-### Tests
+### Verification
 
 ```bash
-npm run test
+npm run check:types && npm run lint && npm run test
 ```
 
-## 🏗️ Technologies used
+When CSS/SCSS files change, also run:
 
-- **Backend**: TypeScript, VS Code Extension API
-- **Frontend**: React, TipTap (rich editor), Rsuite (UI components)
-- **Integrations**: Linear SDK, Simple Git
-- **Build**: Webpack, PostCSS, Sass
+```bash
+npm run lint:styles
+```
 
-## 🤝 Contributing
+Or run everything:
 
-Contributions are welcome! Please:
+```bash
+npm run lint:all
+```
 
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Scripts
 
-## 📝 Available scripts
+| Script | Description |
+|--------|-------------|
+| `npm run watch` | Extension + webview rebuild on change |
+| `npm run compile` | Compile extension host |
+| `npm run package` | Production webpack build |
+| `npm run check:types` | TypeScript check |
+| `npm run lint` | ESLint |
+| `npm run lint:styles` | Stylelint (CSS/SCSS) |
+| `npm run lint:all` | ESLint + Prettier + Stylelint |
+| `npm run test` | Unit and integration tests |
+| `npm run analyze:webview` | Webpack bundle analysis (webview) |
 
-- `npm run watch`: Development with automatic reload
-- `npm run compile`: TypeScript code compilation
-- `npm run package`: Production build
-- `npm run lint`: Code verification with ESLint
-- `npm run test`: Run tests
+## Tech stack
 
-## 📄 License
+- **Extension host**: TypeScript, VS Code Extension API, Linear SDK, Simple Git
+- **Webviews**: React, TipTap, RSuite, Sass
+- **Build**: Webpack, Fork TS Checker
+- **Quality**: ESLint, Stylelint, Prettier, Mocha + `@vscode/test-electron`
 
-This project is licensed under the MIT License.
+## Contributing
 
-## 🐛 Report an issue
+Contributions are welcome. Please open an issue or PR on [GitHub](https://github.com/hponcet/linear-manager).
 
-If you encounter a problem or have a suggestion for improvement, feel free to [open an issue](https://github.com/hponcet/linear-manager/issues).
+Before submitting:
 
----
+1. Run `npm run check:types && npm run lint && npm run test` (and `npm run lint:styles` if you changed styles)
+2. Add tests for testable logic changes
+3. Update [CHANGELOG.md](./CHANGELOG.md) for user-visible features and fixes
 
-Developed with ❤️ to improve your Linear workflow in VS Code.
+## License
+
+MIT
+
+## Issues
+
+Report bugs or request features on [GitHub Issues](https://github.com/hponcet/linear-manager/issues).

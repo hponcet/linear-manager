@@ -1,9 +1,9 @@
 {
   "name": "linear-manager",
   "displayName": "Linear Manager",
-  "description": "Unofficial Linear extension for VS Code to manage issues within the editor.",
+  "description": "Linear extension for Cursor/VS Code apps to manage issues within the editor.",
   "icon": "resources/images/linear_dark.png",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "publisher": "hpon",
   "repository": "https://github.com/hponcet/linear-manager",
   "engines": {
@@ -452,7 +452,7 @@
     "@types/pngjs": "^6.0.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@types/vscode": "^1.120.0",
+    "@types/vscode": "^1.105.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",

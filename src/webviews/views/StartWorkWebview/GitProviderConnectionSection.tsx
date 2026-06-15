@@ -8,6 +8,8 @@ import {
 } from "src/gitProviders/types"
 import { SettingsVscState } from "src/vscStates"
 import { Button } from "src/webviews/components/Button/Button"
+import { TextWithLinks } from "src/webviews/components/TextWithLinks/TextWithLinks"
+import { vscApi } from "src/webviews/hooks/useRequestDataUpdate"
 
 import { GitSettingsField } from "./GitSettingsField"
 
@@ -91,6 +93,10 @@ export function GitProviderConnectionSection(props: GitProviderConnectionSection
     oauthSetup?.redirectUri ||
     oauthSetup?.docsUrl,
   )
+
+  function openExternalUrl(url: string) {
+    void vscApi.postMessage({ type: "openExternalUrl", url })
+  }
 
   const statusText = connected
     ? `Connected${providerStatus?.accountLabel ? ` as ${providerStatus.accountLabel}` : ""}`
@@ -264,13 +270,17 @@ export function GitProviderConnectionSection(props: GitProviderConnectionSection
           {setupExpanded && (
             <div className="git-provider-connection__setup">
               {oauthSetup?.instructions && (
-                <p className="git-provider-connection__setup-intro">{oauthSetup.instructions}</p>
+                <p className="git-provider-connection__setup-intro">
+                  <TextWithLinks text={oauthSetup.instructions} onOpenUrl={openExternalUrl} />
+                </p>
               )}
 
               {oauthSetup?.setupSteps && oauthSetup.setupSteps.length > 0 && (
                 <ol className="git-provider-connection__setup-steps">
                   {oauthSetup.setupSteps.map((step, index) => (
-                    <li key={index}>{step}</li>
+                    <li key={index}>
+                      <TextWithLinks text={step} onOpenUrl={openExternalUrl} />
+                    </li>
                   ))}
                 </ol>
               )}
@@ -278,12 +288,24 @@ export function GitProviderConnectionSection(props: GitProviderConnectionSection
               {(oauthSetup?.workspaceSetupUrl || oauthSetup?.docsUrl) && (
                 <div className="git-provider-connection__setup-links">
                   {oauthSetup.workspaceSetupUrl && (
-                    <a href={oauthSetup.workspaceSetupUrl} target="_blank" rel="noreferrer">
+                    <a
+                      href={oauthSetup.workspaceSetupUrl}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        openExternalUrl(oauthSetup.workspaceSetupUrl!)
+                      }}
+                    >
                       Open OAuth consumer setup for this workspace
                     </a>
                   )}
                   {oauthSetup.docsUrl && (
-                    <a href={oauthSetup.docsUrl} target="_blank" rel="noreferrer">
+                    <a
+                      href={oauthSetup.docsUrl}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        openExternalUrl(oauthSetup.docsUrl!)
+                      }}
+                    >
                       Atlassian documentation
                     </a>
                   )}

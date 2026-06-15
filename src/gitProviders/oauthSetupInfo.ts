@@ -30,9 +30,9 @@ function getBitbucketOAuthSetupInfo(options?: BitbucketSetupOptions): GitProvide
         "Recommended for personal use. API tokens authenticate with your Atlassian account email plus the token (Basic auth), not as a Bearer token.",
       permissions: "read:pullrequest:bitbucket, read:user:bitbucket",
       setupSteps: [
-        "Click your avatar (top right) on bitbucket.org → Account settings.",
-        "Note your Atlassian account email under Email aliases (Personal settings).",
-        "Open the Security tab → Create and manage API tokens → Create API token with scopes.",
+        "Click your avatar (top right) on [bitbucket.org](https://bitbucket.org) → [Account settings](https://bitbucket.org/account/settings/).",
+        "Note your Atlassian account email under Email aliases ([Personal settings](https://bitbucket.org/account/settings/)).",
+        "Open [Atlassian Security → API tokens](https://id.atlassian.com/manage-profile/security/api-tokens) → Create API token with scopes.",
         "Select Bitbucket as the app.",
         "Enable read:pullrequest:bitbucket and read:user:bitbucket, then create the token.",
         "Enter your Atlassian email and paste the token below, then click Connect.",
@@ -54,8 +54,8 @@ function getBitbucketOAuthSetupInfo(options?: BitbucketSetupOptions): GitProvide
     workspaceSetupUrl,
     setupSteps: [
       workspace
-        ? `Open your workspace OAuth consumers page (link below) or: avatar → your workspace → Settings → Workspace settings.`
-        : "On bitbucket.org: avatar → select the workspace that owns your repo → Settings → Workspace settings.",
+        ? `Open your [OAuth consumers page](${workspaceSetupUrl}), or go to avatar → your workspace → Settings → Workspace settings.`
+        : "On [bitbucket.org](https://bitbucket.org): avatar → select the workspace that owns your repo → Settings → Workspace settings.",
       "Under Apps and features, open OAuth consumers → Add consumer.",
       "Name it (e.g. Linear Manager), paste the Callback URL below exactly, and enable This is a private consumer.",
       "Permissions: Account → Read; Pull requests → Read. Save.",
@@ -95,7 +95,13 @@ export function getOAuthSetupInfo(
         signInLabel: "Sign in with GitLab",
         redirectUri: getGitlabOAuthRedirectUri(),
         instructions:
-          "Sign in opens GitLab in your browser. Create an OAuth application (User settings → Applications, or ask your admin for self-managed) with redirect URI shown below, then add its Application ID to gitlab.authentication.oauthClientIds. gitlab.com falls back to a bundled client ID when none is configured.",
+          "Sign in opens GitLab in your browser. Create an OAuth application on [gitlab.com](https://gitlab.com/-/user_settings/applications) (User settings → Applications, or ask your admin for self-managed) with redirect URI shown below, then add its Application ID to gitlab.authentication.oauthClientIds. gitlab.com falls back to a bundled client ID when none is configured.",
+        setupSteps: [
+          "Open [User settings → Applications](https://gitlab.com/-/user_settings/applications) on gitlab.com (or the equivalent page on your self-managed instance).",
+          "Create an application and set the Callback URL below as the redirect URI.",
+          "Add the Application ID to gitlab.authentication.oauthClientIds in VS Code settings.",
+          "Click Sign in with GitLab.",
+        ],
         permissions: "read_api",
       }
     case "bitbucket":

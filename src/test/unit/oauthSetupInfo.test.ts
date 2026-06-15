@@ -18,7 +18,8 @@ suite("oauthSetupInfo", () => {
 
     assert.strictEqual(setup.signInLabel, "Connect with API token")
     assert.strictEqual(setup.redirectUri, undefined)
-    assert.ok(setup.setupSteps?.some((step) => step.includes("API token")))
+    assert.ok(setup.setupSteps?.some((step) => step.includes("[Atlassian Security")))
+    assert.ok(setup.setupSteps?.some((step) => step.includes("](https://")))
     assert.ok(setup.permissions?.includes("read:pullrequest:bitbucket"))
   })
 
@@ -34,7 +35,7 @@ suite("oauthSetupInfo", () => {
       setup.workspaceSetupUrl,
       "https://bitbucket.org/acme/workspace/settings/oauth-consumers/new",
     )
-    assert.ok(setup.setupSteps?.some((step) => step.toLowerCase().includes("workspace")))
+    assert.ok(setup.setupSteps?.some((step) => step.includes("[OAuth consumers page]")))
     assert.ok(setup.instructions?.toLowerCase().includes("workspace settings"))
   })
 })

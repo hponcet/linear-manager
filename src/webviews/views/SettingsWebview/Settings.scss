@@ -444,6 +444,14 @@
   line-height: 1.5;
   color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
   background: transparent;
+
+  a {
+    color: var(--vscode-textLink-foreground, #3794ff);
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
 }
 
 .git-provider-connection__setup-intro {

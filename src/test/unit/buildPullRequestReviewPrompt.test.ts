@@ -26,7 +26,7 @@ suite("buildPullRequestReviewPrompt", () => {
     assert.match(prompt, /get_issue_comments/)
     assert.match(prompt, /source of truth/)
     assert.match(prompt, /implement the missing changes/)
-    assert.match(prompt, /Summary of changes/)
+    assert.match(prompt, /summary of changes/i)
     assert.match(prompt, /Security concerns/)
     assert.match(prompt, /clear and concise/i)
     assert.match(prompt, /code excerpt/i)

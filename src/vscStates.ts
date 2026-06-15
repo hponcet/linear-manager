@@ -6,6 +6,7 @@ import { Ref } from "./types/GitAPI"
 export enum VscStateKeys {
   issueSettings = "issueSettings",
   branchesSettings = "branchesSettings",
+  agentSettings = "agentSettings",
 }
 
 export type IssueLabelSetting = {
@@ -34,6 +35,11 @@ export type SettingsVscState = {
   bitbucketAuthMethod?: BitbucketAuthMethod
   bitbucketAtlassianEmail?: string
   bitbucketOAuthClientId?: string
+}
+
+export type AgentSettingsVscState = {
+  issuePromptTemplate?: string
+  pullRequestReviewPromptTemplate?: string
 }
 
 export type { GitProviderId }

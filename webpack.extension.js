@@ -26,6 +26,7 @@ const extensionConfig = {
 
   entry: {
     extension: resolveApp("./src/extension.ts"),
+    linearMcpServer: resolveApp("./src/mcp/linearMcpServer.ts"),
   },
   output: {
     path: path.resolve(__dirname, "dist"),

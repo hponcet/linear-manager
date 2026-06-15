@@ -1,3 +1,4 @@
+import { PanelGroup } from "rsuite"
 import { FormQueueField } from "src/webviews/components/FormQueueAsync/FormQueueField"
 import { InfoIcon } from "src/webviews/components/Icons/InfoIcon"
 import { PrefixByLabelPicker } from "src/webviews/components/PrefixByLabelPicker/PrefixByLabelPicker"
@@ -11,75 +12,78 @@ export function SettingsWorkflowTab() {
   const { updateSettings, branchesSettings } = useSettings()
 
   return (
-    <GitSettingsSection
-      title="Branch & workflow"
-      description="Options applied when starting work on an issue."
-    >
-      <div className="git-settings-branch-fields">
-        <FormQueueField
-          key="prefix-by-label"
-          indexKey="prefix-by-label"
-          label={
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div>Use branch prefix from labels</div>
-              <Tooltip
-                tooltip={
-                  "Automatically add a prefix to the branch name based on the issue's labels.\n\nYou can configure label-prefix pairs in the settings below.\n\nIn case of multiple matching labels or no matching labels, the prefix from the label with the highest priority (top of the list) will be used."
+    <PanelGroup className="settings-panel-group">
+      <GitSettingsSection
+        eventKey="branch-workflow"
+        title="Branch & workflow"
+        description="Options applied when starting work on an issue."
+      >
+        <div className="git-settings-branch-fields">
+          <FormQueueField
+            key="prefix-by-label"
+            indexKey="prefix-by-label"
+            label={
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div>Use branch prefix from labels</div>
+                <Tooltip
+                  tooltip={
+                    "Automatically add a prefix to the branch name based on the issue's labels.\n\nYou can configure label-prefix pairs in the settings below.\n\nIn case of multiple matching labels or no matching labels, the prefix from the label with the highest priority (top of the list) will be used."
+                  }
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <InfoIcon style={{ marginLeft: 4 }} />
+                  </div>
+                </Tooltip>
+              </div>
+            }
+            input={
+              <PrefixByLabelPicker
+                value={branchesSettings?.prefixByLabelList || []}
+                issue={issue}
+                onChange={(value) =>
+                  updateSettings({
+                    prefixByLabelList: value?.map(({ label, prefix }) => ({
+                      label: {
+                        id: label?.id || "",
+                        name: label?.name || "",
+                        color: label?.color || "",
+                      },
+                      prefix,
+                    })),
+                  })
                 }
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <InfoIcon style={{ marginLeft: 4 }} />
-                </div>
-              </Tooltip>
-            </div>
-          }
-          input={
-            <PrefixByLabelPicker
-              value={branchesSettings?.prefixByLabelList || []}
-              issue={issue}
-              onChange={(value) =>
-                updateSettings({
-                  prefixByLabelList: value?.map(({ label, prefix }) => ({
-                    label: {
-                      id: label?.id || "",
-                      name: label?.name || "",
-                      color: label?.color || "",
-                    },
-                    prefix,
-                  })),
-                })
-              }
-            />
-          }
-          showToggle={true}
-          disabled={!branchesSettings?.prefixByLabel}
-          onToggleChange={(open) => updateSettings({ prefixByLabel: open })}
-        />
-        <FormQueueField
-          key="update-cycle"
-          indexKey="update-cycle"
-          label="Update issue cycle"
-          showToggle={true}
-          disabled={!branchesSettings?.updateCycle}
-          onToggleChange={(open) => updateSettings({ updateCycle: open })}
-        />
-        <FormQueueField
-          key="uppercase-issue-identifier"
-          indexKey="uppercase-issue-identifier"
-          label="Uppercase issue identifier in branch name"
-          showToggle={true}
-          disabled={!branchesSettings?.uppercaseIssueIdentifier}
-          onToggleChange={(open) => updateSettings({ uppercaseIssueIdentifier: open })}
-        />
-        <FormQueueField
-          key="stash-changes-on-create"
-          indexKey="stash-changes-on-create"
-          label="Stash and reapply changes when starting work"
-          showToggle={true}
-          disabled={!branchesSettings?.stashBeforeCreate}
-          onToggleChange={(stashBeforeCreate) => updateSettings({ stashBeforeCreate })}
-        />
-      </div>
-    </GitSettingsSection>
+              />
+            }
+            showToggle={true}
+            disabled={!branchesSettings?.prefixByLabel}
+            onToggleChange={(open) => updateSettings({ prefixByLabel: open })}
+          />
+          <FormQueueField
+            key="update-cycle"
+            indexKey="update-cycle"
+            label="Update issue cycle"
+            showToggle={true}
+            disabled={!branchesSettings?.updateCycle}
+            onToggleChange={(open) => updateSettings({ updateCycle: open })}
+          />
+          <FormQueueField
+            key="uppercase-issue-identifier"
+            indexKey="uppercase-issue-identifier"
+            label="Uppercase issue identifier in branch name"
+            showToggle={true}
+            disabled={!branchesSettings?.uppercaseIssueIdentifier}
+            onToggleChange={(open) => updateSettings({ uppercaseIssueIdentifier: open })}
+          />
+          <FormQueueField
+            key="stash-changes-on-create"
+            indexKey="stash-changes-on-create"
+            label="Stash and reapply changes when starting work"
+            showToggle={true}
+            disabled={!branchesSettings?.stashBeforeCreate}
+            onToggleChange={(stashBeforeCreate) => updateSettings({ stashBeforeCreate })}
+          />
+        </div>
+      </GitSettingsSection>
+    </PanelGroup>
   )
 }

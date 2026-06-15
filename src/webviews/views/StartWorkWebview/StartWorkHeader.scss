@@ -1,3 +1,6 @@
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+
 .startWorkHeader {
   display: flex;
   flex-direction: column;
@@ -36,4 +39,18 @@
 .startWorkContentLeftActions {
   display: flex;
   align-items: center;
+}
+
+.startWorkAgentButton.button.rs-btn {
+  background-color: var(--vscode-textLink-foreground, #3794ff);
+  border-color: var(--vscode-textLink-foreground, #3794ff);
+  color: #ffffff;
+  fill: #ffffff;
+
+  &:hover:not(:disabled, [data-disabled="true"]) {
+    background-color: var(--vscode-textLink-activeForeground, #2f7fe0);
+    border-color: var(--vscode-textLink-activeForeground, #2f7fe0);
+    color: #ffffff;
+    fill: #ffffff;
+  }
 }

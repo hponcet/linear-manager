@@ -8,7 +8,7 @@ import { StartWorkContent } from "./StartWorkContent"
 export function StartWorkWebview() {
   const [props, loaded] = useProps<"startWork">()
 
-  const { issueId, linearAccessToken, fromCheckout } = props
+  const { issueId, linearAccessToken, fromCheckout, isCursor } = props
 
   const {
     branches,
@@ -39,6 +39,7 @@ export function StartWorkWebview() {
           gitInitialized={gitApiInitialized}
           issueSettings={issueSettings}
           updateIssueSettings={updateIssueSettings}
+          isCursor={isCursor}
         />
       </Container>
     </StartWorkContextProvider>

@@ -1,6 +1,8 @@
 import { Issue, User } from "@linear/sdk"
 import { Commands, Views } from "src/constants"
 import { Controller } from "src/controller"
+import { ensureCursorEnvironment } from "src/cursor/detectCursorEnvironment"
+import { launchCursorAgentForPullRequest } from "src/cursor/launchCursorAgentForPullRequest"
 import { PullRequestInfo } from "src/gitProviders/types"
 import { RefType } from "src/types/GitAPI"
 import { parseIssueIdentifierFromPullRequest } from "src/utils/parseIssueIdentifier"
@@ -43,12 +45,11 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
       treeDataProvider: this,
       showCollapseAll: false,
     })
-    context.subscriptions.push(this.#treeView)
+    this.#disposables.push(this.#treeView)
 
     const authDisposable = Controller.gitProviderService.onAuthContextChanged(() => {
       void this.refresh()
     })
-    context.subscriptions.push(authDisposable)
     this.#disposables.push(authDisposable)
 
     const visibilityDisposable = this.#treeView.onDidChangeVisibility((event) => {
@@ -56,10 +57,9 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
         void this.refresh()
       }
     })
-    context.subscriptions.push(visibilityDisposable)
     this.#disposables.push(visibilityDisposable)
 
-    context.subscriptions.push(
+    const commandDisposables = [
       commands.registerCommand(Commands.refreshPullRequests, () => this.refresh()),
       commands.registerCommand(Commands.openPullRequestDiff, (pullRequest: PullRequestInfo) =>
         this.openPullRequestDiff(pullRequest),
@@ -74,7 +74,13 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
       commands.registerCommand(Commands.checkoutPullRequestBranch, (pullRequest: PullRequestInfo) =>
         this.checkoutPullRequestBranch(pullRequest),
       ),
-    )
+      commands.registerCommand(
+        Commands.reviewPullRequestWithAgent,
+        (pullRequest: PullRequestInfo) => this.reviewPullRequestWithAgent(pullRequest),
+      ),
+    ]
+
+    this.#disposables.push(...commandDisposables)
 
     await this.refresh()
   }
@@ -92,6 +98,9 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
     this.#disposables = []
     this.#treeView = null
     this.#context = null
+    this.#treeItems.clear()
+    this.#assigneeIconByUserId.clear()
+    this.#nodes = []
   }
 
   getTreeItem(element: PullRequestTreeNode): TreeItem {
@@ -252,6 +261,28 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
       __key: "message",
       id: `message:${message}`,
       message,
+    }
+  }
+
+  private async reviewPullRequestWithAgent(pullRequest: PullRequestInfo): Promise<void> {
+    if (!(await ensureCursorEnvironment())) {
+      void window.showInformationMessage("Review with agent is available in Cursor only.")
+      return
+    }
+
+    if (!this.#context) {
+      window.showErrorMessage("Linear Manager is not initialized.")
+      return
+    }
+
+    try {
+      await launchCursorAgentForPullRequest(pullRequest, this.#context)
+    } catch (error) {
+      window.showErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to open Cursor agent for pull request review.",
+      )
     }
   }
 

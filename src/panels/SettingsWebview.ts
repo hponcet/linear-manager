@@ -8,7 +8,7 @@ import { ExtensionContext, ViewColumn } from "vscode"
 
 import { AbstractIssueWebview } from "./AbstractIssueWebview"
 
-export type SettingsTab = "git" | "workflow"
+export type SettingsTab = "git" | "workflow" | "agent"
 
 export type OpenSettingsOptions = {
   tab?: SettingsTab
@@ -16,6 +16,7 @@ export type OpenSettingsOptions = {
 
 export class SettingsWebview extends AbstractIssueWebview<"settings"> {
   #initialTab: SettingsTab | undefined
+  #tabRequestId = 0
 
   constructor(context: ExtensionContext, issueActions: MyIssuesView["issuesActions"]) {
     super(context, issueActions)
@@ -23,7 +24,10 @@ export class SettingsWebview extends AbstractIssueWebview<"settings"> {
 
   async open(issue: Partial<Issue>, column?: ViewColumn, options?: OpenSettingsOptions) {
     this.issue = issue
-    this.#initialTab = options?.tab
+    if (options?.tab !== undefined) {
+      this.#initialTab = options.tab
+      this.#tabRequestId += 1
+    }
     const panel = await super.createOrShow(column)
 
     panel.iconPath = Controller.resources.icons.get(Icons.linear)
@@ -40,6 +44,7 @@ export class SettingsWebview extends AbstractIssueWebview<"settings"> {
       issueId: this.issue?.id || null,
       linearAccessToken: await this._context.secrets.get(LinearSecretKeys.accessToken),
       initialTab: this.#initialTab,
+      tabRequestId: this.#tabRequestId,
     }
   }
 

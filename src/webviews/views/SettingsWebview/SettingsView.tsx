@@ -1,26 +1,35 @@
-import { useEffect, useState } from "react"
 import { Nav } from "rsuite"
 
+import { SettingsAgentTab } from "./SettingsAgentTab"
 import { SettingsGitTab } from "./SettingsGitTab"
 import { SettingsWorkflowTab } from "./SettingsWorkflowTab"
 
 import "./Settings.scss"
 
-export type SettingsTab = "git" | "workflow"
+export type SettingsTab = "git" | "workflow" | "agent"
+
+export const DEFAULT_SETTINGS_TAB: SettingsTab = "workflow"
 
 type SettingsViewProps = {
-  initialTab?: SettingsTab
+  activeTab: SettingsTab
+  onActiveTabChange: (tab: SettingsTab) => void
+}
+
+function renderSettingsTab(activeTab: SettingsTab) {
+  switch (activeTab) {
+    case "git":
+      return <SettingsGitTab />
+    case "workflow":
+      return <SettingsWorkflowTab />
+    case "agent":
+      return <SettingsAgentTab />
+    default:
+      return <SettingsWorkflowTab />
+  }
 }
 
 export function SettingsView(props: SettingsViewProps) {
-  const { initialTab } = props
-  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab ?? "git")
-
-  useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab)
-    }
-  }, [initialTab])
+  const { activeTab, onActiveTabChange } = props
 
   return (
     <div className="settings-view">
@@ -33,14 +42,13 @@ export function SettingsView(props: SettingsViewProps) {
             vertical
             appearance="tabs"
             activeKey={activeTab}
-            onSelect={(key) => setActiveTab((key as SettingsTab) ?? "git")}
+            onSelect={(key) => onActiveTabChange((key as SettingsTab) ?? DEFAULT_SETTINGS_TAB)}
           >
-            <Nav.Item eventKey="git">Git</Nav.Item>
             <Nav.Item eventKey="workflow">Workflow</Nav.Item>
+            <Nav.Item eventKey="git">Git</Nav.Item>
+            <Nav.Item eventKey="agent">Work with agent</Nav.Item>
           </Nav>
-          <div className="settings-view__tab-content">
-            {activeTab === "git" ? <SettingsGitTab /> : <SettingsWorkflowTab />}
-          </div>
+          <div className="settings-view__tab-content">{renderSettingsTab(activeTab)}</div>
         </div>
       </div>
     </div>

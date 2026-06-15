@@ -18,6 +18,7 @@ export type StartWorkContentProps = {
   gitInitialized: boolean
   issueSettings: IssueVscState[string]
   updateIssueSettings: (value: Partial<IssueVscState[string]>) => void
+  isCursor: boolean
 }
 
 export function StartWorkContent(props: StartWorkContentProps) {
@@ -29,6 +30,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
     gitInitialized,
     issueSettings,
     updateIssueSettings,
+    isCursor,
   } = props
 
   const { issue, issueLabelsLoading } = useIssueContext()
@@ -98,6 +100,7 @@ export function StartWorkContent(props: StartWorkContentProps) {
           updateIssueSettings={updateIssueSettings}
           initialBranchName={initialBranchName}
           stashChanges={stashChanges}
+          isCursor={isCursor}
         />
       </StartWorkBanner>
     </div>

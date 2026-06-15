@@ -2,7 +2,6 @@ import {
   DataTransfer,
   DataTransferItem,
   DocumentDropEdit,
-  ExtensionContext,
   languages,
   Position,
   TextDocument,
@@ -23,7 +22,7 @@ export interface DragDropHandlers {
 /**
  * Registers the DocumentDropEditProvider for drag & drop to the editor
  */
-export function registerDropProvider(context: ExtensionContext, handlers: DragDropHandlers) {
+export function registerDropProvider(handlers: DragDropHandlers) {
   const dropProvider = languages.registerDocumentDropEditProvider(
     { pattern: "**/*" },
     {
@@ -60,17 +59,13 @@ export function registerDropProvider(context: ExtensionContext, handlers: DragDr
     },
   )
 
-  context.subscriptions.push(dropProvider)
   return dropProvider
 }
 
 /**
  * Registers the TextDocumentContentProvider for the linear-issue scheme
  */
-export function registerLinearIssueContentProvider(
-  context: ExtensionContext,
-  handlers: DragDropHandlers,
-) {
+export function registerLinearIssueContentProvider(handlers: DragDropHandlers) {
   const linearIssueContentProvider: TextDocumentContentProvider = {
     provideTextDocumentContent: async (uri: Uri): Promise<string> => {
       const issueId = uri.authority
@@ -109,8 +104,6 @@ export function registerLinearIssueContentProvider(
     LINEAR_ISSUE_SCHEME,
     linearIssueContentProvider,
   )
-  context.subscriptions.push(disposable)
-
   return disposable
 }
 

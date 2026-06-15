@@ -5,6 +5,7 @@ export enum CommandContext {
   linearExtensionLoaded = "linearManager:isLinearExtensionLoaded",
   gitExtensionLoaded = "linearManager:isGitExtensionLoaded",
   gitProviderAuthenticated = "linearManager:isGitProviderAuthenticated",
+  isCursor = "linearManager:isCursor",
 }
 
 export function setCommandContext(key: CommandContext | string, value: any) {

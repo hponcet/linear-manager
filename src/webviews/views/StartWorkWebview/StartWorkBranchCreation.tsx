@@ -26,6 +26,7 @@ type StartWorkContentProps = {
   stashChanges: boolean
   issueSettings: IssueVscState[SerializedIssue["id"]]
   updateIssueSettings: (value: Partial<IssueVscState[SerializedIssue["id"]]>) => void
+  isCursor: boolean
   style?: React.CSSProperties
   className?: string
 }
@@ -39,6 +40,7 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
     stashChanges,
     issueSettings,
     updateIssueSettings,
+    isCursor,
     style,
     className,
   } = props
@@ -152,6 +154,15 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
               stashChanges={stashChanges}
             />
           )}
+          {isCursor ? (
+            <Button
+              className="startWorkAgentButton"
+              style={{ marginLeft: 10 }}
+              onClick={() => update.panelActions.launchCursorAgent(issue.id)}
+            >
+              Start work with agent
+            </Button>
+          ) : null}
         </div>
       </div>
     )
@@ -163,7 +174,9 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
       canRestart
       startButtonLabel={useExistingBranch ? "Start work" : "Create branch"}
       endButtonLabel="Close"
-      onComplete={() => update.panelActions.closePanel()}
+      onComplete={() => {
+        update.panelActions.closePanel()
+      }}
       onReset={onReset}
       actions={[
         <Button key="use-existing-branch" onClick={() => setUseExistingBranch((v) => !v)}>

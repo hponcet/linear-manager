@@ -36,7 +36,7 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
 
   private _visible: boolean = false
 
-  private _disposablePanel: Disposable | undefined
+  private _panelSubscriptions: Disposable[] = []
   protected _panel: WebviewPanel | undefined
   protected _context: ExtensionContext
   private _onDidPanelDispose = new EventEmitter<void>()
@@ -76,20 +76,18 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
       },
     )
 
+    this._propsSent = false
+
     this.getWebviewContent(this._panel)
 
     this._setTitle()
 
-    this._disposablePanel = Disposable.from(
-      this._panel,
+    this._panelSubscriptions.push(
       this._panel.onDidDispose(this.onPanelDisposed, this),
       this._panel.onDidChangeViewState(this.onViewStateChanged, this),
-    )
-
-    this._panel.webview.onDidReceiveMessage(
-      this.onMessageReceived,
-      this,
-      this._context.subscriptions,
+      this._panel.webview.onDidReceiveMessage((message) => {
+        void this.onMessageReceived(message)
+      }),
     )
 
     return this._panel
@@ -185,11 +183,17 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
   }
 
   protected onPanelDisposed() {
-    if (this._disposablePanel) {
-      this._disposablePanel.dispose()
-    }
+    this._disposePanelSubscriptions()
     this._panel = undefined
+    this._propsSent = false
     this._onDidPanelDispose.fire()
+  }
+
+  private _disposePanelSubscriptions() {
+    for (const disposable of this._panelSubscriptions) {
+      disposable.dispose()
+    }
+    this._panelSubscriptions = []
   }
 
   get visible() {
@@ -203,8 +207,10 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
   }
 
   public dispose() {
-    if (this._disposablePanel) {
-      this._disposablePanel.dispose()
+    if (this._panel) {
+      this._panel.dispose()
+    } else {
+      this._disposePanelSubscriptions()
     }
 
     this._onDidPanelDispose.dispose()

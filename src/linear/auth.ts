@@ -1,8 +1,10 @@
 import { LinearClient } from "@linear/sdk"
 import { Controller } from "src/controller"
+import { isExtensionSession } from "src/extensionSession"
 import { ExtensionContext, authentication, window } from "vscode"
 
 import { CommandContext, setCommandContext } from "../commandsContext"
+import { notifyLinearMcpDefinitionsChanged } from "../mcp/registerLinearMcpServer"
 
 let linearClient: LinearClient | null = null
 
@@ -10,11 +12,18 @@ export enum LinearSecretKeys {
   accessToken = "linearAccessToken",
 }
 
-export async function initLinearClient(context: ExtensionContext): Promise<void> {
+export async function initLinearClient(
+  context: ExtensionContext,
+  sessionId?: number,
+): Promise<void> {
   try {
     const accessToken = await context.secrets.get(LinearSecretKeys.accessToken)
 
     if (accessToken) {
+      if (sessionId !== undefined && !isExtensionSession(sessionId)) {
+        return
+      }
+
       linearClient = new LinearClient({
         accessToken,
         headers: {
@@ -22,7 +31,8 @@ export async function initLinearClient(context: ExtensionContext): Promise<void>
         },
       })
       setCommandContext(CommandContext.linearAccountConnected, true)
-      await Controller.initialize(context)
+      notifyLinearMcpDefinitionsChanged()
+      await Controller.initialize(context, sessionId)
     } else {
       setCommandContext(CommandContext.linearAccountConnected, false)
     }
@@ -54,6 +64,7 @@ export async function linearConnect(context: ExtensionContext) {
 
       await Controller.initialize(context)
       setCommandContext(CommandContext.linearAccountConnected, true)
+      notifyLinearMcpDefinitionsChanged()
       window.showInformationMessage("Successfully connected to Linear API")
     } else {
       window.showErrorMessage("Failed to acquire a Linear API session.")
@@ -73,6 +84,7 @@ export async function linearDisconnect(context: ExtensionContext) {
   Controller.linearService?.invalidateAll()
   Controller.dispose()
   setCommandContext(CommandContext.linearAccountConnected, false)
+  notifyLinearMcpDefinitionsChanged()
   window.showInformationMessage("Successfully disconnected from Linear API")
 }
 

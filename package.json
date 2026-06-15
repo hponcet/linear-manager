@@ -45,6 +45,12 @@
     "prepare": "husky"
   },
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "linearManager.mcp",
+        "label": "Linear Manager"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -116,6 +122,20 @@
         "enablement": "linearManager:isLinearAuthenticated"
       },
       {
+        "command": "linearManager.commands.startWorkWithAgent",
+        "title": "Start work with agent",
+        "icon": "$(sparkle)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.reviewPullRequestWithAgent",
+        "title": "Review with agent",
+        "icon": "$(sparkle)",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
         "command": "linearManager.commands.configureBranch",
         "title": "Configure branch for issue",
         "category": "Linear manager",
@@ -124,7 +144,10 @@
       {
         "command": "linearManager.commands.checkoutIssue",
         "title": "Checkout to branch",
-        "icon": "$(git-branch)",
+        "icon": {
+          "light": "resources/images/checkout-light.svg",
+          "dark": "resources/images/checkout-dark.svg"
+        },
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
       },
@@ -151,6 +174,13 @@
       {
         "command": "linearManager.commands.openSettings",
         "title": "Settings",
+        "category": "Linear manager",
+        "enablement": "linearManager:isLinearAuthenticated"
+      },
+      {
+        "command": "linearManager.commands.openSettingsTab",
+        "title": "Open settings",
+        "icon": "$(gear)",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated"
       },
@@ -209,6 +239,14 @@
           "when": "false"
         },
         {
+          "command": "linearManager.commands.startWorkWithAgent",
+          "when": "false"
+        },
+        {
+          "command": "linearManager.commands.reviewPullRequestWithAgent",
+          "when": "false"
+        },
+        {
           "command": "linearManager.commands.configureBranch",
           "when": "false"
         },
@@ -235,6 +273,10 @@
         {
           "command": "linearManager.commands.checkoutPullRequestBranch",
           "when": "false"
+        },
+        {
+          "command": "linearManager.commands.openSettingsTab",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -249,9 +291,25 @@
           "group": "navigation"
         },
         {
+          "command": "linearManager.commands.openSettingsTab",
+          "when": "view == linearManager.views.myIssues",
+          "group": "navigation",
+          "args": [
+            "workflow"
+          ]
+        },
+        {
           "command": "linearManager.commands.refreshPullRequests",
           "when": "view == linearManager.views.pullRequests",
           "group": "navigation"
+        },
+        {
+          "command": "linearManager.commands.openSettingsTab",
+          "when": "view == linearManager.views.pullRequests",
+          "group": "navigation",
+          "args": [
+            "git"
+          ]
         }
       ],
       "view/item/context": [
@@ -268,6 +326,11 @@
         {
           "command": "linearManager.commands.startWork",
           "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
+          "group": "2issueActions"
+        },
+        {
+          "command": "linearManager.commands.startWorkWithAgent",
+          "when": "viewItem =~ /^issueItem/ && linearManager:isCursor",
           "group": "2issueActions"
         },
         {
@@ -301,6 +364,11 @@
           "group": "inline@1"
         },
         {
+          "command": "linearManager.commands.reviewPullRequestWithAgent",
+          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isCursor",
+          "group": "inline@0"
+        },
+        {
           "command": "linearManager.commands.openPullRequestUrl",
           "when": "viewItem =~ /^pullRequestItem/",
           "group": "inline@2"
@@ -308,6 +376,11 @@
         {
           "command": "linearManager.commands.openPullRequestDiff",
           "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "group": "1open"
+        },
+        {
+          "command": "linearManager.commands.reviewPullRequestWithAgent",
+          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isCursor",
           "group": "1open"
         },
         {
@@ -367,7 +440,7 @@
     "@types/pngjs": "^6.0.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@types/vscode": "^1.105.0",
+    "@types/vscode": "^1.120.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
@@ -424,6 +497,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@floating-ui/react": "^0.27.16",
     "@linear/sdk": "^70.0.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-popover": "^1.1.15",
     "@tiptap/core": "^3.15.3",
@@ -458,6 +532,7 @@
     "rsuite": "^6.1.1",
     "serve": "^14.2.5",
     "simple-git": "^3.30.0",
-    "uuid": "^13.0.2"
+    "uuid": "^13.0.2",
+    "zod": "^4.4.3"
   }
 }

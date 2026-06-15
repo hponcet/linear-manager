@@ -4,17 +4,25 @@ import { Container } from "src/webviews/components/Container/Container"
 import { IssueContextProvider } from "src/webviews/contexts/IssueContext"
 import { useProps } from "src/webviews/hooks/useProps"
 
-import { SettingsView } from "./SettingsView"
+import { resolveSettingsTabFromRequest } from "./settingsTabRequest"
+import { DEFAULT_SETTINGS_TAB, SettingsTab, SettingsView } from "./SettingsView"
 
 export function SettingsWebview() {
   const [initialProps, loaded] = useProps<"settings">()
   const [props, setProps] = useState<Props["settings"]>(initialProps)
+  const [activeTab, setActiveTab] = useState<SettingsTab>(DEFAULT_SETTINGS_TAB)
 
   useEffect(() => {
     if (loaded) {
       setProps(initialProps)
     }
   }, [loaded, initialProps])
+
+  useEffect(() => {
+    setActiveTab((currentTab) =>
+      resolveSettingsTabFromRequest(currentTab, props.tabRequestId, props.initialTab),
+    )
+  }, [props.tabRequestId, props.initialTab])
 
   useEffect(() => {
     function handleMessage(event: MessageEvent<GlobalListenerMessage>) {
@@ -27,13 +35,13 @@ export function SettingsWebview() {
     return () => window.removeEventListener("message", handleMessage)
   }, [])
 
-  const { issueId, linearAccessToken, initialTab } = props
+  const { issueId, linearAccessToken } = props
 
   if (!loaded) {
     return <Container loading={true} />
   }
 
-  const content = <SettingsView initialTab={initialTab} />
+  const content = <SettingsView activeTab={activeTab} onActiveTabChange={setActiveTab} />
 
   if (issueId && linearAccessToken) {
     return (

@@ -162,6 +162,7 @@ const IssueContextReact = createContext<IssueContextValueData>({
       openIssue: () => Promise.reject(),
       startWork: () => Promise.reject(),
       openSettings: () => Promise.reject(),
+      launchCursorAgent: () => Promise.reject(),
       getGitStatus: () => Promise.reject(),
       getAllBranches: () => Promise.reject(),
       getCurrentBranch: () => Promise.reject(),

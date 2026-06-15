@@ -39,11 +39,13 @@ export type Props = {
     fromCheckout: boolean
     repoInitialized: boolean
     gitInitialized: boolean
+    isCursor: boolean
   }
   settings: {
     issueId: SerializedIssue["id"] | null
     linearAccessToken: string | undefined
-    initialTab?: "git" | "workflow"
+    initialTab?: "git" | "workflow" | "agent"
+    tabRequestId?: number
   }
 }
 
@@ -128,7 +130,8 @@ export type Message<K extends keyof Props = any> =
   | Action<"getCurrentBranch", void, Ref | null>
   | Action<"createBranch", { branchName: string; from: Ref; stashChanges?: boolean }, Ref>
   | Action<"startWork", { issueId: SerializedIssue["id"] }>
-  | Action<"openSettings", { tab?: "git" | "workflow" }>
+  | Action<"launchCursorAgent", { issueId: SerializedIssue["id"] }>
+  | Action<"openSettings", { tab?: "git" | "workflow" | "agent" }>
   | Action<"hasUncommittedChanges", void, boolean>
   | Action<"checkout", { branch: Ref; stashChanges?: boolean }>
   | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>
@@ -161,7 +164,8 @@ export type GlobalListenerMessage =
       {
         issueId: SerializedIssue["id"] | null
         linearAccessToken: string | undefined
-        initialTab?: "git" | "workflow"
+        initialTab?: "git" | "workflow" | "agent"
+        tabRequestId?: number
       }
     >
 

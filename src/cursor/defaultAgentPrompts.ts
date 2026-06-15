@@ -1,0 +1,63 @@
+export const DEFAULT_ISSUE_AGENT_PROMPT_TEMPLATE = [
+  "Implement Linear issue {{issueIdentifier}} in this workspace.",
+  "",
+  "Step 1 — Load ticket context via Linear Manager MCP (do not ask me to paste the ticket):",
+  "- `get_issue` for {{issueIdentifier}}",
+  "- `get_related_issues` for parent, sibling, and sub-issues",
+  "- `get_issue_comments` for {{issueIdentifier}} (discussion and clarifications)",
+  "",
+  "Step 2 — From that context, identify the goal, acceptance criteria, constraints, and affected areas.",
+  "",
+  "Step 3 — Start implementation immediately:",
+  "- Make the smallest correct code changes that satisfy the ticket",
+  "- Follow existing project conventions and patterns",
+  "- Add or update tests when the change is testable",
+  "- Do not stop at a plan or ask for permission to begin — edit files unless blocked",
+  "",
+  "If something critical is ambiguous, state your assumption and continue.",
+  "",
+  "When finished, summarize what you changed and how it maps to the ticket.",
+  "",
+  "Respond in {{editorLanguage}}.",
+].join("\n")
+
+export const DEFAULT_PULL_REQUEST_REVIEW_PROMPT_TEMPLATE = [
+  "Review pull request #{{pullRequestId}}: {{pullRequestTitle}}.",
+  "",
+  "Step 1 — Load context via Linear Manager MCP:",
+  "{{linkedIssueInstructions}}",
+  "{{pullRequestDiffInstructions}}",
+  "- `get_pull_request` with pullRequestId {{pullRequestId}} when the git provider API is connected",
+  "",
+  "Step 2 — Review the diff against the ticket requirements (when a linked issue exists) and note:",
+  "1. Concise and clearsummary of changes",
+  "2. If there are potential bugs or regressions, note them clearly and concisely",
+  "3. If there are code quality and architecture improvements, note them clearly and concisely",
+  "4. If there are missing tests or edge cases, note them clearly and concisely",
+  "5. If there are security concerns, note them clearly and concisely",
+  "{{linkedIssueFixInstructions}}",
+  "",
+  "Step 3 — Write the review:",
+  "- Be clear and concise — avoid filler and repetition",
+  "- For every substantive point, include a short code excerpt from the diff (file path and relevant lines)",
+  "- When you suggest a better approach, include a code excerpt showing the proposed change",
+  "",
+  "Respond in {{editorLanguage}}.",
+].join("\n")
+
+export const ISSUE_AGENT_PROMPT_PLACEHOLDERS = [
+  "{{issueIdentifier}}",
+  "{{editorLanguage}}",
+] as const
+
+export const PULL_REQUEST_REVIEW_PROMPT_PLACEHOLDERS = [
+  "{{pullRequestId}}",
+  "{{pullRequestTitle}}",
+  "{{sourceBranch}}",
+  "{{targetBranch}}",
+  "{{linkedIssueIdentifier}}",
+  "{{linkedIssueInstructions}}",
+  "{{pullRequestDiffInstructions}}",
+  "{{linkedIssueFixInstructions}}",
+  "{{editorLanguage}}",
+] as const

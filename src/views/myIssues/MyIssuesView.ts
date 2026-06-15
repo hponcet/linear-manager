@@ -1,10 +1,12 @@
 import { User } from "@linear/sdk"
 import { Commands, Views } from "src/constants"
 import { Controller } from "src/controller"
+import { ensureCursorEnvironment } from "src/cursor/detectCursorEnvironment"
+import { launchCursorAgentForIssue } from "src/cursor/launchCursorAgentForIssue"
 import { logLinearApiCall } from "src/linear/LinearApiLogger"
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
 import { IssueWebview } from "src/panels/IssueWebview"
-import { SettingsWebview } from "src/panels/SettingsWebview"
+import { SettingsWebview, SettingsTab } from "src/panels/SettingsWebview"
 import { StartWorkWebview } from "src/panels/StartWorkWebview"
 import { IssueSyncPayload } from "src/types/IssueSync"
 import { WorkflowStateWithStateProgress } from "src/types/Linear"
@@ -89,8 +91,7 @@ export class MyIssuesView
   // Initialization
   // ============================================================
 
-  public async initialize(context: ExtensionContext): Promise<void> {
-    await this.fetchDatas()
+  public async initialize(): Promise<void> {
     this._startAutoRefresh()
 
     const focusDisposable = window.onDidChangeWindowState((state) => {
@@ -99,7 +100,6 @@ export class MyIssuesView
         this._refreshIssues()
       }
     })
-    context.subscriptions.push(focusDisposable)
     this.#disposables.push(focusDisposable)
 
     const configDisposable = workspace.onDidChangeConfiguration((event) => {
@@ -107,7 +107,6 @@ export class MyIssuesView
         this._restartAutoRefresh()
       }
     })
-    context.subscriptions.push(configDisposable)
     this.#disposables.push(configDisposable)
 
     // Create TreeView
@@ -117,7 +116,7 @@ export class MyIssuesView
       showCollapseAll: true,
       canSelectMany: true,
     })
-    context.subscriptions.push(this.#treeView)
+    this.#disposables.push(this.#treeView)
 
     // Register drag & drop providers
     const dragDropHandlers = {
@@ -125,8 +124,8 @@ export class MyIssuesView
       getIssue: (issueId: string) => this.#myIssues.get(issueId),
     }
 
-    const dropProvider = registerDropProvider(context, dragDropHandlers)
-    registerLinearIssueContentProvider(context, dragDropHandlers)
+    const dropProvider = registerDropProvider(dragDropHandlers)
+    const contentProvider = registerLinearIssueContentProvider(dragDropHandlers)
 
     // Register commands
     const disposableCommands = [
@@ -140,6 +139,9 @@ export class MyIssuesView
         this.openCurrentBranchIssue(),
       ),
       commands.registerCommand(Commands.startWork, (issue: Issue) => this.startWork(issue)),
+      commands.registerCommand(Commands.startWorkWithAgent, (issue: Issue) =>
+        this.startWorkWithAgent(issue),
+      ),
       commands.registerCommand(Commands.configureBranch, (issue: Issue) => this.startWork(issue)),
       commands.registerCommand(Commands.checkoutIssue, (issue: Issue) =>
         this.checkoutToIssueBranch(issue.id),
@@ -150,11 +152,16 @@ export class MyIssuesView
         this.openPullRequestForIssue(issue),
       ),
       commands.registerCommand(Commands.openSettings, (issue: Issue) => this.openSettings(issue)),
+      commands.registerCommand(Commands.openSettingsTab, (tab: SettingsTab) =>
+        this.openSettingsTab(tab),
+      ),
       dropProvider,
+      contentProvider,
     ]
 
-    context.subscriptions.push(...disposableCommands)
     this.#disposables.push(...disposableCommands)
+
+    await this.fetchDatas()
   }
 
   // ============================================================
@@ -255,6 +262,7 @@ export class MyIssuesView
     })
 
     await this._refreshAssigneeIcons(issues)
+    this.#treeItems.clear()
     this.#onDidChangeTreeData.fire()
   }
 
@@ -398,7 +406,27 @@ export class MyIssuesView
     await webview.open(issue, ViewColumn.Active)
   }
 
-  public async openSettings(issue: Issue, options?: { tab?: "git" | "workflow" }): Promise<void> {
+  public async startWorkWithAgent(issue: Issue) {
+    if (!(await ensureCursorEnvironment())) {
+      void window.showInformationMessage("Start work with agent is available in Cursor only.")
+      return
+    }
+
+    await launchCursorAgentForIssue(issue, this.#context)
+  }
+
+  public async openSettingsTab(tab: SettingsTab): Promise<void> {
+    const issue = this.#myIssues.values().next().value
+    if (!this.#settingsWebview) {
+      this.#settingsWebview = new SettingsWebview(this.#context, this.issuesActions)
+    }
+    await this.#settingsWebview.open(issue ?? {}, ViewColumn.Active, { tab })
+  }
+
+  public async openSettings(
+    issue: Issue,
+    options?: { tab?: "git" | "workflow" | "agent" },
+  ): Promise<void> {
     if (!this.#settingsWebview) {
       this.#settingsWebview = new SettingsWebview(this.#context, this.issuesActions)
     }
@@ -588,12 +616,32 @@ export class MyIssuesView
         await this.startWork(issueWithKey)
       }
     },
+    launchCursorAgent: async (issueId: Issue["id"]) => {
+      if (!issueId) {
+        return
+      }
+
+      const issue = this.#myIssues.get(issueId)
+      if (issue) {
+        await this.startWorkWithAgent(issue)
+        return
+      }
+
+      const issueWithKey = Controller.linearService.toTreeIssue(
+        await Controller.linearService.getIssue(issueId),
+      )
+      this.#myIssues.set(issueWithKey.id, issueWithKey)
+      await this.startWorkWithAgent(issueWithKey)
+    },
     refetchIssue: this._refetchIssue.bind(this) as typeof this._refetchIssue,
     refreshIssues: this._refreshIssues.bind(this) as typeof this._refreshIssues,
     checkoutToIssueBranch: this.checkoutToIssueBranch.bind(
       this,
     ) as typeof this.checkoutToIssueBranch,
-    openSettings: async (issueId: Issue["id"], options?: { tab?: "git" | "workflow" }) => {
+    openSettings: async (
+      issueId: Issue["id"],
+      options?: { tab?: "git" | "workflow" | "agent" },
+    ) => {
       if (!issueId) return
 
       const issue = this.#myIssues.get(issueId)
@@ -750,8 +798,9 @@ export class MyIssuesView
       this.#autoRefreshInterval = null
     }
 
-    this.#onDidChangeTreeData.dispose()
     this.#disposables.forEach((d) => d.dispose())
+    this.#disposables = []
+    this.#treeView = null
 
     this.#issuesWebviews.forEach((webview) => webview.dispose())
     this.#issuesWebviews.clear()
@@ -762,6 +811,8 @@ export class MyIssuesView
 
     this.#treeItems.clear()
     this.#myIssues.clear()
+    this.#assigneeIconByUserId.clear()
+    this.#assigneeByUserId.clear()
     this.#workflowStatesByTeam = {}
     this.#teams = {}
     this.#me = null

@@ -1,5 +1,6 @@
 import { Issue } from "@linear/sdk"
 import { Controller } from "src/controller"
+import { launchCursorAgentForIssueId } from "src/cursor/launchCursorAgentForIssue"
 import { formatLinearError } from "src/linear/formatLinearError"
 import { handleGitProviderIpcMessage } from "src/panels/gitProviderIpcHandlers"
 import { handleLinearIpcMessage } from "src/panels/linearIpcHandlers"
@@ -80,6 +81,10 @@ export abstract class AbstractIssueWebview<T extends keyof Props>
         }
         case "startWork": {
           await this.issueActions.startWork(msg.issueId)
+          return this.postMessage(msg.type, void 0, msg)
+        }
+        case "launchCursorAgent": {
+          await launchCursorAgentForIssueId(msg.issueId, this._context)
           return this.postMessage(msg.type, void 0, msg)
         }
         case "openSettings": {

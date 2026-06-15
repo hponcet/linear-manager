@@ -16,6 +16,7 @@ import {
 import { CommandContext, setCommandContext } from "../commandsContext"
 import { GitClient } from "../git/GitClient"
 import { pickTargetBranch } from "../git/pickTargetBranch"
+import { notifyLinearMcpDefinitionsChanged } from "../mcp/registerLinearMcpServer"
 import { VscStateKeys, SettingsVscState } from "../vscStates"
 
 type IssuePullRequestContext = {
@@ -260,6 +261,7 @@ export class GitProviderService {
     const status = await this.getStatus()
     const isAuthenticated = Boolean(status.provider && status.connected)
     await setCommandContext(CommandContext.gitProviderAuthenticated, isAuthenticated)
+    notifyLinearMcpDefinitionsChanged()
     this.#onAuthContextChanged.fire()
   }
 }

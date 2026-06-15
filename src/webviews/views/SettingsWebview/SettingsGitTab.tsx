@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { PanelGroup } from "rsuite"
 import { useGitProvider } from "src/webviews/hooks/useGitProvider"
 import { useSettings } from "src/webviews/hooks/useSettings"
 import { GitProviderConnectionSection } from "src/webviews/views/StartWorkWebview/GitProviderConnectionSection"
@@ -37,32 +38,37 @@ export function SettingsGitTab() {
   }
 
   return (
-    <GitSettingsSection
-      title="Provider connection"
-      description="Connect to your git host to look up and open pull requests from issues."
-    >
-      <GitProviderConnectionSection
-        branchesSettings={branchesSettings}
-        updateSettings={updateSettings}
-        providerStatus={providerStatus}
-        oauthSetup={oauthSetup}
-        connecting={connecting}
-        onConnect={selectedProvider === "bitbucket" ? handleBitbucketConnect : () => void connect()}
-        onDisconnect={() => void disconnect()}
-        onProviderChange={(provider) => {
-          void refreshStatus()
-          if (provider) {
-            void refreshOAuthSetup(provider)
+    <PanelGroup className="settings-panel-group">
+      <GitSettingsSection
+        eventKey="provider-connection"
+        title="Provider connection"
+        description="Connect to your git host to look up and open pull requests from issues."
+      >
+        <GitProviderConnectionSection
+          branchesSettings={branchesSettings}
+          updateSettings={updateSettings}
+          providerStatus={providerStatus}
+          oauthSetup={oauthSetup}
+          connecting={connecting}
+          onConnect={
+            selectedProvider === "bitbucket" ? handleBitbucketConnect : () => void connect()
           }
-        }}
-        onBitbucketAuthMethodChange={(method) => {
-          void refreshOAuthSetup("bitbucket", method)
-        }}
-        bitbucketApiToken={bitbucketApiToken}
-        onBitbucketApiTokenChange={setBitbucketApiToken}
-        bitbucketOAuthSecret={bitbucketOAuthSecret}
-        onBitbucketOAuthSecretChange={setBitbucketOAuthSecret}
-      />
-    </GitSettingsSection>
+          onDisconnect={() => void disconnect()}
+          onProviderChange={(provider) => {
+            void refreshStatus()
+            if (provider) {
+              void refreshOAuthSetup(provider)
+            }
+          }}
+          onBitbucketAuthMethodChange={(method) => {
+            void refreshOAuthSetup("bitbucket", method)
+          }}
+          bitbucketApiToken={bitbucketApiToken}
+          onBitbucketApiTokenChange={setBitbucketApiToken}
+          bitbucketOAuthSecret={bitbucketOAuthSecret}
+          onBitbucketOAuthSecretChange={setBitbucketOAuthSecret}
+        />
+      </GitSettingsSection>
+    </PanelGroup>
   )
 }

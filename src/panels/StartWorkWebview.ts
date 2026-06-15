@@ -1,6 +1,7 @@
 import { Issue } from "@linear/sdk"
 import { Webviews } from "src/constants"
 import { Controller } from "src/controller"
+import { isCursorEnvironmentReady } from "src/cursor/detectCursorEnvironment"
 import { LinearSecretKeys } from "src/linear/auth"
 import { MyIssuesView } from "src/views/myIssues"
 import { ExtensionContext, ViewColumn } from "vscode"
@@ -35,6 +36,7 @@ export class StartWorkWebview extends AbstractIssueWebview<"startWork"> {
       fromCheckout: this.#fromCheckout,
       repoInitialized: Controller.git.repositoryActive,
       gitInitialized: Controller.git.apiActive,
+      isCursor: isCursorEnvironmentReady(),
     }
 
     this.#fromCheckout = false

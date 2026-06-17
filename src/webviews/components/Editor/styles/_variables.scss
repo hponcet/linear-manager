@@ -160,24 +160,30 @@
   --tt-foreground-contrast: 8%;
 }
 
-:root {
+:root,
+.dark,
+.light {
+  /* stylelint-disable custom-property-pattern */
+
   /************************************************** 
       Global colors 
   **************************************************/
 
-  /* Global colors - Light mode */
-  --tt-bg-color: var(--black);
-  --tt-border-color: var(--tt-gray-dark-a-200);
-  --tt-border-color-tint: var(--tt-gray-dark-a-100);
-  --tt-sidebar-bg-color: var(--tt-gray-dark-100);
-  --tt-scrollbar-color: var(--tt-gray-dark-a-200);
-  --tt-cursor-color: var(--tt-brand-color-400);
-  --tt-selection-color: rgb(122 82 255 / 20%);
-  --tt-card-bg-color: var(--tt-gray-dark-50);
-  --tt-card-border-color: var(--tt-gray-dark-a-50);
+  --tt-bg-color: var(--vscode-editor-background);
+  --tt-border-color: color-mix(in srgb, var(--vscode-foreground) 11%, transparent);
+  --tt-border-color-tint: color-mix(in srgb, var(--vscode-foreground) 7%, transparent);
+  --tt-sidebar-bg-color: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  --tt-scrollbar-color: var(--vscode-scrollbarSlider-background);
+  --tt-cursor-color: var(--vscode-textLink-foreground);
+  --tt-selection-color: color-mix(in srgb, var(--vscode-textLink-foreground) 20%, transparent);
+  --tt-card-bg-color: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+  --tt-card-border-color: var(--vscode-widget-border, var(--vscode-panel-border));
   --tt-shadow-elevated-md:
-    0px 16px 48px 0px rgb(0 0 0 / 50%), 0px 12px 24px 0px rgb(0 0 0 / 24%),
-    0px 6px 8px 0px rgb(0 0 0 / 22%), 0px 2px 3px 0px rgb(0 0 0 / 12%);
+    0px 16px 48px 0px color-mix(in srgb, var(--vscode-foreground) 4%, transparent),
+    0px 12px 24px 0px color-mix(in srgb, var(--vscode-foreground) 4%, transparent),
+    0px 6px 8px 0px color-mix(in srgb, var(--vscode-foreground) 2%, transparent),
+    0px 2px 3px 0px color-mix(in srgb, var(--vscode-foreground) 2%, transparent);
+  /* stylelint-enable custom-property-pattern */
 }
 
 /* Text colors */

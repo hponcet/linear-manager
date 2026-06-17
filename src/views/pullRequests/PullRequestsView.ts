@@ -350,7 +350,7 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
       await Controller.git.checkout({ type: RefType.Head, name: branchName })
     } catch (error) {
       window.showErrorMessage(
-        error instanceof Error ? error.message : "Failed to checkout pull request branch.",
+        error instanceof Error ? error.message : "Failed to switch to pull request branch.",
       )
     }
   }

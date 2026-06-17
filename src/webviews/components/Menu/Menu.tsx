@@ -54,7 +54,7 @@ export function Menu(props: MenuProps) {
   return (
     <Whisper placement="bottomEnd" trigger="click" speaker={renderMenu}>
       <div>
-        <Button>
+        <Button variant="subtle" iconOnly>
           <MenuIcon />
         </Button>
       </div>

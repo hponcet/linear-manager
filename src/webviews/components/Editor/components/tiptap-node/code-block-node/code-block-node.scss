@@ -1,20 +1,24 @@
 /* stylelint-disable selector-class-pattern */
+/* stylelint-disable custom-property-pattern */
 .tiptap.ProseMirror {
   --tt-inline-code-bg-color: var(--tt-gray-dark-a-100);
   --tt-inline-code-text-color: var(--tt-gray-dark-a-700);
   --tt-inline-code-border-color: var(--tt-gray-dark-a-200);
-  --tt-codeblock-bg: rgb(21 21 21) !important;
-  --tt-codeblock-text: var(--tt-gray-dark-a-800);
-  --tt-codeblock-border: var(--tt-gray-dark-a-200);
+  --tt-codeblock-bg: var(
+    --vscode-textCodeBlock-background,
+    var(--vscode-editor-background)
+  ) !important;
+  --tt-codeblock-text: var(--vscode-foreground);
+  --tt-codeblock-border: var(--vscode-widget-border, var(--tt-gray-dark-a-200));
 }
 
-.light {
+.light .tiptap.ProseMirror {
   --tt-inline-code-bg-color: var(--tt-gray-light-a-100);
   --tt-inline-code-text-color: var(--tt-gray-light-a-700);
   --tt-inline-code-border-color: var(--tt-gray-light-a-200);
-  --tt-codeblock-bg: rgb(21 21 21);
-  --tt-codeblock-text: var(--tt-gray-light-a-800);
-  --tt-codeblock-border: var(--tt-gray-light-a-200);
+  --tt-codeblock-bg: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
+  --tt-codeblock-text: var(--vscode-foreground);
+  --tt-codeblock-border: var(--vscode-widget-border, var(--tt-gray-light-a-200));
 }
 
 /* =====================

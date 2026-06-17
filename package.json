@@ -145,7 +145,7 @@
       },
       {
         "command": "linearManager.commands.checkoutIssue",
-        "title": "Checkout to branch",
+        "title": "Switch to branch",
         "icon": {
           "light": "resources/images/checkout-light.svg",
           "dark": "resources/images/checkout-dark.svg"
@@ -222,7 +222,7 @@
       },
       {
         "command": "linearManager.commands.checkoutPullRequestBranch",
-        "title": "Checkout source branch",
+        "title": "Switch to source branch",
         "category": "Linear manager",
         "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
       }
@@ -484,7 +484,6 @@
     "postcss-preset-env": "^10.6.0",
     "process": "^0.11.10",
     "sass": "^1.97.2",
-    "sass-embedded": "^1.97.2",
     "sass-loader": "^16.0.6",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",

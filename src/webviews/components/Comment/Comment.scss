@@ -32,7 +32,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: lch(80% 80 141.95deg);
+    color: var(--color-success);
     line-height: normal;
     font-size: var(--font-size-small);
     margin-left: 8px;
@@ -64,7 +64,7 @@
     .issueCommentUpdateButton-cancel,
     .issueCommentUpdateButton {
       border: 1px solid var(--rs-border-primary);
-      background-color: rgb(255 255 255 / 10%);
+      background-color: var(--lm-hover-overlay);
       margin-left: 8px;
       padding: 0 10px;
     }

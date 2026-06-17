@@ -53,7 +53,7 @@ export function CheckoutButton(props: CheckoutButtonProps) {
           "You have uncommitted changes"
         ) : (
           <span>
-            <CheckoutIcon /> Checkout on branch <Branch branch={issueBranch} inline="text" />
+            <CheckoutIcon /> Switch to <Branch branch={issueBranch} inline="text" />
           </span>
         )
       }

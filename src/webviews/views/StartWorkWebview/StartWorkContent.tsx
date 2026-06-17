@@ -10,6 +10,8 @@ import { StartWorkBanner } from "./StartWorkBanner"
 import { StartWorkBranchCreation } from "./StartWorkBranchCreation"
 import { StartWorkHeader } from "./StartWorkHeader"
 
+import "./StartWorkHeader.scss"
+
 export type StartWorkContentProps = {
   branches?: Ref[]
   currentBranch?: Ref | null

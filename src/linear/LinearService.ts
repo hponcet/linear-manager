@@ -12,7 +12,6 @@ import {
   buildIssueHistoryEnrichmentContext,
   enrichIssueHistoryEntries,
 } from "src/linear/issueHistoryEnrichment"
-import { logLinearApiCall } from "src/linear/LinearApiLogger"
 import { LinearCacheStore } from "src/linear/LinearCacheStore"
 import {
   fetchAssignedIssues,
@@ -54,8 +53,7 @@ export class LinearService {
 
   constructor(getClient: () => LinearClient | null, cache?: LinearCacheStore) {
     this.#getClient = getClient
-    this.#cache =
-      cache ?? new LinearCacheStore({ onCacheHit: (key) => logLinearApiCall(`cacheHit:${key}`) })
+    this.#cache = cache ?? new LinearCacheStore()
   }
 
   invalidateTeam(teamId: string): void {
@@ -120,7 +118,6 @@ export class LinearService {
 
   async getPriorities(): Promise<IssuePriorityValue[]> {
     return this.#cache.getOrFetch("priorities", async () => {
-      logLinearApiCall("issuePriorityValues")
       const client = this.#requireClient()
       return client.issuePriorityValues
     })
@@ -128,7 +125,6 @@ export class LinearService {
 
   async getTeam(teamId: string): Promise<Team> {
     return this.#cache.getOrFetch(`team:${teamId}`, async () => {
-      logLinearApiCall(`team:${teamId}`)
       const client = this.#requireClient()
       return client.team(teamId)
     })
@@ -140,7 +136,6 @@ export class LinearService {
     }
 
     return this.#cache.getOrFetch(`issue:${issueId}`, async () => {
-      logLinearApiCall(`issue:${issueId}`)
       const client = this.#requireClient()
       return client.issue(issueId)
     })
@@ -155,7 +150,6 @@ export class LinearService {
     const issueId = await this.#cache.getOrFetch<string | null>(
       `issueIdentifier:${normalized}`,
       async () => {
-        logLinearApiCall(`searchIssues:${normalized}`)
         const client = this.#requireClient()
         const result = await client.searchIssues(normalized)
         const match = result.nodes.find((node) => node.identifier?.toUpperCase() === normalized)
@@ -188,7 +182,6 @@ export class LinearService {
   }
 
   async getComments(issueId: string): Promise<Comment[]> {
-    logLinearApiCall(`comments:${issueId}`)
     const client = this.#requireClient()
     const comments = await client.comments({
       filter: { issue: { id: { eq: issueId } } },
@@ -198,7 +191,6 @@ export class LinearService {
   }
 
   async getSubIssues(issueId: string): Promise<Issue[]> {
-    logLinearApiCall(`subIssues:${issueId}`)
     const issue = await this.getIssue(issueId)
     const subIssues = await issue.children({ last: 100 })
     return fetchAllPreviousPages(subIssues)
@@ -208,14 +200,12 @@ export class LinearService {
     issueId: string,
     options?: { bypassCache?: boolean },
   ): Promise<Attachment[]> {
-    logLinearApiCall(`attachments:${issueId}`)
     const issue = await this.getIssue(issueId, options)
     const attachments = await issue.attachments({ last: 100 })
     return fetchAllPreviousPages(attachments)
   }
 
   async getIssueHistory(params: IssueHistoryRequest): Promise<IssueHistoryPage> {
-    logLinearApiCall(`issueHistory:${params.issueId}`)
     const client = this.#requireClient()
     const issue = await this.getIssue(params.issueId)
     const firstPage = await issue.history({ first: 50 })
@@ -223,7 +213,6 @@ export class LinearService {
     let endCursor = firstPage.pageInfo.endCursor ?? null
 
     while (endCursor) {
-      logLinearApiCall(`issueHistory:${params.issueId}:page`)
       const page = await issue.history({
         before: endCursor,
         last: 50,
@@ -245,7 +234,6 @@ export class LinearService {
   }
 
   async updateIssue(issueId: string, fields: IssueUpdateFields): Promise<Issue> {
-    logLinearApiCall(`updateIssue:${issueId}`)
     const client = this.#requireClient()
     const result = await client.updateIssue(issueId, fields)
     const updatedIssue = await result.issue
@@ -262,7 +250,6 @@ export class LinearService {
   }
 
   async createComment(input: Parameters<LinearClient["createComment"]>[0]): Promise<void> {
-    logLinearApiCall("createComment")
     await this.#requireClient().createComment(input)
     if (input.issueId) {
       this.invalidateIssue(input.issueId)
@@ -270,17 +257,14 @@ export class LinearService {
   }
 
   async updateComment(commentId: string, body: string): Promise<void> {
-    logLinearApiCall(`updateComment:${commentId}`)
     await this.#requireClient().updateComment(commentId, { body })
   }
 
   async deleteComment(commentId: string): Promise<void> {
-    logLinearApiCall(`deleteComment:${commentId}`)
     await this.#requireClient().deleteComment(commentId)
   }
 
   async commentResolve(commentId: string, resolvingCommentId?: string): Promise<void> {
-    logLinearApiCall(`commentResolve:${commentId}`)
     await this.#requireClient().commentResolve(
       commentId,
       resolvingCommentId ? { resolvingCommentId } : undefined,
@@ -288,12 +272,10 @@ export class LinearService {
   }
 
   async commentUnresolve(commentId: string): Promise<void> {
-    logLinearApiCall(`commentUnresolve:${commentId}`)
     await this.#requireClient().commentUnresolve(commentId)
   }
 
   async createReaction(reaction: CreateReactionInput): Promise<void> {
-    logLinearApiCall("createReaction")
     await this.#requireClient().createReaction(reaction)
     if (reaction.issueId) {
       this.invalidateIssue(reaction.issueId)
@@ -301,7 +283,6 @@ export class LinearService {
   }
 
   async deleteReaction(reactionId: string, issueId?: string): Promise<void> {
-    logLinearApiCall(`deleteReaction:${reactionId}`)
     await this.#requireClient().deleteReaction(reactionId)
     if (issueId) {
       this.invalidateIssue(issueId)
@@ -309,7 +290,6 @@ export class LinearService {
   }
 
   async deleteAttachment(attachmentId: string, issueId?: string): Promise<void> {
-    logLinearApiCall(`deleteAttachment:${attachmentId}`)
     await this.#requireClient().deleteAttachment(attachmentId)
     if (issueId) {
       this.invalidateIssue(issueId)
@@ -317,7 +297,6 @@ export class LinearService {
   }
 
   async createAttachment(input: Parameters<LinearClient["createAttachment"]>[0]): Promise<void> {
-    logLinearApiCall("createAttachment")
     await this.#requireClient().createAttachment(input)
     this.invalidateIssue(input.issueId)
   }
@@ -327,7 +306,6 @@ export class LinearService {
     teamId: string,
     fields: IssueUpdateFields,
   ): Promise<Issue> {
-    logLinearApiCall("createSubIssue")
     const result = await this.#requireClient().createIssue({
       ...fields,
       parentId,
@@ -344,7 +322,6 @@ export class LinearService {
   }
 
   async deleteSubIssue(issueId: string): Promise<void> {
-    logLinearApiCall(`deleteSubIssue:${issueId}`)
     await this.#requireClient().deleteIssue(issueId)
     this.invalidateIssue(issueId)
     this.invalidateIssueLists()

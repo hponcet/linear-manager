@@ -39,7 +39,11 @@ export function Attachments(props: AttachmentsProps) {
             paddingBottom: 10,
           }}
         >
-          <Button onClick={() => setCollapsed(!collapsed)} className="attachmentsButton">
+          <Button
+            onClick={() => setCollapsed(!collapsed)}
+            appearance="subtle"
+            className="attachmentsButton"
+          >
             <CaretIcon
               style={{
                 transform: collapsed ? "rotate(0deg)" : "rotate(90deg)",

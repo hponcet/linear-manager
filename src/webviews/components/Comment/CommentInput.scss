@@ -1,3 +1,5 @@
+/* stylelint-disable custom-property-pattern */
+
 .commentInputContainer {
   padding: 8px 12px;
   border-radius: 5px;
@@ -6,7 +8,7 @@
   margin-bottom: 8px;
   z-index: 15;
   position: relative;
-  outline: 3px solid var(--bg-color);
+  outline: none;
   display: flex;
   flex-direction: column;
 }
@@ -19,46 +21,4 @@
   align-items: center;
   flex-grow: 1;
   gap: 12px;
-}
-
-.commentSendButton {
-  padding: 0 !important;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: inline-flex;
-  vertical-align: top;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin: 0;
-  font-weight: 500;
-  line-height: normal;
-  transition-property: border, background-color, color, opacity;
-  transition-duration: 0.15s;
-  user-select: none;
-  position: relative;
-  border: 1px solid lch(53.751% 61.636 288.421deg);
-  box-shadow:
-    lch(0% 0 0deg / 6%) 0 4px 4px -1px,
-    lch(0% 0 0deg / 12%) 0 1px 1px 0;
-  background-color: lch(47.918% 59.303 288.421deg);
-  color: lch(100% 5 288.421deg);
-  min-width: 24px;
-  font-size: var(--font-size-mini);
-  border-radius: 50%;
-  fill: #ffffff;
-
-  &:disabled {
-    background-color: lch(34.961% 20.787 288.421deg);
-    border-color: lch(34.961% 20.787 288.421deg);
-    color: lch(78.065% 5 288.421deg);
-    fill: lch(78.065% 5 288.421deg);
-    box-shadow: none;
-    cursor: normal;
-  }
-
-  &:not(:disabled):hover {
-    background-color: lch(53.751% 61.636 288.421deg);
-  }
 }

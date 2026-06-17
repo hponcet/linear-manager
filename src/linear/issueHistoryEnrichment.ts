@@ -17,7 +17,6 @@ import {
   SerializedWorkflowState,
 } from "src/types/SerializedLinear"
 
-import { logLinearApiCall } from "./LinearApiLogger"
 import { serializeIssueHistoryEntry } from "./serializeForIpc"
 import { TeamMetadata } from "./teamMetadata"
 
@@ -115,7 +114,6 @@ export async function fetchMissingWorkflowStates(
 
   await Promise.all(
     missing.map(async (stateId) => {
-      logLinearApiCall(`workflowState:${stateId}`)
       const connection = await client.workflowStates({
         filter: { id: { eq: stateId } },
       })

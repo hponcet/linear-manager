@@ -65,14 +65,14 @@
   [data-resize-handle] {
     min-height: 20px;
     position: absolute;
-    background: rgb(0 0 0 / 50%);
-    border: 1px solid rgb(255 255 255 / 50%);
+    background: color-mix(in srgb, var(--vscode-foreground) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--vscode-editor-background) 50%, transparent);
     border-radius: 10px;
     overflow: hidden;
     z-index: 10;
 
     &:hover {
-      background: rgb(0 0 0 / 80%);
+      background: color-mix(in srgb, var(--vscode-foreground) 80%, transparent);
     }
 
     /* Edge handles */
@@ -95,7 +95,7 @@
   }
 
   [data-resize-state="true"] [data-resize-wrapper] {
-    outline: 1px solid rgb(0 0 0 / 25%);
+    outline: 1px solid color-mix(in srgb, var(--vscode-foreground) 25%, transparent);
     border-radius: 0.125rem;
   }
 }

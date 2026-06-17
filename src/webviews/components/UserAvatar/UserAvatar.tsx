@@ -78,7 +78,7 @@ export function UserAvatar(props: UserAvatarProps) {
         justifyContent: "center",
         fontSize: size ? size * 0.5 : undefined,
         fontWeight: "bold",
-        color: "#fff",
+        color: "var(--vscode-button-foreground, #fff)",
         ...style,
       }}
     >

@@ -5,15 +5,15 @@
   min-width: 220px;
   max-width: 320px;
   padding: 4px;
-  border: 1px solid var(--vscode-widget-border, rgb(255 255 255 / 12%));
+  border: 1px solid var(--vscode-widget-border, var(--rs-border-primary));
   border-radius: 6px;
-  background: var(--vscode-editorWidget-background, #252526);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 24%);
+  background: var(--vscode-editorWidget-background, var(--rs-bg-overlay));
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--vscode-foreground) 24%, transparent);
 }
 
 .mentionListEmpty {
   padding: 8px 10px;
-  color: var(--vscode-descriptionForeground, #9d9d9d);
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
   font-size: 12px;
 }
 
@@ -26,14 +26,14 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--vscode-foreground, #cccccc);
+  color: var(--vscode-foreground, var(--rs-text-primary));
   cursor: pointer;
   text-align: left;
 }
 
 .mentionListItem.is-selected,
 .mentionListItem:hover {
-  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+  background: var(--vscode-list-hoverBackground, var(--lm-hover-overlay));
 }
 
 .mentionListItemLabel {
@@ -43,6 +43,6 @@
 
 .mentionListItemMeta {
   margin-left: auto;
-  color: var(--vscode-descriptionForeground, #9d9d9d);
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
   font-size: 12px;
 }

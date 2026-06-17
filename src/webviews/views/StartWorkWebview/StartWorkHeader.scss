@@ -33,24 +33,46 @@
 .startWorkContentActions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .startWorkContentLeftActions {
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
-.startWorkAgentButton.button.rs-btn {
-  background-color: var(--vscode-textLink-foreground, #3794ff);
-  border-color: var(--vscode-textLink-foreground, #3794ff);
-  color: #ffffff;
-  fill: #ffffff;
+.startWorkContentInfoBox {
+  margin-top: 8px;
+}
 
-  &:hover:not(:disabled, [data-disabled="true"]) {
-    background-color: var(--vscode-textLink-activeForeground, #2f7fe0);
-    border-color: var(--vscode-textLink-activeForeground, #2f7fe0);
-    color: #ffffff;
-    fill: #ffffff;
-  }
+.startWorkActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.startWorkBannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.startWorkBannerBranchRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
 }

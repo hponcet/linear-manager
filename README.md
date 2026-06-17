@@ -13,7 +13,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 - Persisted expand/collapse state for teams and workflow columns
 - Assignee avatar icons in the tree view
 - Inline hover actions on issues:
-  - **Start work** or **Checkout** (when a branch is configured)
+  - **Start work** or **Switch to branch** (when a branch is configured)
   - **Create pull request** (when a branch exists and a git provider is connected)
   - **Open on Linear**
 
@@ -21,7 +21,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 
 - Start Work flow: create or bind a branch, update issue state/cycle, optional stash
 - Git provider settings for **GitHub**, **GitLab**, and **Bitbucket Cloud** (OAuth or API token)
-- **Pull requests** sidebar: open linked issues, diff, checkout source branch, open on the web
+- **Pull requests** sidebar: open linked issues, diff, switch to source branch, open on the web
 - Create or open pull requests from issue branches (target branch picker)
 
 ### Settings
@@ -61,7 +61,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 
 - **Open**: click an issue, use the context menu, or drag it to the editor
 - **Start work**: create/configure a Git branch from the context menu or inline play button
-- **Checkout**: switch to the issue branch (inline button when a branch is configured)
+- **Switch to branch**: switch to the issue branch (inline button when a branch is configured)
 - **Create pull request**: inline button when a branch and git provider are configured
 - **Open on Linear**: inline external-link button or context menu
 
@@ -71,7 +71,7 @@ When a git provider is connected for the current repository:
 
 - Lists open pull requests for the origin remote
 - Click a row to open the linked Linear issue (or the PR on the web)
-- Inline actions: review with agent (Cursor), open diff, checkout branch, open on web
+- Inline actions: review with agent (Cursor), open diff, switch to branch, open on web
 
 ### Keyboard shortcuts
 
@@ -88,7 +88,7 @@ When a git provider is connected for the current repository:
 | Open on Linear | Open issue in the browser |
 | Start work on issue | Branch setup workflow |
 | Start work with agent | Launch Cursor Composer with issue MCP context (Cursor) |
-| Checkout to branch | Switch to the issue branch |
+| Switch to branch | Switch to the issue branch |
 | Create pull request | Open provider compare/create flow |
 | Review with agent | Review PR with MCP context (Cursor) |
 | Refresh / Toggle View | Reload data or switch My Issues ↔ Current Cycle |

@@ -13,8 +13,8 @@
   cursor: pointer;
 
   &:hover {
-    background: lch(10.633% 3.033 272deg);
-    border: 1px solid lch(16.16% 3.54 272deg);
+    background: var(--lm-hover-overlay);
+    border: 1px solid var(--rs-border-primary);
   }
 }
 

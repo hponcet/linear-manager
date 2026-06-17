@@ -184,9 +184,9 @@ export class GitClient {
           }
         }
 
-        window.showErrorMessage(error.stderr || "Failed to checkout branch")
+        window.showErrorMessage(error.stderr || "Failed to switch to branch")
       }
-      throw new Error(error.stderr || "Failed to checkout branch")
+      throw new Error(error.stderr || "Failed to switch to branch")
     }
   }
 

@@ -1,17 +1,16 @@
 /* stylelint-disable custom-property-pattern */
 /* stylelint-disable selector-class-pattern */
 
-.videoPlayerWrapper video {
-  object-fit: fill;
-  border-radius: 10px;
+.videoPlayerWrapper {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
 }
 
-.videoPlayerWrapper__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.videoPlayerWrapper video {
+  display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   border-radius: 10px;
-  background: var(--vscode-editor-inactiveSelectionBackground, rgb(255 255 255 / 4%));
+  object-fit: contain;
 }

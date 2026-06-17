@@ -3,7 +3,6 @@ import { Commands, Views } from "src/constants"
 import { Controller } from "src/controller"
 import { ensureCursorEnvironment } from "src/cursor/detectCursorEnvironment"
 import { launchCursorAgentForIssue } from "src/cursor/launchCursorAgentForIssue"
-import { logLinearApiCall } from "src/linear/LinearApiLogger"
 import { filterWorkflowStatesByType } from "src/panels/commons/worflowStates"
 import { IssueWebview } from "src/panels/IssueWebview"
 import { SettingsWebview, SettingsTab } from "src/panels/SettingsWebview"
@@ -249,7 +248,6 @@ export class MyIssuesView
   }
 
   private async _refreshIssues() {
-    logLinearApiCall(`MyIssuesView.refreshIssues:${this.#viewMode}`)
     let issues: Issue[]
 
     if (this.#viewMode === "myIssues") {

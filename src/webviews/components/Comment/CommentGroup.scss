@@ -1,11 +1,11 @@
 .issueCommentGroup {
   border-radius: 5px;
   border: 1px solid var(--rs-border-primary);
-  background-color: var(--rs-bg-overlay);
+  background-color: var(--bg-color);
   margin-bottom: 8px;
   z-index: 10;
   position: relative;
-  outline: 3px solid var(--bg-color);
+  outline: 3px solid transparent;
 
   & .issueCommentContent[is-children="true"] {
     margin-left: 25px;
@@ -56,9 +56,4 @@
   .issueCommentReplyEditor {
     flex: 1 1 100%;
   }
-}
-
-.commentSendButton {
-  fill: #ffffff;
-  padding: 0;
 }

@@ -91,7 +91,9 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
             onChange={(labelIds) => setIssue({ ...issue, labelIds: labelIds || [] })}
           />
           <div className="createSubIssueButtons">
-            <Button onClick={onCancel}>Cancel</Button>
+            <Button onClick={onCancel} appearance="subtle" style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
             <Button
               disabled={!issue.title || issue.title.trim() === ""}
               appearance="primary"

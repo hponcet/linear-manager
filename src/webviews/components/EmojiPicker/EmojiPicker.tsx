@@ -2,6 +2,7 @@ import Picker, { Theme } from "emoji-picker-react"
 import { useMemo } from "react"
 import { Popover, Whisper, type WhisperProps } from "rsuite"
 import { SerializedReaction } from "src/types/SerializedLinear"
+import { useVsCodeTheme } from "src/webviews/hooks/useVsCodeTheme"
 
 import { Emoji } from "./Emoji"
 
@@ -20,6 +21,8 @@ type EmojiPickerProps = {
 
 export function EmojiPicker(props: EmojiPickerProps) {
   const { onSelect, onUnselect, size, reactions, placement = "bottomEnd" } = props
+  const vsCodeTheme = useVsCodeTheme()
+  const emojiTheme = vsCodeTheme === "light" ? Theme.LIGHT : Theme.DARK
   const groupedReactions = useMemo(
     () =>
       reactions?.reduce(
@@ -56,7 +59,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
           }}
           width={230}
           height={270}
-          theme={Theme.DARK}
+          theme={emojiTheme}
           previewConfig={{ showPreview: false }}
           skinTonesDisabled
           autoFocusSearch={false}
@@ -89,7 +92,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
         preventOverflow
       >
         <span>
-          <Button>
+          <Button appearance="subtle">
             <EmojiIcon size={size} />
           </Button>
         </span>

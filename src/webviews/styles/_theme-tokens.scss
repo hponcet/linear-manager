@@ -1,0 +1,142 @@
+/* stylelint-disable custom-property-pattern */
+
+@mixin vscode-button-tokens {
+  --rs-focus-ring-color: color-mix(in srgb, var(--vscode-focusBorder) 45%, transparent);
+  --rs-btn-default-bg: var(--vscode-button-secondaryBackground);
+  --rs-btn-default-text: var(--vscode-button-secondaryForeground);
+  --rs-btn-default-border-color: var(--vscode-button-secondaryBackground);
+  --rs-btn-default-hover-bg: var(--vscode-button-secondaryHoverBackground);
+  --rs-btn-default-hover-text: var(--vscode-button-secondaryForeground);
+  --rs-btn-default-active-bg: var(--vscode-button-secondaryHoverBackground);
+  --rs-btn-default-active-text: var(--vscode-button-secondaryForeground);
+  --rs-btn-default-disabled-bg: var(--vscode-button-secondaryBackground);
+  --rs-btn-default-disabled-text: var(--vscode-disabledForeground);
+  --rs-btn-primary-bg: var(--vscode-button-background);
+  --rs-btn-primary-text: var(--vscode-button-foreground);
+  --rs-btn-primary-border-color: var(--vscode-button-background);
+  --rs-btn-primary-hover-bg: var(--vscode-button-hoverBackground);
+  --rs-btn-primary-active-bg: var(--vscode-button-hoverBackground);
+  --rs-btn-subtle-text: var(--vscode-foreground);
+  --rs-btn-subtle-hover-bg: var(--lm-hover-overlay);
+  --rs-btn-subtle-hover-text: var(--vscode-foreground);
+  --rs-btn-subtle-active-bg: var(--lm-hover-overlay-strong);
+  --rs-btn-subtle-active-text: var(--vscode-foreground);
+  --rs-btn-subtle-disabled-text: var(--vscode-disabledForeground);
+  --rs-btn-ghost-border: var(--vscode-button-background);
+  --rs-btn-ghost-text: var(--vscode-button-background);
+  --rs-btn-ghost-hover-border: var(--vscode-button-hoverBackground);
+  --rs-btn-ghost-hover-text: var(--vscode-button-hoverBackground);
+  --rs-btn-ghost-active-border: var(--vscode-button-hoverBackground);
+  --rs-btn-ghost-active-text: var(--vscode-button-hoverBackground);
+  --rs-btn-link-text: var(--vscode-textLink-foreground);
+  --rs-btn-link-hover-text: var(--vscode-textLink-activeForeground);
+  --rs-btn-link-active-text: var(--vscode-textLink-activeForeground);
+}
+
+:root {
+  /* App surfaces */
+  --lm-surface-bg: var(--vscode-editor-background);
+  --bg-color: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+  --scrollbar-color: var(--vscode-scrollbarSlider-background);
+
+  /* Linear Manager semantic tokens */
+  --lm-hover-overlay: color-mix(in srgb, var(--vscode-foreground) 8%, transparent);
+  --lm-hover-overlay-strong: color-mix(in srgb, var(--vscode-foreground) 12%, transparent);
+  --lm-color-text-muted: var(--vscode-descriptionForeground);
+
+  /* Status colors */
+  --color-success: var(--vscode-charts-green, var(--vscode-testing-iconPassed));
+  --color-warning: var(--vscode-editorWarning-foreground);
+  --color-error: var(--vscode-errorForeground);
+  --color-success-bg: color-mix(
+    in srgb,
+    var(--vscode-charts-green, var(--vscode-testing-iconPassed)) 15%,
+    var(--vscode-editor-background)
+  );
+  --color-error-bg: color-mix(
+    in srgb,
+    var(--vscode-errorForeground) 15%,
+    var(--vscode-editor-background)
+  );
+
+  /* Banner tokens */
+  --banner-info-bg: var(--vscode-inputValidation-infoBackground);
+  --banner-info-border: var(--vscode-inputValidation-infoBorder);
+  --banner-info-text: var(--vscode-foreground);
+  --banner-warning-bg: var(--vscode-inputValidation-warningBackground);
+  --banner-warning-border: var(--vscode-inputValidation-warningBorder);
+  --banner-warning-text: var(--vscode-foreground);
+  --banner-error-bg: var(--vscode-inputValidation-errorBackground);
+  --banner-error-border: var(--vscode-inputValidation-errorBorder);
+  --banner-error-text: var(--vscode-foreground);
+
+  @include vscode-button-tokens;
+
+  /* RSuite token bridge */
+  --rs-text-primary: var(--vscode-foreground);
+  --rs-text-secondary: var(--vscode-descriptionForeground);
+  --rs-text-tertiary: var(--vscode-disabledForeground);
+  --rs-border-primary: var(--vscode-widget-border, var(--vscode-panel-border));
+  --rs-bg-overlay: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+  --rs-bg-hover: var(--vscode-list-hoverBackground);
+  --rs-bg-backdrop: color-mix(in srgb, var(--vscode-editor-background) 80%, transparent);
+  --rs-placeholder-color: var(--vscode-input-placeholderForeground);
+  --rs-input-bg: var(--vscode-input-background);
+  --rs-tooltip-bg: var(--vscode-editorWidget-background);
+  --rs-tooltip-border: 1px solid var(--rs-border-primary);
+  --rs-tooltip-color: var(--rs-text-primary);
+  --rs-modal-body-padding: 1rem;
+  --rs-listbox-option-group-bg: var(--vscode-list-inactiveSelectionBackground);
+  --rs-carousel-bg: transparent;
+  --rs-segmented-control-bg: transparent;
+  --rs-segmented-control-border-color: transparent;
+  --rs-menuitem-padding-block: 1px !important;
+
+  /* RSuite primary scale derived from foreground for neutral controls */
+  --rs-primary-50: color-mix(in srgb, var(--vscode-foreground) 4%, var(--vscode-editor-background));
+  --rs-primary-100: color-mix(
+    in srgb,
+    var(--vscode-foreground) 8%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-200: color-mix(
+    in srgb,
+    var(--vscode-foreground) 12%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-300: color-mix(
+    in srgb,
+    var(--vscode-foreground) 16%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-400: color-mix(
+    in srgb,
+    var(--vscode-foreground) 24%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-500: color-mix(
+    in srgb,
+    var(--vscode-foreground) 32%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-600: color-mix(
+    in srgb,
+    var(--vscode-foreground) 40%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-700: color-mix(
+    in srgb,
+    var(--vscode-foreground) 48%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-800: color-mix(
+    in srgb,
+    var(--vscode-foreground) 56%,
+    var(--vscode-editor-background)
+  );
+  --rs-primary-900: color-mix(
+    in srgb,
+    var(--vscode-foreground) 64%,
+    var(--vscode-editor-background)
+  );
+}

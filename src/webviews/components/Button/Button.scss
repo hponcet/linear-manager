@@ -1,30 +1,40 @@
-@use "sass:color" as color;
+/* stylelint-disable selector-class-pattern */
+/* stylelint-disable custom-property-pattern */
 
-.button {
-  overflow: hidden;
-  padding: 0;
-  border-radius: 3px;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  display: inline-flex;
-  vertical-align: top;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin: 0;
-  font-weight: 500;
-  line-height: normal;
-  transition-property: border, background-color, color, opacity;
-  transition-duration: 0.15s;
-  user-select: none;
-  position: relative;
-  border: 1px solid transparent;
-  background-color: transparent;
-  color: var(--rs-text-primary);
-  fill: var(--rs-text-primary);
+/* Wrapper around RSuite buttons — keep RSuite sizing; only add app-level modifiers. */
+.button.rs-btn {
+  fill: currentcolor;
+}
 
-  &[data-disabled="true"] {
-    background-color: transparent !important;
+.button--icon-only.rs-btn {
+  --rs-btn-padding-inline: calc(var(--rs-spacing) * 1.5);
+
+  aspect-ratio: 1;
+}
+
+.button--icon-only.rs-btn[data-appearance="subtle"] {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.button--icon-only.button--round.rs-btn {
+  border-radius: var(--rs-radius-full);
+}
+
+.button--danger.rs-btn[data-appearance="default"] {
+  color: var(--vscode-errorForeground);
+  background-color: var(--vscode-button-secondaryBackground);
+  border-color: var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground));
+
+  &:hover:not(:disabled, [data-disabled="true"]) {
+    color: var(--vscode-errorForeground);
+    background-color: var(--vscode-button-secondaryHoverBackground);
+    border-color: var(--vscode-errorForeground);
+  }
+
+  &:active:not(:disabled, [data-disabled="true"]),
+  &[data-active="true"] {
+    color: var(--vscode-errorForeground);
+    background-color: var(--vscode-button-secondaryHoverBackground);
   }
 }

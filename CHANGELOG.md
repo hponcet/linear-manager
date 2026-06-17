@@ -6,6 +6,23 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Removed
+
+- Removed temporary development Linear API call logging (`[Linear API]` console warnings)
+
+### Changed
+
+- Renamed checkout actions to "Switch to branch" and "Switch to source branch" across commands, buttons, and error messages
+
+### Fixed
+
+- Issue description videos load again with React Player v3 and resize their container to the video dimensions
+- Activity timeline icons now mask the breadcrumb line with the VS Code editor background
+- Webview colors now follow VS Code and Cursor light and dark themes
+- Start Work action buttons now use VS Code button colors with consistent padding and spacing
+- Unified app buttons on RSuite sizing with VS Code theme colors via shared button tokens
+- Header and toolbar icon buttons no longer show a filled background at rest
+
 ## [0.1.0] - 2026-06-14
 
 ### Added

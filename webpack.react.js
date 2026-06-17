@@ -142,7 +142,14 @@ module.exports = {
               sourceMap: true,
             },
           },
-          "sass-loader",
+          {
+            loader: require.resolve("sass-loader"),
+            options: {
+              // Use pure JS dart-sass; sass-embedded spawns a subprocess that can fail with EBADF in the extension dev host.
+              implementation: require("sass"),
+              sourceMap: true,
+            },
+          },
         ],
       },
       {

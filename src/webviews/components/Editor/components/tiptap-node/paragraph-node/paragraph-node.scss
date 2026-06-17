@@ -49,7 +49,7 @@
 
   .ProseMirror-selectednode:not(img, pre, .react-renderer) {
     border-radius: 2px;
-    background-color: rgb(255 255 255 / 10%);
+    background-color: var(--lm-hover-overlay);
   }
 
   .ProseMirror-selectednode {

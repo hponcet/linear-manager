@@ -12,8 +12,6 @@ import { WorkflowStatePicker } from "src/webviews/components/WorklfowStatePicker
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
 import { useIssueSettings } from "src/webviews/hooks/useIssueSettings"
 
-import "./StartWorkHeader.scss"
-
 export function StartWorkHeader() {
   const { issue, update } = useIssueContext()
 

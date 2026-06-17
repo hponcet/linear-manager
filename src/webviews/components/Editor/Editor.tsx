@@ -29,6 +29,7 @@ import {
 } from "src/webviews/components/Editor/components/tiptap-ui-primitive/toolbar"
 import { MAX_FILE_SIZE } from "src/webviews/components/Editor/lib/tiptap-utils"
 import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useEditorThemeClass } from "src/webviews/hooks/useVsCodeTheme"
 
 import { Details, DetailsContent, DetailsSummary } from "./markdownPlugins/DetailsPlugin"
 import { createUserMentionExtension } from "./markdownPlugins/MentionPlugin"
@@ -72,6 +73,7 @@ export function Editor(props: EditorProps) {
   } = props
 
   const { users, issue } = useIssueContext()
+  const editorThemeClass = useEditorThemeClass()
   const workspaceUrlKey = parseWorkspaceUrlKeyFromIssueUrl(issue?.url)
   const mentionUsers: MentionableUser[] | undefined = mentionable ? users : undefined
   const enableMentions = mentionable && !!mentionUsers?.length && (editable || !!workspaceUrlKey)
@@ -164,7 +166,7 @@ export function Editor(props: EditorProps) {
   }, [editor, getEditor])
 
   return (
-    <div className={`simple-editor-wrapper dark ${className || ""}`} style={style}>
+    <div className={`simple-editor-wrapper ${editorThemeClass} ${className || ""}`} style={style}>
       <EditorContext.Provider value={{ editor }}>
         <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
         {editor && editable ? (

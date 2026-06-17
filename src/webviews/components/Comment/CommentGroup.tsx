@@ -139,12 +139,12 @@ export function CommentGroup(props: CommentGroupProps) {
                 setReplyValue("")
                 setResetEditor((prev) => prev + 1)
               }}
-              className="commentSendButton"
+              variant="primary"
+              iconOnly
+              round
               tooltip="Send Comment"
-              color="#6d78e7"
-            >
-              <SendIcon />
-            </Button>
+              icon={<SendIcon />}
+            />
           </div>
         </div>
       )}

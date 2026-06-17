@@ -1,10 +1,8 @@
 import moment from "moment"
 import { ReactNode } from "react"
 import * as ReactDOM from "react-dom/client"
-import { CustomProvider } from "rsuite"
 
-import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary"
-import { LinearApiErrorToasts } from "./components/LinearApiErrorToasts/LinearApiErrorToasts"
+import { WebviewRoot } from "./WebviewRoot"
 
 import "./styles/index.scss"
 
@@ -33,10 +31,5 @@ export function mountWebview(content: ReactNode): void {
   }
 
   const reactRoot = ReactDOM.createRoot(root)
-  reactRoot.render(
-    <CustomProvider theme="dark">
-      <LinearApiErrorToasts />
-      <ErrorBoundary>{content}</ErrorBoundary>
-    </CustomProvider>,
-  )
+  reactRoot.render(<WebviewRoot>{content}</WebviewRoot>)
 }

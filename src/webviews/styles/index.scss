@@ -1,12 +1,10 @@
 @forward "rsuite/dist/rsuite.css";
+@forward "./theme-tokens";
 @forward "./rsuite-custom";
 @forward "../components/Editor/styles/keyframe-animations";
 @forward "../components/Editor/styles/variables";
 
 :root {
-  --bg-color: rgb(31 31 31);
-  --rs-bg-hover: rgb(42 42 42);
-  --rs-placeholder-color: rgb(130 130 130);
   --font-size-xxsmall: 0.6rem;
   --font-size-xsmall: 0.75rem;
   --font-size-small: 0.875rem;
@@ -17,11 +15,6 @@
   --font-weight-medium: 500;
   --font-weight-bolder: 600;
   --font-weight-bold: 700;
-  --color-success: lch(80% 80 141.95deg);
-  --color-warning: lch(80% 80 90.31deg);
-  --color-error: lch(62.5% 89.91 30.01deg);
-  --color-success-bg: #023b0a;
-  --color-error-bg: #a21a24;
 }
 
 p {

@@ -120,9 +120,10 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
           Branch assigned to issue:
         </p>
         <Branch branch={issueSettings.branch} currentBranch={currentBranch} />
-        <div style={{ marginTop: 30, display: "table", marginLeft: "auto" }}>
+        <div className="startWorkActions">
           <Button
-            style={{ marginLeft: 10 }}
+            variant="default"
+            appearance="subtle"
             onClick={async () => {
               const shouldChange = await dialog.confirm(
                 "Are you sure you want to reset the branch settings? This will unbind the issue from the current branch.",
@@ -139,25 +140,18 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
             Reset branch settings
           </Button>
           {noNeedToCheckout ? (
-            <Button
-              onClick={update.panelActions.closePanel}
-              appearance="primary"
-              style={{ marginLeft: 10 }}
-            >
-              Close
-            </Button>
+            <Button onClick={update.panelActions.closePanel}>Close</Button>
           ) : (
             <CheckoutButton
               issue={issue}
               onClick={update.panelActions.closePanel}
-              appearance="primary"
+              variant="primary"
               stashChanges={stashChanges}
             />
           )}
           {isCursor ? (
             <Button
-              className="startWorkAgentButton"
-              style={{ marginLeft: 10 }}
+              variant="primary"
               onClick={() => update.panelActions.launchCursorAgent(issue.id)}
             >
               Start work with agent
@@ -179,7 +173,11 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
       }}
       onReset={onReset}
       actions={[
-        <Button key="use-existing-branch" onClick={() => setUseExistingBranch((v) => !v)}>
+        <Button
+          key="use-existing-branch"
+          variant="default"
+          onClick={() => setUseExistingBranch((v) => !v)}
+        >
           {useExistingBranch ? "Create a new branch" : "Use an existing branch"}
         </Button>,
       ]}

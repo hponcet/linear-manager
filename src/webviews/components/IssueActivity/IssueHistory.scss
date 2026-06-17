@@ -1,5 +1,5 @@
 :root {
-  --activity-text-color: #97979a;
+  --activity-text-color: var(--rs-text-secondary);
 }
 
 $icon-size: 13px;
@@ -15,7 +15,7 @@ $icon-size: 13px;
     content: "";
     height: calc(100% - 2px);
     width: 100%;
-    background-color: var(--bg-color);
+    background-color: var(--lm-surface-bg);
   }
 }
 
@@ -42,8 +42,8 @@ $icon-size: 13px;
     min-width: $icon-size;
     height: $icon-size;
     min-height: $icon-size;
-    background-color: var(--bg-color);
-    outline: 4px solid var(--bg-color);
+    background-color: var(--lm-surface-bg);
+    outline: 4px solid var(--lm-surface-bg);
     fill: var(--activity-text-color);
     stroke: var(--activity-text-color);
   }

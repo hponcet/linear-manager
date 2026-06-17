@@ -42,6 +42,7 @@ export function SubIssues(props: SubIssuesProps) {
           }
           disabled={noSubIssues && !createIssueCollapsed}
           className="subIssuesButton"
+          appearance="subtle"
         >
           {noSubIssues ? (
             <>
@@ -67,6 +68,7 @@ export function SubIssues(props: SubIssuesProps) {
             disabled={noSubIssues && !createIssueCollapsed}
             className="attachmentsAddButton"
             icon={<PlusIcon size={14} />}
+            appearance="subtle"
           />
         )}
       </div>

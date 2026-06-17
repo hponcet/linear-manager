@@ -106,13 +106,9 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
           </b>{" "}
           already exists for the issue {issue.identifier}. Would you like to use this branch as the
           default branch for this issue?
-          <div style={{ marginTop: 15, marginLeft: "auto", display: "table" }}>
+          <div className="startWorkBannerActions">
             <Button
-              color="var(--banner-info-text)"
-              style={{
-                padding: "0 6px",
-                fontWeight: "bolder",
-              }}
+              variant="default"
               onClick={() => {
                 setAskUseBranchAsDefault(false)
                 setBranchAsUnused(existingBranch)
@@ -121,11 +117,7 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
               No, create a new branch
             </Button>
             <Button
-              color="var(--banner-info-text)"
-              style={{
-                padding: "0 6px",
-                fontWeight: "bolder",
-              }}
+              variant="primary"
               onClick={() => {
                 setAskUseBranchAsDefault(false)
                 setBranchAsUsed(existingBranch)
@@ -147,12 +139,11 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
             You have uncommitted changes in your working directory. Stash them before changing
             branches, then reapply them after the branch changes.
           </div>
-          <Button
-            style={{ marginLeft: "auto", display: "table" }}
-            onClick={() => setStashChanges(true)}
-          >
-            Stash changes and continue
-          </Button>
+          <div className="startWorkBannerActions">
+            <Button variant="primary" onClick={() => setStashChanges(true)}>
+              Stash changes and continue
+            </Button>
+          </div>
         </Banner>
       </div>
     )
@@ -173,38 +164,31 @@ export function StartWorkBanner(props: StartWorkBannerProps) {
             <p>We have detected several branches that are likely to originate from this issue:</p>
             <ul>
               {filteredMatchingBranches.map((branch) => (
-                <div
-                  key={branch.name}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <Branch key={branch.name} branch={branch} />
-                  <div style={{ marginLeft: "auto", display: "flex" }}>
-                    <Button
-                      onClick={() => {
-                        setAskUseBranchAsDefault(false)
-                        setBranchAsUsed(branch)
-                      }}
-                      style={{ padding: "0 6px" }}
-                    >
-                      Use this branch
-                    </Button>
-                  </div>
+                <div key={branch.name} className="startWorkBannerBranchRow">
+                  <Branch branch={branch} />
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setAskUseBranchAsDefault(false)
+                      setBranchAsUsed(branch)
+                    }}
+                  >
+                    Use this branch
+                  </Button>
                 </div>
               ))}
             </ul>
-            <Button
-              onClick={() => {
-                setAskUseBranchAsDefault(false)
-                setBranchAsUnused(filteredMatchingBranches)
-              }}
-              style={{ padding: "0 6px", display: "table", marginLeft: "auto" }}
-            >
-              Ignore
-            </Button>
+            <div className="startWorkBannerActions">
+              <Button
+                variant="default"
+                onClick={() => {
+                  setAskUseBranchAsDefault(false)
+                  setBranchAsUnused(filteredMatchingBranches)
+                }}
+              >
+                Ignore
+              </Button>
+            </div>
           </Banner>
         )}
       </div>

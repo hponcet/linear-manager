@@ -200,23 +200,21 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
         }),
       )}
       {!noActions ? (
-        <div style={{ marginLeft: "auto", display: "table", marginTop: 20 }}>
-          {!executed && !processing && actions}
+        <div className="startWorkActions">
+          {!executed && !processing ? actions : null}
           {canRestart && !processing && executed ? (
             <Button
+              variant="default"
               onClick={() => {
                 onReset?.()
                 executeQueue("restart")
-              }}
-              style={{
-                marginRight: 8,
-                padding: "0 16px",
               }}
             >
               Reset
             </Button>
           ) : null}
           <Button
+            variant={processCanRetry ? "danger" : "primary"}
             disabled={processLoading || (executed && !canRetry) || processHasErrors}
             tooltip={
               executed && !canRestart && !canRetry
@@ -237,8 +235,6 @@ export function FormQueueAsync(props: FormQueueAsyncProps) {
                 executeQueue()
               }
             }}
-            style={{ padding: "0 16px" }}
-            color={processCanRetry ? "#a21a24" : "#353333"}
           >
             {processDone
               ? endButtonLabel || "Done"

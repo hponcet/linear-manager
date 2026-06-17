@@ -90,7 +90,7 @@ export function useIssueBranches(params: UseIssueBranchesParams) {
         await fetchCurrentBranch()
       }
     } catch (error) {
-      console.error("Failed to checkout branch", error)
+      console.error("Failed to switch to branch", error)
       await startWork(issueId)
     }
   }

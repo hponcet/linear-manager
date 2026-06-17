@@ -78,13 +78,14 @@ export function Comment(props: CommentProps) {
 
         <div className="issueCommentActions">
           {startReply && (
-            <Button tooltip="Reply" onClick={startReply}>
+            <Button tooltip="Reply" onClick={startReply} appearance="subtle">
               <ReplyIcon />
             </Button>
           )}
           {(!isResolved || !isChildren) && (
             <Button
               tooltip={isResolved ? "Mark thread as unresolved" : "Mark thread as resolved"}
+              appearance="subtle"
               onClick={async () => {
                 if (isResolved) {
                   await update.comments.unresolveComment(parentCommentId)
@@ -110,6 +111,7 @@ export function Comment(props: CommentProps) {
             <>
               <Button
                 tooltip="Edit"
+                appearance="subtle"
                 onClick={() => {
                   setUpdateValue((v) => (v ? null : comment.body))
                   setTimeout(() => {
@@ -119,7 +121,7 @@ export function Comment(props: CommentProps) {
               >
                 <EditIcon />
               </Button>
-              <Button tooltip="Delete" onClick={deleteComment}>
+              <Button tooltip="Delete" onClick={deleteComment} appearance="subtle">
                 <DeleteIcon />
               </Button>
             </>
@@ -147,6 +149,7 @@ export function Comment(props: CommentProps) {
             <Button
               onClick={() => setUpdateValue(null)}
               className="issueCommentUpdateButton-cancel"
+              appearance="subtle"
             >
               Cancel
             </Button>

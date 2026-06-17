@@ -78,7 +78,7 @@ export function IssueHistory(props: IssueHistoryProps) {
                   <UserAvatar
                     user={activity.actor}
                     size={14}
-                    style={{ outline: "4px solid var(--bg-color)" }}
+                    style={{ outline: "4px solid var(--lm-surface-bg)" }}
                   />
                 ) : null)}
             </div>

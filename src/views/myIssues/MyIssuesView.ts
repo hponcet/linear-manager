@@ -105,7 +105,7 @@ export class MyIssuesView
     this.#disposables.push(focusDisposable)
 
     const configDisposable = workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("linearManager.autoRefreshIntervalSeconds")) {
+      if (event.affectsConfiguration("linearToCode.autoRefreshIntervalSeconds")) {
         this._restartAutoRefresh()
       }
     })
@@ -277,13 +277,13 @@ export class MyIssuesView
     }
 
     // Update context for conditional button icon/title
-    commands.executeCommand("setContext", "linearManager:viewMode", this.#viewMode)
+    commands.executeCommand("setContext", "linearToCode:viewMode", this.#viewMode)
 
     await this._refreshIssues()
   }
 
   #getExpansionStorageKey(): string {
-    return `linearManager.myIssuesTreeExpansion.${this.#viewMode}`
+    return `linearToCode.myIssuesTreeExpansion.${this.#viewMode}`
   }
 
   #getExpansionState(): TreeViewExpansionState {
@@ -342,7 +342,7 @@ export class MyIssuesView
 
   private _getAutoRefreshIntervalMs(): number | null {
     const seconds = workspace
-      .getConfiguration("linearManager")
+      .getConfiguration("linearToCode")
       .get<number>("autoRefreshIntervalSeconds", DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS)
 
     if (seconds <= 0) {

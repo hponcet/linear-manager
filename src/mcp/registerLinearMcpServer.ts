@@ -71,7 +71,7 @@ export function registerLinearMcpServer(context: ExtensionContext): void {
             const env = await buildLinearMcpServerEnv(context)
             if (!env) {
               throw new Error(
-                "Connect your Linear account in Linear Manager before starting the MCP server.",
+                "Connect your Linear account in Linear to Code before starting the MCP server.",
               )
             }
 
@@ -80,15 +80,15 @@ export function registerLinearMcpServer(context: ExtensionContext): void {
         }),
       )
     } catch (error) {
-      console.warn("[Linear Manager] Failed to register MCP server provider:", error)
+      console.warn("[Linear to Code] Failed to register MCP server provider:", error)
       if (!isCursorMcpRegistrationAvailable()) {
         void window.showWarningMessage(
-          "Linear Manager could not register its MCP server. You may need a newer VS Code or Cursor version.",
+          "Linear to Code could not register its MCP server. You may need a newer VS Code or Cursor version.",
         )
       }
     }
   } else if (!isCursorMcpRegistrationAvailable()) {
-    console.warn("[Linear Manager] MCP registration API is unavailable in this editor.")
+    console.warn("[Linear to Code] MCP registration API is unavailable in this editor.")
   }
 
   void syncMcpRegistrations()

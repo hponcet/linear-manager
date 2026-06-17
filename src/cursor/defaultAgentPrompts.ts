@@ -1,7 +1,7 @@
 export const DEFAULT_ISSUE_AGENT_PROMPT_TEMPLATE = [
   "Implement Linear issue {{issueIdentifier}} in this workspace.",
   "",
-  "Step 1 — Load ticket context via Linear Manager MCP (do not ask me to paste the ticket):",
+  "Step 1 — Load ticket context via Linear to Code MCP (do not ask me to paste the ticket):",
   "- `get_issue` for {{issueIdentifier}}",
   "- `get_related_issues` for parent, sibling, and sub-issues",
   "- `get_issue_comments` for {{issueIdentifier}} (discussion and clarifications)",
@@ -24,7 +24,7 @@ export const DEFAULT_ISSUE_AGENT_PROMPT_TEMPLATE = [
 export const DEFAULT_PULL_REQUEST_REVIEW_PROMPT_TEMPLATE = [
   "Review pull request #{{pullRequestId}}: {{pullRequestTitle}}.",
   "",
-  "Step 1 — Load context via Linear Manager MCP:",
+  "Step 1 — Load context via Linear to Code MCP:",
   "{{linkedIssueInstructions}}",
   "{{pullRequestDiffInstructions}}",
   "- `get_pull_request` with pullRequestId {{pullRequestId}} when the git provider API is connected",

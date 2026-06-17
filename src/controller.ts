@@ -65,7 +65,7 @@ export class Controller {
 
   public static get issueViewer(): MyIssuesView {
     if (!this._issueViewer) {
-      throw new Error("Linear Manager is not initialized.")
+      throw new Error("Linear to Code is not initialized.")
     }
 
     return this._issueViewer

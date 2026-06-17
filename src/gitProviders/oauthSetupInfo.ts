@@ -3,11 +3,11 @@ import { env } from "vscode"
 import { BitbucketAuthMethod, GitProviderId, GitProviderOAuthSetup } from "./types"
 
 export function getGitlabOAuthRedirectUri(): string {
-  return `${env.uriScheme}://linear-manager/gitlab/oauth`
+  return `${env.uriScheme}://linear-to-code/gitlab/oauth`
 }
 
 export function getBitbucketOAuthRedirectUri(): string {
-  return `${env.uriScheme}://linear-manager/bitbucket/oauth`
+  return `${env.uriScheme}://linear-to-code/bitbucket/oauth`
 }
 
 export function getBitbucketWorkspaceOAuthConsumersUrl(workspace: string): string {
@@ -57,7 +57,7 @@ function getBitbucketOAuthSetupInfo(options?: BitbucketSetupOptions): GitProvide
         ? `Open your [OAuth consumers page](${workspaceSetupUrl}), or go to avatar → your workspace → Settings → Workspace settings.`
         : "On [bitbucket.org](https://bitbucket.org): avatar → select the workspace that owns your repo → Settings → Workspace settings.",
       "Under Apps and features, open OAuth consumers → Add consumer.",
-      "Name it (e.g. Linear Manager), paste the Callback URL below exactly, and enable This is a private consumer.",
+      "Name it (e.g. Linear to Code), paste the Callback URL below exactly, and enable This is a private consumer.",
       "Permissions: Account → Read; Pull requests → Read. Save.",
       "Expand the new consumer and copy its Key and Secret into the fields below.",
       "Click Sign in — Bitbucket opens in your browser, then you return to VS Code automatically.",

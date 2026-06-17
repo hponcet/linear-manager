@@ -16,7 +16,7 @@ import {
   listMyIssuesMarkdown,
 } from "./linearMcpApi"
 
-const SERVER_NAME = "linear-manager"
+const SERVER_NAME = "linear-to-code"
 const SERVER_VERSION = "1.0.0"
 
 async function main() {
@@ -174,7 +174,7 @@ async function main() {
 
   server.registerResource(
     "open-pull-requests",
-    "linear-manager://pull-requests",
+    "linear-to-code://pull-requests",
     {
       title: "Open pull requests",
       description: "Open pull requests for the current repository.",
@@ -186,7 +186,7 @@ async function main() {
       return {
         contents: [
           {
-            uri: "linear-manager://pull-requests",
+            uri: "linear-to-code://pull-requests",
             mimeType: "text/markdown",
             text: markdown,
           },

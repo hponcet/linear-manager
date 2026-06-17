@@ -3,7 +3,7 @@ import { Uri, UriHandler } from "vscode"
 import { bitbucketUriHandler } from "./bitbucket/bitbucketUriHandler"
 import { gitlabUriHandler } from "./gitlab/gitlabUriHandler"
 
-class LinearManagerUriHandler implements UriHandler {
+class LinearToCodeUriHandler implements UriHandler {
   async handleUri(uri: Uri): Promise<void> {
     if (uri.path.startsWith("/gitlab/")) {
       await gitlabUriHandler.handleUri(uri)
@@ -16,4 +16,4 @@ class LinearManagerUriHandler implements UriHandler {
   }
 }
 
-export const linearManagerUriHandler = new LinearManagerUriHandler()
+export const linearToCodeUriHandler = new LinearToCodeUriHandler()

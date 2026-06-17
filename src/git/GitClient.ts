@@ -242,7 +242,7 @@ export class GitClient {
 
   private async createStash(): Promise<string> {
     const git = this.getSimpleGit()
-    const stashMessage = `linear-manager-start-work-${Date.now()}`
+    const stashMessage = `linear-to-code-start-work-${Date.now()}`
 
     await git.stash(["push", "--include-untracked", "-m", stashMessage])
 

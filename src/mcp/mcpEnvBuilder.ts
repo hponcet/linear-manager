@@ -4,8 +4,8 @@ import { cursor, ExtensionContext, McpStdioServerDefinition, workspace } from "v
 
 import { buildGitProviderEnv, type McpServerEnv } from "./resolveMcpGitEnv"
 
-export const MCP_PROVIDER_ID = "linearManager.mcp"
-export const MCP_SERVER_LABEL = "Linear Manager"
+export const MCP_PROVIDER_ID = "linearToCode.mcp"
+export const MCP_SERVER_LABEL = "Linear to Code"
 export const MCP_CURSOR_SERVER_NAME = MCP_SERVER_LABEL
 
 export type { McpServerEnv } from "./resolveMcpGitEnv"
@@ -36,7 +36,7 @@ export function createLinearMcpServerDefinition(
   context: ExtensionContext,
   env: McpServerEnv,
 ): McpStdioServerDefinition {
-  const serverPath = context.asAbsolutePath("dist/linearMcpServer.js")
+  const serverPath = context.asAbsolutePath("dist/linearToCodeMcpServer.js")
   return new McpStdioServerDefinition(MCP_SERVER_LABEL, "node", [serverPath], env)
 }
 
@@ -44,7 +44,7 @@ export function createCursorMcpServerConfig(
   context: ExtensionContext,
   env: McpServerEnv,
 ): cursor.mcp.StdioServerConfig {
-  const serverPath = context.asAbsolutePath("dist/linearMcpServer.js")
+  const serverPath = context.asAbsolutePath("dist/linearToCodeMcpServer.js")
   return {
     name: MCP_CURSOR_SERVER_NAME,
     server: {

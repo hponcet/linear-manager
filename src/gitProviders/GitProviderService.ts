@@ -250,7 +250,7 @@ export class GitProviderService {
       sourceBranch,
       targetBranch,
       title: `[${issue.identifier}] ${issue.title}`,
-      body: `${issue.url}\n\n---\n\nCreated from Linear Manager`,
+      body: `${issue.url}\n\n---\n\nCreated from Linear to Code`,
     })
 
     await env.openExternal(Uri.parse(url))

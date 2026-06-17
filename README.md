@@ -1,4 +1,4 @@
-# Linear Manager
+# Linear to Code
 
 Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage issues, branches, pull requests, and agent workflows without leaving the editor.
 
@@ -34,7 +34,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 
 - **Start work with agent**: open Composer with a prompt that loads the Linear ticket via MCP
 - **Review with agent**: review a PR diff with linked-issue context via MCP
-- Bundled **Linear Manager MCP server** (issues, comments, related issues, PR metadata, diffs)
+- Bundled **Linear to Code MCP server** (issues, comments, related issues, PR metadata, diffs)
 - Agent prompts support `{{editorLanguage}}` and instruct the agent to respond in the editor UI language
 
 ## Prerequisites
@@ -45,7 +45,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 
 ## Installation
 
-1. Install **Linear Manager** from the marketplace (or load the VSIX in development)
+1. Install **Linear to Code** from the marketplace (or load the VSIX in development)
 2. Reload the window
 3. Open the Linear activity bar view and run **Connect to Linear**
 
@@ -53,7 +53,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 
 ### Connect and browse
 
-1. Open **Linear manager** in the activity bar
+1. Open **Linear to Code** in the activity bar
 2. Run **Connect to Linear** if you are not authenticated
 3. Use **My issues** to see assigned work, or toggle **Current Cycle** from the view title bar
 
@@ -103,7 +103,7 @@ src/
 ├── linear/                   # LinearService, API, caching
 ├── git/                      # Git client, branch checkout, diffs
 ├── gitProviders/             # GitHub, GitLab, Bitbucket integrations
-├── mcp/                      # Bundled Linear Manager MCP server
+├── mcp/                      # Bundled Linear to Code MCP server
 ├── cursor/                   # Agent prompts, Cursor detection, MCP registration
 ├── panels/                   # Webview panels (issue, start work, settings)
 ├── views/
@@ -176,7 +176,7 @@ npm run lint:all
 
 ## Contributing
 
-Contributions are welcome. Please open an issue or PR on [GitHub](https://github.com/hponcet/linear-manager).
+Contributions are welcome. Please open an issue or PR on [GitHub](https://github.com/hponcet/linear-to-code).
 
 Before submitting:
 
@@ -190,4 +190,4 @@ MIT
 
 ## Issues
 
-Report bugs or request features on [GitHub Issues](https://github.com/hponcet/linear-manager/issues).
+Report bugs or request features on [GitHub Issues](https://github.com/hponcet/linear-to-code/issues).

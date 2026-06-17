@@ -263,6 +263,6 @@ export async function buildUserAvatarIconCacheForContext(
 }
 
 export async function buildUserAvatarIconCacheInTemp(users: User[]): Promise<Map<string, Uri>> {
-  const cacheDir = await fs.mkdtemp(path.join(os.tmpdir(), "linear-manager-avatar-icons-"))
+  const cacheDir = await fs.mkdtemp(path.join(os.tmpdir(), "linear-to-code-avatar-icons-"))
   return buildUserAvatarIconCache(cacheDir, users)
 }

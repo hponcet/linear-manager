@@ -1,11 +1,11 @@
 import { commands } from "vscode"
 
 export enum CommandContext {
-  linearAccountConnected = "linearManager:isLinearAuthenticated",
-  linearExtensionLoaded = "linearManager:isLinearExtensionLoaded",
-  gitExtensionLoaded = "linearManager:isGitExtensionLoaded",
-  gitProviderAuthenticated = "linearManager:isGitProviderAuthenticated",
-  isCursor = "linearManager:isCursor",
+  linearAccountConnected = "linearToCode:isLinearAuthenticated",
+  linearExtensionLoaded = "linearToCode:isLinearExtensionLoaded",
+  gitExtensionLoaded = "linearToCode:isGitExtensionLoaded",
+  gitProviderAuthenticated = "linearToCode:isGitProviderAuthenticated",
+  isCursor = "linearToCode:isCursor",
 }
 
 export function setCommandContext(key: CommandContext | string, value: any) {

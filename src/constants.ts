@@ -1,8 +1,8 @@
 export const IS_PRODUCTION = process.env.NODE_ENV !== "development"
 
 export enum Views {
-  myIssues = "linearManager.views.myIssues",
-  pullRequests = "linearManager.views.pullRequests",
+  myIssues = "linearToCode.views.myIssues",
+  pullRequests = "linearToCode.views.pullRequests",
 }
 
 export enum Webviews {
@@ -12,24 +12,24 @@ export enum Webviews {
 }
 
 export enum Commands {
-  connect = "linearManager.connect",
-  disconnect = "linearManager.disconnect",
-  openIssue = "linearManager.commands.openIssue",
-  openIssueExternal = "linearManager.commands.openIssueExternal",
-  openCurrentBranchIssue = "linearManager.commands.openCurrentBranchIssue",
-  startWork = "linearManager.commands.startWork",
-  startWorkWithAgent = "linearManager.commands.startWorkWithAgent",
-  reviewPullRequestWithAgent = "linearManager.commands.reviewPullRequestWithAgent",
-  configureBranch = "linearManager.commands.configureBranch",
-  checkoutIssue = "linearManager.commands.checkoutIssue",
-  refresh = "linearManager.commands.refresh",
-  toggleViewMode = "linearManager.commands.toggleViewMode",
-  openPullRequest = "linearManager.commands.openPullRequest",
-  openSettings = "linearManager.commands.openSettings",
-  openSettingsTab = "linearManager.commands.openSettingsTab",
-  refreshPullRequests = "linearManager.commands.refreshPullRequests",
-  openPullRequestDiff = "linearManager.commands.openPullRequestDiff",
-  openPullRequestLinkedIssue = "linearManager.commands.openPullRequestLinkedIssue",
-  openPullRequestUrl = "linearManager.commands.openPullRequestUrl",
-  checkoutPullRequestBranch = "linearManager.commands.checkoutPullRequestBranch",
+  connect = "linearToCode.connect",
+  disconnect = "linearToCode.disconnect",
+  openIssue = "linearToCode.commands.openIssue",
+  openIssueExternal = "linearToCode.commands.openIssueExternal",
+  openCurrentBranchIssue = "linearToCode.commands.openCurrentBranchIssue",
+  startWork = "linearToCode.commands.startWork",
+  startWorkWithAgent = "linearToCode.commands.startWorkWithAgent",
+  reviewPullRequestWithAgent = "linearToCode.commands.reviewPullRequestWithAgent",
+  configureBranch = "linearToCode.commands.configureBranch",
+  checkoutIssue = "linearToCode.commands.checkoutIssue",
+  refresh = "linearToCode.commands.refresh",
+  toggleViewMode = "linearToCode.commands.toggleViewMode",
+  openPullRequest = "linearToCode.commands.openPullRequest",
+  openSettings = "linearToCode.commands.openSettings",
+  openSettingsTab = "linearToCode.commands.openSettingsTab",
+  refreshPullRequests = "linearToCode.commands.refreshPullRequests",
+  openPullRequestDiff = "linearToCode.commands.openPullRequestDiff",
+  openPullRequestLinkedIssue = "linearToCode.commands.openPullRequestLinkedIssue",
+  openPullRequestUrl = "linearToCode.commands.openPullRequestUrl",
+  checkoutPullRequestBranch = "linearToCode.commands.checkoutPullRequestBranch",
 }

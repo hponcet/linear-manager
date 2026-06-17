@@ -103,7 +103,7 @@ export function canUseLocalGitDiff(
 export function requireGitRemote(env: GitMcpEnv): ParsedRemote {
   if (!hasConfiguredGitRemote(env)) {
     throw new Error(
-      "Git remote is not configured. Open a workspace with a git repository and connect a git provider in Linear Manager, or pass sourceBranch and targetBranch to fetch a local git diff.",
+      "Git remote is not configured. Open a workspace with a git repository and connect a git provider in Linear to Code, or pass sourceBranch and targetBranch to fetch a local git diff.",
     )
   }
 
@@ -124,7 +124,7 @@ function buildAuthHeaders(env: GitMcpEnv): HeadersInit {
     return { Authorization: `Bearer ${env.accessToken}` }
   }
 
-  throw new Error("Git provider is not connected. Connect your git provider in Linear Manager.")
+  throw new Error("Git provider is not connected. Connect your git provider in Linear to Code.")
 }
 
 async function resolveBranchRef(workspaceFolder: string, branchName: string): Promise<string> {

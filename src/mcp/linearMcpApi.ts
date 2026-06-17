@@ -11,7 +11,7 @@ import { fetchAllPreviousPages } from "../linear/pagination"
 export function createLinearClientFromEnv(): LinearClient {
   const accessToken = process.env.LINEAR_ACCESS_TOKEN?.trim()
   if (!accessToken) {
-    throw new Error("Linear is not connected. Connect your Linear account in Linear Manager.")
+    throw new Error("Linear is not connected. Connect your Linear account in Linear to Code.")
   }
 
   return new LinearClient({

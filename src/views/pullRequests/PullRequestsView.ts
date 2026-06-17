@@ -271,7 +271,7 @@ export class PullRequestsView implements TreeDataProvider<PullRequestTreeNode> {
     }
 
     if (!this.#context) {
-      window.showErrorMessage("Linear Manager is not initialized.")
+      window.showErrorMessage("Linear to Code is not initialized.")
       return
     }
 

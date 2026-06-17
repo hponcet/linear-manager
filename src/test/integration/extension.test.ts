@@ -3,8 +3,8 @@ import * as assert from "assert"
 import * as vscode from "vscode"
 
 suite("Extension integration", () => {
-  test("linear-manager extension is registered", () => {
-    const extension = vscode.extensions.getExtension("hpon.linear-manager")
-    assert.ok(extension, "linear-manager extension should be registered")
+  test("linear-to-code extension is registered", () => {
+    const extension = vscode.extensions.getExtension("hpon.linear-to-code")
+    assert.ok(extension, "linear-to-code extension should be registered")
   })
 })

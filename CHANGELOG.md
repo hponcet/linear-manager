@@ -1,6 +1,6 @@
 # Change Log
 
-All notable changes to the "linear-issue-manager" extension will be documented in this file.
+All notable changes to the "linear-to-code" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
@@ -12,6 +12,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- Renamed the extension from **Linear Manager** to **Linear to Code** (`hpon.linear-to-code`); command, view, setting, and MCP identifiers now use the `linearToCode` prefix
 - Renamed checkout actions to "Switch to branch" and "Switch to source branch" across commands, buttons, and error messages
 
 ### Fixed
@@ -31,7 +32,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - `get_issue_comments` MCP tool to load Linear issue discussion threads for Cursor agents
 - `{{editorLanguage}}` placeholder in agent prompt templates (resolved from the editor UI language)
 - Settings gear buttons in the My issues and Pull requests tree view headers open Settings on the Workflow and Git tabs respectively
-- **Start work with agent** (Cursor only): sidebar context action and Start Work option to open Cursor Composer with a minimal prompt; a bundled **Linear Manager MCP server** exposes issue, related-issue, pull request, and diff tools
+- **Start work with agent** (Cursor only): sidebar context action and Start Work option to open Cursor Composer with a minimal prompt; a bundled **Linear to Code MCP server** exposes issue, related-issue, pull request, and diff tools
 - **Review with agent** (Cursor only): pull request context action that opens Cursor Composer to review the PR diff via MCP and suggest improvements
 - `@` user mentions with autocomplete in issue comments, replies, and sub-issue descriptions
 - Pull requests sidebar view listing open PRs for the current repository via the connected git provider
@@ -39,7 +40,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Create/View pull request actions when an issue branch is configured, with VS Code Quick Pick to choose the target branch before opening the compare page
 - Cursor agent rules for communication, feature testing, and changelog maintenance
 - Unit and integration test scaffolding with example branch and extension tests
-- `linearManager.autoRefreshIntervalSeconds` setting (default 180s, 0 to disable)
+- `linearToCode.autoRefreshIntervalSeconds` setting (default 180s, 0 to disable)
 - `LinearService` facade with TTL cache, request deduplication, and centralized invalidation
 
 ### Fixed
@@ -80,5 +81,5 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Removed
 
-- `linearManager.launchAgentAfterStartWork` workspace setting and the automatic agent launch toggle from Start Work
+- `linearToCode.launchAgentAfterStartWork` workspace setting and the automatic agent launch toggle from Start Work
 - Temporary Linear API call logging in development (`LinearApiLogger`)

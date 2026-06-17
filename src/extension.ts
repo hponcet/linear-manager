@@ -9,7 +9,7 @@ import { ExtensionContext, window } from "vscode"
 import { registerCommands } from "./commands"
 import { CommandContext, setCommandContext } from "./commandsContext"
 import { refreshCursorCommandContext } from "./cursor/detectCursorEnvironment"
-import { linearManagerUriHandler } from "./gitProviders/linearManagerUriHandler"
+import { linearToCodeUriHandler } from "./gitProviders/linearToCodeUriHandler"
 import { initLinearClient } from "./linear/auth"
 import { registerLinearMcpServer } from "./mcp/registerLinearMcpServer"
 
@@ -30,17 +30,15 @@ export async function activate(context: ExtensionContext) {
       }),
     )
 
-    context.subscriptions.push(window.registerUriHandler(linearManagerUriHandler))
+    context.subscriptions.push(window.registerUriHandler(linearToCodeUriHandler))
 
     registerCommands(context)
     registerLinearMcpServer(context)
     await initLinearClient(context, sessionId)
   } catch (error) {
-    console.error("[Linear Manager] Activation failed:", error)
+    console.error("[Linear to Code] Activation failed:", error)
     void window.showErrorMessage(
-      `Linear Manager failed to activate: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
+      `Linear to Code failed to activate: ${error instanceof Error ? error.message : String(error)}`,
     )
   } finally {
     if (isExtensionSession(sessionId)) {

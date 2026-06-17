@@ -1,11 +1,11 @@
 {
-  "name": "linear-manager",
-  "displayName": "Linear Manager",
+  "name": "linear-to-code",
+  "displayName": "Linear to Code",
   "description": "Linear extension for Cursor/VS Code apps to manage issues within the editor.",
   "icon": "resources/images/linear_dark.png",
   "version": "0.1.0",
   "publisher": "hpon",
-  "repository": "https://github.com/hponcet/linear-manager",
+  "repository": "https://github.com/hponcet/linear-to-code",
   "engines": {
     "vscode": "^1.105.0"
   },
@@ -48,267 +48,267 @@
   "contributes": {
     "mcpServerDefinitionProviders": [
       {
-        "id": "linearManager.mcp",
-        "label": "Linear Manager"
+        "id": "linearToCode.mcp",
+        "label": "Linear to Code"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "linear-manager-issues",
-          "title": "Linear manager",
+          "id": "linear-to-code-issues",
+          "title": "Linear to Code",
           "icon": "resources/images/linear_dark.png"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "linearManager.views.connect",
-        "contents": "In order to use Linear Manager plugin, connect your Linear account to get started.\n[Connect to Linear](command:linearManager.connect)",
-        "when": "!linearManager:isLinearAuthenticated && linearManager:isLinearExtensionLoaded"
+        "view": "linearToCode.views.connect",
+        "contents": "In order to use Linear to Code plugin, connect your Linear account to get started.\n[Connect to Linear](command:linearToCode.connect)",
+        "when": "!linearToCode:isLinearAuthenticated && linearToCode:isLinearExtensionLoaded"
       }
     ],
     "views": {
-      "linear-manager-issues": [
+      "linear-to-code-issues": [
         {
-          "id": "linearManager.views.connect",
+          "id": "linearToCode.views.connect",
           "name": "Connect to Linear",
           "icon": "resources/images/linear_dark.png",
-          "when": "!linearManager:isLinearAuthenticated"
+          "when": "!linearToCode:isLinearAuthenticated"
         },
         {
-          "id": "linearManager.views.myIssues",
+          "id": "linearToCode.views.myIssues",
           "name": "My issues",
           "icon": "resources/images/linear_dark.png",
-          "when": "linearManager:isLinearAuthenticated"
+          "when": "linearToCode:isLinearAuthenticated"
         },
         {
-          "id": "linearManager.views.pullRequests",
+          "id": "linearToCode.views.pullRequests",
           "name": "Pull requests",
           "icon": "resources/images/linear_dark.png",
-          "when": "linearManager:isLinearAuthenticated"
+          "when": "linearToCode:isLinearAuthenticated"
         }
       ]
     },
     "commands": [
       {
-        "command": "linearManager.connect",
+        "command": "linearToCode.connect",
         "title": "Connect to Linear",
-        "category": "Linear manager",
-        "enablement": "!linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "!linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.disconnect",
+        "command": "linearToCode.disconnect",
         "title": "Disconnect from Linear",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openIssue",
+        "command": "linearToCode.commands.openIssue",
         "title": "Open Issue",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openIssueExternal",
+        "command": "linearToCode.commands.openIssueExternal",
         "title": "Open on Linear",
         "icon": "$(link-external)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.startWork",
+        "command": "linearToCode.commands.startWork",
         "title": "Start work on issue",
         "icon": "$(play)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.startWorkWithAgent",
+        "command": "linearToCode.commands.startWorkWithAgent",
         "title": "Start work with agent",
         "icon": "$(sparkle)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.reviewPullRequestWithAgent",
+        "command": "linearToCode.commands.reviewPullRequestWithAgent",
         "title": "Review with agent",
         "icon": "$(sparkle)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.configureBranch",
+        "command": "linearToCode.commands.configureBranch",
         "title": "Configure branch for issue",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.checkoutIssue",
+        "command": "linearToCode.commands.checkoutIssue",
         "title": "Switch to branch",
         "icon": {
           "light": "resources/images/checkout-light.svg",
           "dark": "resources/images/checkout-dark.svg"
         },
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.refresh",
+        "command": "linearToCode.commands.refresh",
         "title": "Refresh",
         "icon": "$(refresh)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.toggleViewMode",
+        "command": "linearToCode.commands.toggleViewMode",
         "title": "Toggle View: My Issues / Current Cycle",
         "icon": "$(list-filter)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openPullRequest",
+        "command": "linearToCode.commands.openPullRequest",
         "title": "Create pull request",
         "icon": "$(git-pull-request-create)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openSettings",
+        "command": "linearToCode.commands.openSettings",
         "title": "Settings",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openSettingsTab",
+        "command": "linearToCode.commands.openSettingsTab",
         "title": "Open settings",
         "icon": "$(gear)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openCurrentBranchIssue",
+        "command": "linearToCode.commands.openCurrentBranchIssue",
         "title": "Open Issue for Current Branch",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated && linearToCode:isGitExtensionLoaded"
       },
       {
-        "command": "linearManager.commands.refreshPullRequests",
+        "command": "linearToCode.commands.refreshPullRequests",
         "title": "Refresh pull requests",
         "icon": "$(refresh)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openPullRequestDiff",
+        "command": "linearToCode.commands.openPullRequestDiff",
         "title": "Open pull request diff",
         "icon": "$(git-compare)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated && linearToCode:isGitExtensionLoaded"
       },
       {
-        "command": "linearManager.commands.openPullRequestLinkedIssue",
+        "command": "linearToCode.commands.openPullRequestLinkedIssue",
         "title": "Open linked Linear issue",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.openPullRequestUrl",
+        "command": "linearToCode.commands.openPullRequestUrl",
         "title": "Open pull request on web",
         "icon": "$(link-external)",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
-        "command": "linearManager.commands.checkoutPullRequestBranch",
+        "command": "linearToCode.commands.checkoutPullRequestBranch",
         "title": "Switch to source branch",
-        "category": "Linear manager",
-        "enablement": "linearManager:isLinearAuthenticated && linearManager:isGitExtensionLoaded"
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated && linearToCode:isGitExtensionLoaded"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "linearManager.commands.openIssue",
+          "command": "linearToCode.commands.openIssue",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openIssueExternal",
+          "command": "linearToCode.commands.openIssueExternal",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.startWork",
+          "command": "linearToCode.commands.startWork",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.startWorkWithAgent",
+          "command": "linearToCode.commands.startWorkWithAgent",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.reviewPullRequestWithAgent",
+          "command": "linearToCode.commands.reviewPullRequestWithAgent",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.configureBranch",
+          "command": "linearToCode.commands.configureBranch",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.checkoutIssue",
+          "command": "linearToCode.commands.checkoutIssue",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openPullRequest",
+          "command": "linearToCode.commands.openPullRequest",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openPullRequestDiff",
+          "command": "linearToCode.commands.openPullRequestDiff",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openPullRequestLinkedIssue",
+          "command": "linearToCode.commands.openPullRequestLinkedIssue",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openPullRequestUrl",
+          "command": "linearToCode.commands.openPullRequestUrl",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.checkoutPullRequestBranch",
+          "command": "linearToCode.commands.checkoutPullRequestBranch",
           "when": "false"
         },
         {
-          "command": "linearManager.commands.openSettingsTab",
+          "command": "linearToCode.commands.openSettingsTab",
           "when": "false"
         }
       ],
       "view/title": [
         {
-          "command": "linearManager.commands.refresh",
-          "when": "view == linearManager.views.myIssues",
+          "command": "linearToCode.commands.refresh",
+          "when": "view == linearToCode.views.myIssues",
           "group": "navigation"
         },
         {
-          "command": "linearManager.commands.toggleViewMode",
-          "when": "view == linearManager.views.myIssues",
+          "command": "linearToCode.commands.toggleViewMode",
+          "when": "view == linearToCode.views.myIssues",
           "group": "navigation"
         },
         {
-          "command": "linearManager.commands.openSettingsTab",
-          "when": "view == linearManager.views.myIssues",
+          "command": "linearToCode.commands.openSettingsTab",
+          "when": "view == linearToCode.views.myIssues",
           "group": "navigation",
           "args": [
             "workflow"
           ]
         },
         {
-          "command": "linearManager.commands.refreshPullRequests",
-          "when": "view == linearManager.views.pullRequests",
+          "command": "linearToCode.commands.refreshPullRequests",
+          "when": "view == linearToCode.views.pullRequests",
           "group": "navigation"
         },
         {
-          "command": "linearManager.commands.openSettingsTab",
-          "when": "view == linearManager.views.pullRequests",
+          "command": "linearToCode.commands.openSettingsTab",
+          "when": "view == linearToCode.views.pullRequests",
           "group": "navigation",
           "args": [
             "git"
@@ -317,92 +317,92 @@
       ],
       "view/item/context": [
         {
-          "command": "linearManager.commands.openIssue",
+          "command": "linearToCode.commands.openIssue",
           "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
-          "command": "linearManager.commands.openIssueExternal",
+          "command": "linearToCode.commands.openIssueExternal",
           "when": "viewItem =~ /^issueItem/",
           "group": "1open"
         },
         {
-          "command": "linearManager.commands.startWork",
-          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.startWork",
+          "when": "viewItem == issueItem && linearToCode:isGitExtensionLoaded",
           "group": "2issueActions"
         },
         {
-          "command": "linearManager.commands.startWorkWithAgent",
-          "when": "viewItem =~ /^issueItem/ && linearManager:isCursor",
+          "command": "linearToCode.commands.startWorkWithAgent",
+          "when": "viewItem =~ /^issueItem/ && linearToCode:isCursor",
           "group": "2issueActions"
         },
         {
-          "command": "linearManager.commands.configureBranch",
-          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.configureBranch",
+          "when": "viewItem == issueItemWithBranch && linearToCode:isGitExtensionLoaded",
           "group": "2issueActions"
         },
         {
-          "command": "linearManager.commands.checkoutIssue",
-          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.checkoutIssue",
+          "when": "viewItem == issueItemWithBranch && linearToCode:isGitExtensionLoaded",
           "group": "2issueActions"
         },
         {
-          "command": "linearManager.commands.openPullRequest",
-          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded && linearManager:isGitProviderAuthenticated",
+          "command": "linearToCode.commands.openPullRequest",
+          "when": "viewItem == issueItemWithBranch && linearToCode:isGitExtensionLoaded && linearToCode:isGitProviderAuthenticated",
           "group": "2issueActions"
         },
         {
-          "command": "linearManager.commands.startWork",
-          "when": "viewItem == issueItem && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.startWork",
+          "when": "viewItem == issueItem && linearToCode:isGitExtensionLoaded",
           "group": "inline"
         },
         {
-          "command": "linearManager.commands.checkoutIssue",
-          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.checkoutIssue",
+          "when": "viewItem == issueItemWithBranch && linearToCode:isGitExtensionLoaded",
           "group": "inline"
         },
         {
-          "command": "linearManager.commands.openPullRequest",
-          "when": "viewItem == issueItemWithBranch && linearManager:isGitExtensionLoaded && linearManager:isGitProviderAuthenticated",
+          "command": "linearToCode.commands.openPullRequest",
+          "when": "viewItem == issueItemWithBranch && linearToCode:isGitExtensionLoaded && linearToCode:isGitProviderAuthenticated",
           "group": "inline@1"
         },
         {
-          "command": "linearManager.commands.openIssueExternal",
+          "command": "linearToCode.commands.openIssueExternal",
           "when": "viewItem =~ /^issueItem/",
           "group": "inline@2"
         },
         {
-          "command": "linearManager.commands.openPullRequestDiff",
-          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.openPullRequestDiff",
+          "when": "viewItem =~ /^pullRequestItem/ && linearToCode:isGitExtensionLoaded",
           "group": "inline@1"
         },
         {
-          "command": "linearManager.commands.reviewPullRequestWithAgent",
-          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isCursor",
+          "command": "linearToCode.commands.reviewPullRequestWithAgent",
+          "when": "viewItem =~ /^pullRequestItem/ && linearToCode:isCursor",
           "group": "inline@0"
         },
         {
-          "command": "linearManager.commands.openPullRequestUrl",
+          "command": "linearToCode.commands.openPullRequestUrl",
           "when": "viewItem =~ /^pullRequestItem/",
           "group": "inline@2"
         },
         {
-          "command": "linearManager.commands.openPullRequestDiff",
-          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.openPullRequestDiff",
+          "when": "viewItem =~ /^pullRequestItem/ && linearToCode:isGitExtensionLoaded",
           "group": "1open"
         },
         {
-          "command": "linearManager.commands.reviewPullRequestWithAgent",
-          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isCursor",
+          "command": "linearToCode.commands.reviewPullRequestWithAgent",
+          "when": "viewItem =~ /^pullRequestItem/ && linearToCode:isCursor",
           "group": "1open"
         },
         {
-          "command": "linearManager.commands.checkoutPullRequestBranch",
-          "when": "viewItem =~ /^pullRequestItem/ && linearManager:isGitExtensionLoaded",
+          "command": "linearToCode.commands.checkoutPullRequestBranch",
+          "when": "viewItem =~ /^pullRequestItem/ && linearToCode:isGitExtensionLoaded",
           "group": "1open"
         },
         {
-          "command": "linearManager.commands.openPullRequestUrl",
+          "command": "linearToCode.commands.openPullRequestUrl",
           "when": "viewItem =~ /^pullRequestItem/",
           "group": "1open"
         }
@@ -410,21 +410,21 @@
     },
     "keybindings": [
       {
-        "command": "linearManager.commands.openCurrentBranchIssue",
+        "command": "linearToCode.commands.openCurrentBranchIssue",
         "key": "ctrl+k i",
         "mac": "cmd+k i"
       },
       {
-        "command": "linearManager.commands.openCurrentBranchIssue",
+        "command": "linearToCode.commands.openCurrentBranchIssue",
         "key": "ctrl+k ctrl+i",
         "mac": "cmd+k cmd+i"
       }
     ]
   },
   "configuration": {
-    "title": "Linear Manager",
+    "title": "Linear to Code",
     "properties": {
-      "linearManager.autoRefreshIntervalSeconds": {
+      "linearToCode.autoRefreshIntervalSeconds": {
         "type": "number",
         "default": 180,
         "minimum": 0,

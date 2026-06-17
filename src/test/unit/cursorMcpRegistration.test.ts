@@ -22,7 +22,7 @@ suite("createCursorMcpServerConfig", () => {
     assert.strictEqual(config.name, MCP_CURSOR_SERVER_NAME)
     assert.strictEqual(config.name, MCP_SERVER_LABEL)
     assert.strictEqual(config.server.command, "node")
-    assert.deepStrictEqual(config.server.args, ["/extension/dist/linearMcpServer.js"])
+    assert.deepStrictEqual(config.server.args, ["/extension/dist/linearToCodeMcpServer.js"])
     assert.strictEqual(config.server.env.LINEAR_ACCESS_TOKEN, "token-123")
     assert.strictEqual(config.server.env.WORKSPACE_FOLDER, "/workspace/project")
   })

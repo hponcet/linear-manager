@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-19
+
 ### Removed
 
 - Removed temporary development Linear API call logging (`[Linear API]` console warnings)
@@ -17,7 +19,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Fixed
 
-- Issue description videos load again with React Player v3 and resize their container to the video dimensions
+- Prefix-by-label settings plus button now adds a draft row without immediately resetting the list from saved settings
+- Prefix-by-label settings label picker now loads all workspace issue and project labels instead of only the current issue team
+- Linear label pagination now follows `fetchNext` so workspace label lists include labels beyond the first API page
+- Prefix-by-label settings rows stay visible while choosing a label before entering a branch prefix
 - Activity timeline icons now mask the breadcrumb line with the VS Code editor background
 - Webview colors now follow VS Code and Cursor light and dark themes
 - Start Work action buttons now use VS Code button colors with consistent padding and spacing

@@ -5,7 +5,12 @@ import { useEffect, useMemo, useState } from "react"
 import { Input, SelectPicker } from "rsuite"
 import { SerializedIssue } from "src/types/SerializedLinear"
 import { IssueLabelSetting, SettingsVscState } from "src/vscStates"
-import { useIssueContext } from "src/webviews/contexts/IssueContext"
+import { useWorkspaceLabels } from "src/webviews/hooks/useWorkspaceLabels"
+import {
+  filterCompleteLabelPrefixes,
+  mergeLabelsById,
+  mergePersistedRowsWithDrafts,
+} from "src/webviews/utils/prefixByLabelList"
 
 import { Button } from "../Button/Button"
 import { Sortable } from "../DragAndDrop/Sortable"
@@ -27,27 +32,22 @@ type PrefixByLabelPickerProps = {
 export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
   const { issue, value, onChange } = props
 
-  const { issueLabelsLoading, branchPrefixLabels } = useIssueContext()
+  const { workspaceLabels, workspaceLabelsLoading } = useWorkspaceLabels()
 
   const sensors = useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
   })
 
-  const pickerLabels = useMemo(() => {
-    const byId = new Map<string, (typeof branchPrefixLabels)[number]>()
-
-    for (const label of branchPrefixLabels) {
-      byId.set(label.id, label)
-    }
-
-    for (const entry of value ?? []) {
-      if (entry.label?.id) {
-        byId.set(entry.label.id, entry.label)
-      }
-    }
-
-    return Array.from(byId.values())
-  }, [branchPrefixLabels, value])
+  const pickerLabels = useMemo(
+    () =>
+      mergeLabelsById(
+        workspaceLabels,
+        (value ?? [])
+          .map((entry) => entry.label)
+          .filter((label): label is IssueLabelSetting => !!label?.id),
+      ),
+    [workspaceLabels, value],
+  )
 
   const cacheData = useMemo(
     () =>
@@ -67,8 +67,12 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
   >(value || [])
 
   useEffect(() => {
-    setLabelsWithPrefixes(value || [])
+    setLabelsWithPrefixes((current) => mergePersistedRowsWithDrafts(value, current))
   }, [value])
+
+  function persistCompleteRows(updatedList: typeof labelsWithPrefixes) {
+    onChange(filterCompleteLabelPrefixes(updatedList) as LabelPrefixes)
+  }
 
   function handleLabelPrefixChange<F extends "label" | "prefix">(
     index: number,
@@ -79,25 +83,26 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
       idx === index ? { ...item, [field]: newValue } : item,
     )
     setLabelsWithPrefixes(updatedList)
-    onChange(
-      updatedList.filter((item) => item.label !== null && item.prefix !== "") as LabelPrefixes,
-    )
+
+    const updatedRow = updatedList[index]
+    if (updatedRow.label !== null && updatedRow.prefix !== "") {
+      persistCompleteRows(updatedList)
+      return
+    }
+
+    if (field === "prefix") {
+      persistCompleteRows(updatedList)
+    }
   }
 
   function handleAddLabelPrefix() {
-    const updatedList = [...labelsWithPrefixes, { label: null, prefix: "" }]
-    setLabelsWithPrefixes(updatedList)
-    onChange(
-      updatedList.filter((item) => item.label !== null && item.prefix !== "") as LabelPrefixes,
-    )
+    setLabelsWithPrefixes((current) => [...current, { label: null, prefix: "" }])
   }
 
   function handleRemoveLabelPrefix(index: number) {
     const updatedList = labelsWithPrefixes.filter((_, idx) => idx !== index)
     setLabelsWithPrefixes(updatedList)
-    onChange(
-      updatedList.filter((item) => item.label !== null && item.prefix !== "") as LabelPrefixes,
-    )
+    persistCompleteRows(updatedList)
   }
 
   return (
@@ -123,11 +128,7 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
             const [movedItem] = updatedList.splice(oldIndex, 1)
             updatedList.splice(newIndex, 0, movedItem)
             setLabelsWithPrefixes(updatedList)
-            onChange(
-              updatedList.filter(
-                (item) => item.label !== null && item.prefix !== "",
-              ) as LabelPrefixes,
-            )
+            persistCompleteRows(updatedList)
           }
         }}
         sensors={[sensors]}
@@ -153,7 +154,7 @@ export function PrefixByLabelPicker(props: PrefixByLabelPickerProps) {
                       )
                     }
                     placeholder="Select a label"
-                    loading={issueLabelsLoading}
+                    loading={workspaceLabelsLoading}
                     cleanable={false}
                     renderOption={(_, item) =>
                       item ? <Label key={item.value} issueLabel={item.issueLabel} inline /> : null

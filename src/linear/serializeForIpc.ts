@@ -96,6 +96,15 @@ export function serializeProjectLabel(label: ProjectLabel): SerializedIssueLabel
   return serializePickerLabel(label)
 }
 
+export function serializeAssignableLabel(label: {
+  id: string
+  name: string
+  color: string
+  parentId?: string | null
+}): SerializedIssueLabel {
+  return serializePickerLabel(label)
+}
+
 export function serializeCycle(cycle: Cycle): SerializedCycle {
   return {
     id: cycle.id,

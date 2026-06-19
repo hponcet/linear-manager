@@ -23,6 +23,7 @@ import {
 import {
   fetchProjectLabels,
   fetchTeamMetadata,
+  fetchWorkspaceLabels,
   fetchWorkspaceUsers,
   TeamMetadata,
 } from "src/linear/teamMetadata"
@@ -106,6 +107,13 @@ export class LinearService {
     return this.#cache.getOrFetch(`projectLabels:${projectId}`, async () => {
       const client = this.#requireClient()
       return fetchProjectLabels(client, projectId)
+    })
+  }
+
+  async getWorkspaceLabels() {
+    return this.#cache.getOrFetch("workspaceLabels", async () => {
+      const client = this.#requireClient()
+      return fetchWorkspaceLabels(client)
     })
   }
 

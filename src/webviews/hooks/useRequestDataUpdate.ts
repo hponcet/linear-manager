@@ -39,6 +39,7 @@ const LINEAR_API_OPERATIONS = new Set<IpcType<"req">>([
   "getTeam",
   "getTeamMetadata",
   "getProjectLabels",
+  "getWorkspaceLabels",
   "getWorkspaceUsers",
   "getPriorities",
   "getComments",
@@ -165,6 +166,7 @@ export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) 
       getTeamMetadata: (teamId: string) => vscApi.postMessage({ type: "getTeamMetadata", teamId }),
       getProjectLabels: (projectId: string) =>
         vscApi.postMessage({ type: "getProjectLabels", projectId }),
+      getWorkspaceLabels: () => vscApi.postMessage({ type: "getWorkspaceLabels" }),
       getWorkspaceUsers: () => vscApi.postMessage({ type: "getWorkspaceUsers" }),
       getPriorities: () => vscApi.postMessage({ type: "getPriorities" }),
       getComments: (issueId: SerializedIssue["id"]) =>

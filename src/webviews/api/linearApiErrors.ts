@@ -13,6 +13,7 @@ const OPERATION_LABELS: Partial<Record<IpcType<"req">, string>> = {
   getTeam: "Failed to load team",
   getTeamMetadata: "Failed to load team data",
   getProjectLabels: "Failed to load project labels",
+  getWorkspaceLabels: "Failed to load workspace labels",
   getWorkspaceUsers: "Failed to load workspace users",
   getPriorities: "Failed to load priorities",
   getComments: "Failed to load comments",

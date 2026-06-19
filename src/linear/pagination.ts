@@ -1,17 +1,31 @@
 type PaginatedConnection<T> = {
   nodes: T[]
-  pageInfo: { hasPreviousPage: boolean }
+  pageInfo: {
+    hasPreviousPage: boolean
+    hasNextPage?: boolean
+  }
   fetchPrevious: () => Promise<PaginatedConnection<T>>
+  fetchNext?: () => Promise<PaginatedConnection<T>>
 }
 
-export async function fetchAllPreviousPages<T>(connection: PaginatedConnection<T>): Promise<T[]> {
-  const nodes = [...connection.nodes]
-  let current = connection
+export async function fetchAllConnectionPages<T>(connection: PaginatedConnection<T>): Promise<T[]> {
+  let head = connection
 
-  while (current.pageInfo.hasPreviousPage) {
-    current = await current.fetchPrevious()
-    nodes.unshift(...current.nodes)
+  while (head.pageInfo.hasPreviousPage) {
+    head = await head.fetchPrevious()
+  }
+
+  const nodes = [...head.nodes]
+  let tail = head
+
+  while (tail.pageInfo.hasNextPage && tail.fetchNext) {
+    tail = await tail.fetchNext()
+    nodes.push(...tail.nodes)
   }
 
   return nodes
+}
+
+export async function fetchAllPreviousPages<T>(connection: PaginatedConnection<T>): Promise<T[]> {
+  return fetchAllConnectionPages(connection)
 }

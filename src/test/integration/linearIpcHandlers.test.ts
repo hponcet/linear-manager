@@ -84,6 +84,22 @@ suite("linearIpcHandlers integration", () => {
           isGroup: false,
         },
       ],
+      getWorkspaceLabels: async () => [
+        {
+          id: "issue-label-1",
+          name: "Bug",
+          color: "#ff0000",
+          parentId: undefined,
+          isGroup: false,
+        },
+        {
+          id: "project-label-1",
+          name: "Backend",
+          color: "#00ff00",
+          parentId: undefined,
+          isGroup: false,
+        },
+      ],
       getComments: async () => [],
       updateIssue: async (
         issueId: string,
@@ -203,6 +219,29 @@ suite("linearIpcHandlers integration", () => {
     assert.strictEqual(labels.length, 1)
     assert.strictEqual(labels[0]?.id, "project-label-1")
     assert.strictEqual(labels[0]?.name, "Backend")
+  })
+
+  test("getWorkspaceLabels delegates to LinearService and serializes labels", async () => {
+    const { issueActions } = createIssueActions()
+    const service = createMockService()
+
+    const result = await handleLinearIpcMessage(
+      { type: "getWorkspaceLabels" },
+      issueActions,
+      service,
+    )
+
+    assert.strictEqual(result.handled, true)
+    if (!result.handled) {
+      return
+    }
+
+    const labels = result.payload as { id: string; name: string; color: string }[]
+    assert.strictEqual(labels.length, 2)
+    assert.deepStrictEqual(labels.map((label) => label.id).sort(), [
+      "issue-label-1",
+      "project-label-1",
+    ])
   })
 
   test("createSubIssue refreshes My Issues and returns the created issue", async () => {

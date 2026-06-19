@@ -138,6 +138,7 @@ const IssueContextReact = createContext<IssueContextValueData>({
       syncIssue: () => Promise.reject(),
       getTeamMetadata: () => Promise.reject(),
       getProjectLabels: () => Promise.reject(),
+      getWorkspaceLabels: () => Promise.reject(),
       getWorkspaceUsers: () => Promise.reject(),
       getPriorities: () => Promise.reject(),
       getIssue: () => Promise.reject(),

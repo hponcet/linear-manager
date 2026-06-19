@@ -1,9 +1,9 @@
 {
   "name": "linear-to-code",
-  "displayName": "Linear to Code",
-  "description": "Linear extension for Cursor/VS Code apps to manage issues within the editor.",
+  "displayName": "Linear in Editor",
+  "description": "Get the entire Linear experience in your editor.",
   "icon": "resources/images/linear_dark.png",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "hpon",
   "repository": "https://github.com/hponcet/linear-to-code",
   "engines": {
@@ -19,7 +19,7 @@
     "ovsx:publish": "node scripts/ovsx-publish.cjs",
     "vscode:prepublish": "cross-env NODE_ENV=production npm run package",
     "compile": "webpack -c webpack.extension.js",
-    "watch": "cross-env NODE_ENV=development npm-run-all --parallel watch:extension watch:react",
+    "watch": "cross-env NODE_ENV=development sh -c 'ulimit -n 65536 2>/dev/null || true; npm-run-all --parallel watch:extension watch:react'",
     "watch:extension": "cross-env NODE_ENV=development webpack --watch -c webpack.extension.js",
     "watch:react": "cross-env NODE_ENV=development webpack --watch -c webpack.react.js",
     "package": "webpack -c webpack.extension.js --mode production --devtool hidden-source-map && webpack -c webpack.react.js --mode production --devtool hidden-source-map",

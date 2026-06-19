@@ -53,6 +53,11 @@ module.exports = {
     },
   },
   externals: ["utf-8-validate", "bufferutil", "vscode"],
+  watchOptions: {
+    ignored: ["**/node_modules/**", "**/dist/**", "**/.cache/**"],
+    // Avoid EMFILE on macOS when fork-ts-checker adds directory watchers on top of webpack.
+    poll: isProduction ? undefined : 1000,
+  },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js", ".json"],

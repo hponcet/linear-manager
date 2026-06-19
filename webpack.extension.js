@@ -36,6 +36,9 @@ const extensionConfig = {
   externals: {
     vscode: "commonjs vscode",
   },
+  watchOptions: {
+    ignored: ["**/node_modules/**", "**/dist/**", "**/.cache/**"],
+  },
 
   plugins: [
     new webpack.DefinePlugin({

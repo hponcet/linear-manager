@@ -1,4 +1,5 @@
 import {
+  serializeAssignableLabel,
   serializeAttachment,
   serializeComment,
   serializeIssue,
@@ -58,6 +59,10 @@ export async function handleLinearIpcMessage(
     case "getProjectLabels": {
       const labels = await service.getProjectLabels(msg.projectId)
       return { handled: true, payload: labels.map(serializeProjectLabel) }
+    }
+    case "getWorkspaceLabels": {
+      const labels = await service.getWorkspaceLabels()
+      return { handled: true, payload: labels.map(serializeAssignableLabel) }
     }
     case "getWorkspaceUsers": {
       const users = await service.getWorkspaceUsers()

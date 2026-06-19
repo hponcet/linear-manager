@@ -2,8 +2,12 @@ import { fetchAllPreviousPages } from "./pagination"
 
 type PaginatedConnection<T> = {
   nodes: T[]
-  pageInfo: { hasPreviousPage: boolean }
+  pageInfo: {
+    hasPreviousPage: boolean
+    hasNextPage?: boolean
+  }
   fetchPrevious: () => Promise<PaginatedConnection<T>>
+  fetchNext?: () => Promise<PaginatedConnection<T>>
 }
 
 export type LabelWithChildren = {

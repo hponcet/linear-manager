@@ -94,6 +94,7 @@ export type Message<K extends keyof Props = any> =
   | Action<"getTeam", { teamId: string }, SerializedTeam>
   | Action<"getTeamMetadata", { teamId: string }, SerializedTeamMetadata>
   | Action<"getProjectLabels", { projectId: string }, SerializedIssueLabel[]>
+  | Action<"getWorkspaceLabels", void, SerializedIssueLabel[]>
   | Action<"getWorkspaceUsers", void, SerializedUser[]>
   | Action<"getPriorities", void, IssuePriorityValue[]>
   | Action<"getComments", { issueId: SerializedIssue["id"] }, SerializedComment[]>

@@ -172,6 +172,18 @@ export class LinearService {
     return this.getIssue(issueId)
   }
 
+  async searchIssues(
+    query: string,
+  ): Promise<Awaited<ReturnType<LinearClient["searchIssues"]>>["nodes"]> {
+    const normalized = query.trim()
+    if (!normalized) {
+      return []
+    }
+
+    const result = await this.#requireClient().searchIssues(normalized)
+    return result.nodes
+  }
+
   async getAssignedIssues(): Promise<TreeIssue[]> {
     return this.#cache.getOrFetch("assignedIssues", async () => {
       const me = await this.getViewer()

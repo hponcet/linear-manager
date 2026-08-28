@@ -20,6 +20,7 @@ function createMockClient(options?: {
   issue?: Issue
   onIssueFetch?: () => void
   onAssignedIssuesFetch?: () => void
+  onSearchIssues?: (query: string) => void
 }): LinearClient {
   const issue = options?.issue ?? createMockIssue()
 
@@ -37,6 +38,10 @@ function createMockClient(options?: {
       options?.onIssueFetch?.()
       return issue
     },
+    searchIssues: async (query: string) => {
+      options?.onSearchIssues?.(query)
+      return { nodes: [issue] }
+    },
     updateIssue: async (_id: string, fields: Record<string, unknown>) => ({
       issue: Promise.resolve({ ...issue, ...fields } as Issue),
     }),
@@ -47,6 +52,41 @@ function createMockClient(options?: {
 type User = Awaited<LinearClient["viewer"]>
 
 suite("LinearService integration", () => {
+  test("searchIssues returns workspace matches", async () => {
+    let searchedQuery: string | undefined
+    const service = new LinearService(
+      () =>
+        createMockClient({
+          onSearchIssues: (query) => {
+            searchedQuery = query
+          },
+        }),
+      new LinearCacheStore(),
+    )
+
+    const issues = await service.searchIssues("  test issue  ")
+
+    assert.strictEqual(searchedQuery, "test issue")
+    assert.strictEqual(issues[0]?.identifier, "ENG-1")
+    assert.strictEqual(issues[0]?.title, "Test issue")
+  })
+
+  test("searchIssues skips blank queries", async () => {
+    let searchCount = 0
+    const service = new LinearService(
+      () =>
+        createMockClient({
+          onSearchIssues: () => {
+            searchCount += 1
+          },
+        }),
+      new LinearCacheStore(),
+    )
+
+    assert.deepStrictEqual(await service.searchIssues("  "), [])
+    assert.strictEqual(searchCount, 0)
+  })
+
   test("getIssue caches repeated reads for the same issue", async () => {
     let issueFetchCount = 0
     const service = new LinearService(

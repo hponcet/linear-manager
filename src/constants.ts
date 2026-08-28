@@ -24,6 +24,7 @@ export enum Commands {
   checkoutIssue = "linearToCode.commands.checkoutIssue",
   refresh = "linearToCode.commands.refresh",
   toggleViewMode = "linearToCode.commands.toggleViewMode",
+  searchIssues = "linearToCode.commands.searchIssues",
   openPullRequest = "linearToCode.commands.openPullRequest",
   openSettings = "linearToCode.commands.openSettings",
   openSettingsTab = "linearToCode.commands.openSettingsTab",

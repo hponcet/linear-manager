@@ -7,6 +7,7 @@ Unofficial [Linear](https://linear.app) extension for VS Code and Cursor. Manage
 ### Issues and workflow
 
 - Connect your Linear account and browse **My Issues** or **Current Cycle** in the activity bar
+- Search all Linear workspace issues from the **My Issues** or **Current Cycle** view header
 - Open issues in a rich React panel (TipTap editor, comments, sub-issues, attachments, history)
 - Drag and drop issues from the tree view to open them
 - Move issues between workflow states via drag and drop (multi-select supported)
@@ -75,24 +76,26 @@ When a git provider is connected for the current repository:
 
 ### Keyboard shortcuts
 
-| Shortcut | Command | Description |
-|----------|---------|-------------|
-| `Cmd+K I` (Mac) / `Ctrl+K I` (Win/Linux) | Open Issue for Current Branch | Open the Linear issue for the current Git branch |
+| Shortcut                                 | Command                       | Description                                         |
+| ---------------------------------------- | ----------------------------- | --------------------------------------------------- |
+| `Cmd+K I` (Mac) / `Ctrl+K I` (Win/Linux) | Open Issue for Current Branch | Open the Linear issue for the current Git branch    |
+| `Cmd+K L` (Mac) / `Ctrl+K L` (Win/Linux) | Search Linear Issues          | Search all issues in the connected Linear workspace |
 
 ### Commands (selection)
 
-| Command | Description |
-|---------|-------------|
-| Connect / Disconnect from Linear | Authenticate or sign out |
-| Open Issue | Open issue in the editor panel |
-| Open on Linear | Open issue in the browser |
-| Start work on issue | Branch setup workflow |
-| Start work with agent | Launch Cursor Composer with issue MCP context (Cursor) |
-| Switch to branch | Switch to the issue branch |
-| Create pull request | Open provider compare/create flow |
-| Review with agent | Review PR with MCP context (Cursor) |
-| Refresh / Toggle View | Reload data or switch My Issues ↔ Current Cycle |
-| Open settings | Workflow, Git, and agent prompt settings |
+| Command                          | Description                                            |
+| -------------------------------- | ------------------------------------------------------ |
+| Connect / Disconnect from Linear | Authenticate or sign out                               |
+| Open Issue                       | Open issue in the editor panel                         |
+| Search Linear Issues             | Search all issues in the connected Linear workspace    |
+| Open on Linear                   | Open issue in the browser                              |
+| Start work on issue              | Branch setup workflow                                  |
+| Start work with agent            | Launch Cursor Composer with issue MCP context (Cursor) |
+| Switch to branch                 | Switch to the issue branch                             |
+| Create pull request              | Open provider compare/create flow                      |
+| Review with agent                | Review PR with MCP context (Cursor)                    |
+| Refresh / Toggle View            | Reload data or switch My Issues ↔ Current Cycle        |
+| Open settings                    | Workflow, Git, and agent prompt settings               |
 
 ## Project structure
 
@@ -155,17 +158,17 @@ npm run lint:all
 
 ### Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run watch` | Extension + webview rebuild on change |
-| `npm run compile` | Compile extension host |
-| `npm run package` | Production webpack build |
-| `npm run check:types` | TypeScript check |
-| `npm run lint` | ESLint |
-| `npm run lint:styles` | Stylelint (CSS/SCSS) |
-| `npm run lint:all` | ESLint + Prettier + Stylelint |
-| `npm run test` | Unit and integration tests |
-| `npm run analyze:webview` | Webpack bundle analysis (webview) |
+| Script                    | Description                           |
+| ------------------------- | ------------------------------------- |
+| `npm run watch`           | Extension + webview rebuild on change |
+| `npm run compile`         | Compile extension host                |
+| `npm run package`         | Production webpack build              |
+| `npm run check:types`     | TypeScript check                      |
+| `npm run lint`            | ESLint                                |
+| `npm run lint:styles`     | Stylelint (CSS/SCSS)                  |
+| `npm run lint:all`        | ESLint + Prettier + Stylelint         |
+| `npm run test`            | Unit and integration tests            |
+| `npm run analyze:webview` | Webpack bundle analysis (webview)     |
 
 ## Tech stack
 

@@ -170,6 +170,13 @@
         "enablement": "linearToCode:isLinearAuthenticated"
       },
       {
+        "command": "linearToCode.commands.searchIssues",
+        "title": "Search Linear Issues",
+        "icon": "$(search)",
+        "category": "Linear to Code",
+        "enablement": "linearToCode:isLinearAuthenticated"
+      },
+      {
         "command": "linearToCode.commands.openPullRequest",
         "title": "Create pull request",
         "icon": "$(git-pull-request-create)",
@@ -292,6 +299,11 @@
         },
         {
           "command": "linearToCode.commands.toggleViewMode",
+          "when": "view == linearToCode.views.myIssues",
+          "group": "navigation"
+        },
+        {
+          "command": "linearToCode.commands.searchIssues",
           "when": "view == linearToCode.views.myIssues",
           "group": "navigation"
         },
@@ -420,6 +432,12 @@
         "command": "linearToCode.commands.openCurrentBranchIssue",
         "key": "ctrl+k ctrl+i",
         "mac": "cmd+k cmd+i"
+      },
+      {
+        "command": "linearToCode.commands.searchIssues",
+        "key": "ctrl+k l",
+        "mac": "cmd+k l",
+        "when": "linearToCode:isLinearAuthenticated"
       }
     ]
   },

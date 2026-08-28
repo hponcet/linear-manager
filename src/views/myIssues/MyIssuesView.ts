@@ -30,6 +30,7 @@ import {
   Uri,
   workspace,
   TreeItemCollapsibleState,
+  QuickPickItem,
 } from "vscode"
 
 import {
@@ -48,6 +49,8 @@ import {
 } from "./types"
 
 import { getDefaultWorkflowStateExpanded, TreeViewExpansionState } from "../treeViewExpansionState"
+
+type IssueQuickPickItem = QuickPickItem & { issueId: Issue["id"] }
 
 export class MyIssuesView
   implements
@@ -151,6 +154,7 @@ export class MyIssuesView
       ),
       commands.registerCommand(Commands.refresh, () => this.fetchDatas()),
       commands.registerCommand(Commands.toggleViewMode, () => this.toggleViewMode()),
+      commands.registerCommand(Commands.searchIssues, () => this.searchIssues()),
       commands.registerCommand(Commands.openPullRequest, (issue: Issue) =>
         this.openPullRequestForIssue(issue),
       ),
@@ -280,6 +284,74 @@ export class MyIssuesView
     commands.executeCommand("setContext", "linearToCode:viewMode", this.#viewMode)
 
     await this._refreshIssues()
+  }
+
+  public async searchIssues(): Promise<void> {
+    const quickPick = window.createQuickPick<IssueQuickPickItem>()
+    quickPick.title = "Search Linear issues"
+    quickPick.placeholder = "Type at least two characters to search all Linear issues"
+    quickPick.matchOnDescription = true
+
+    let requestId = 0
+    let timeout: NodeJS.Timeout | undefined
+    const disposables: Disposable[] = []
+
+    const search = async (value: string, currentRequestId: number) => {
+      quickPick.busy = true
+
+      try {
+        const issues = await Controller.linearService.searchIssues(value)
+        if (currentRequestId === requestId) {
+          quickPick.items = issues.map((issue) => ({
+            label: issue.identifier,
+            description: issue.title,
+            issueId: issue.id,
+          }))
+        }
+      } catch (error) {
+        if (currentRequestId === requestId) {
+          window.showErrorMessage(
+            `Failed to search Linear issues: ${error instanceof Error ? error.message : String(error)}`,
+          )
+        }
+      } finally {
+        if (currentRequestId === requestId) {
+          quickPick.busy = false
+        }
+      }
+    }
+
+    disposables.push(
+      quickPick.onDidChangeValue((value) => {
+        requestId += 1
+        clearTimeout(timeout)
+
+        if (value.trim().length < 2) {
+          quickPick.items = []
+          quickPick.busy = false
+          return
+        }
+
+        const currentRequestId = requestId
+        timeout = setTimeout(() => void search(value, currentRequestId), 200)
+      }),
+      quickPick.onDidAccept(() => {
+        const issueId = quickPick.selectedItems[0]?.issueId
+        if (!issueId) {
+          return
+        }
+
+        quickPick.hide()
+        void this.issuesActions.openIssue(issueId)
+      }),
+      quickPick.onDidHide(() => {
+        clearTimeout(timeout)
+        disposables.forEach((disposable) => disposable.dispose())
+        quickPick.dispose()
+      }),
+    )
+
+    quickPick.show()
   }
 
   #getExpansionStorageKey(): string {

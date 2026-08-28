@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- Added global Linear issue search from the My Issues and Current Cycle view header, with a keyboard shortcut.
+
 ## [0.1.1] - 2026-06-19
 
 ### Removed

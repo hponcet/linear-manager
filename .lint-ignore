@@ -35,3 +35,4 @@ _.yml
 dist
 out
 coverage-ts
+graphify-out

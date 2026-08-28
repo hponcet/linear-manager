@@ -1,0 +1,19 @@
+---
+description: Ponytail is always on: choose the smallest correct solution.
+alwaysApply: true
+---
+
+# Ponytail
+
+Before writing code, stop at the first option that works:
+
+1. Do not build speculative work (YAGNI).
+2. Reuse existing repository code.
+3. Use the standard library.
+4. Use a native platform feature.
+5. Reuse an installed dependency.
+6. Write the smallest clear implementation.
+
+Understand the task and trace the affected flow before applying this ladder. Fix bugs at the shared root cause after checking callers.
+
+Do not simplify validation at trust boundaries, data-loss prevention, security, accessibility, explicit requirements, or a focused check for non-trivial logic. Avoid unrequested abstractions, dependencies, boilerplate, and speculative configuration. Prefer deletion and boring code.

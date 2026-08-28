@@ -24,6 +24,8 @@
     "watch:react": "cross-env NODE_ENV=development webpack --watch -c webpack.react.js",
     "package": "webpack -c webpack.extension.js --mode production --devtool hidden-source-map && webpack -c webpack.react.js --mode production --devtool hidden-source-map",
     "analyze:webview": "cross-env NODE_ENV=production webpack -c webpack.react.js --json > dist/webpack-stats.json && webpack-bundle-analyzer dist/webpack-stats.json",
+    "graphify:update": "graphify update .",
+    "graphify:query": "graphify query",
     "------------ TESTS --------------------": "",
     "compile-tests": "tsc -p tsconfig.test.json --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",

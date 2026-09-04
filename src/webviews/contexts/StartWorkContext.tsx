@@ -73,7 +73,7 @@ export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
   async function updateIssue(
     id: string,
     updatedFields: Parameters<LinearClient["updateIssue"]>[1],
-  ) {
+  ): Promise<SerializedIssue | undefined> {
     try {
       const updatedIssue = (await panelActions.linearUpdateIssue(
         id,
@@ -83,8 +83,11 @@ export function StartWorkContextProvider(props: StartWorkContextProviderProps) {
       if (updatedIssue && id === issueId) {
         setIssue(updatedIssue)
       }
+
+      return updatedIssue || undefined
     } catch (error) {
       console.error("Failed to update issue:", error)
+      return undefined
     }
   }
 

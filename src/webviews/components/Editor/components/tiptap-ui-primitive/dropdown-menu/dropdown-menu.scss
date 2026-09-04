@@ -21,7 +21,10 @@
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
   max-height: var(--radix-dropdown-menu-content-available-height);
 
+  // Radix publishes the room it has left in the viewport; without a scroller a long menu is
+  // simply clipped by it, so the overflowing entries become unreachable inside the webview.
   > * {
+    overflow-y: auto;
     max-height: var(--radix-dropdown-menu-content-available-height);
   }
 

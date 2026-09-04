@@ -5,6 +5,7 @@ import { Ref } from "./types/GitAPI"
 
 export enum VscStateKeys {
   issueSettings = "issueSettings",
+  issueDescriptionDrafts = "issueDescriptionDrafts",
   branchesSettings = "branchesSettings",
   agentSettings = "agentSettings",
 }
@@ -23,6 +24,19 @@ export type IssueVscState = Record<
     ignoredBranches: string[]
   }>
 >
+
+export type IssueDescriptionDraftsVscState = Record<Issue["id"], string>
+
+export function updateIssueDescriptionDrafts(
+  drafts: IssueDescriptionDraftsVscState,
+  issueId: string,
+  value: string | null,
+): IssueDescriptionDraftsVscState {
+  const nextDrafts = { ...drafts }
+  if (value === null) delete nextDrafts[issueId]
+  else nextDrafts[issueId] = value
+  return nextDrafts
+}
 
 export type SettingsVscState = {
   updateCycle?: boolean

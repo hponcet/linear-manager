@@ -39,6 +39,8 @@ interface MenuNavigationOptions<T> {
    * @default true
    */
   autoSelectFirstItem?: boolean
+  /** Whether Tab cycles within the menu instead of leaving it. */
+  handleTab?: boolean
 }
 
 /**
@@ -59,6 +61,7 @@ export function useMenuNavigation<T>({
   onClose,
   orientation = "vertical",
   autoSelectFirstItem = true,
+  handleTab = true,
 }: MenuNavigationOptions<T>) {
   const [selectedIndex, setSelectedIndex] = useState<number>(autoSelectFirstItem ? 0 : -1)
 
@@ -108,6 +111,7 @@ export function useMenuNavigation<T>({
         }
 
         case "Tab": {
+          if (!handleTab) return false
           event.preventDefault()
           if (event.shiftKey) {
             movePrev()
@@ -131,14 +135,23 @@ export function useMenuNavigation<T>({
 
         case "Enter": {
           if (event.isComposing) return false
+          if (
+            event.target instanceof Element &&
+            event.target.matches("button, a[href], input, select, textarea")
+          ) {
+            return false
+          }
           event.preventDefault()
-          if (selectedIndex !== -1 && items[selectedIndex]) {
-            onSelect?.(items[selectedIndex])
+          const focusedIndex = items.indexOf(document.activeElement as T)
+          const index = focusedIndex >= 0 ? focusedIndex : selectedIndex
+          if (index !== -1 && items[index]) {
+            onSelect?.(items[index])
           }
           return true
         }
 
         case "Escape": {
+          if (!onClose) return false
           event.preventDefault()
           onClose?.()
           return true
@@ -166,7 +179,7 @@ export function useMenuNavigation<T>({
     }
 
     return undefined
-  }, [editor, containerRef, items, selectedIndex, onSelect, onClose, orientation])
+  }, [editor, containerRef, items, selectedIndex, onSelect, onClose, orientation, handleTab])
 
   useEffect(() => {
     if (query) {

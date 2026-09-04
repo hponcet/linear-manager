@@ -2,13 +2,15 @@
 /* stylelint-disable selector-class-pattern */
 
 .mentionList {
-  min-width: 220px;
-  max-width: 320px;
+  min-width: 320px;
+  max-width: 420px;
+  max-height: 320px;
   padding: 4px;
+  overflow-y: auto;
   border: 1px solid var(--vscode-widget-border, var(--rs-border-primary));
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--vscode-editorWidget-background, var(--rs-bg-overlay));
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--vscode-foreground) 24%, transparent);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 40%);
 }
 
 .mentionListEmpty {
@@ -17,16 +19,31 @@
   font-size: 12px;
 }
 
+/* Linear separates its mention menu into a titled section per entity kind. */
+.mentionListGroup + .mentionListGroup {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--vscode-foreground) 10%, transparent);
+}
+
+.mentionListGroupTitle {
+  padding: 4px 8px;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+  font-size: 11px;
+  font-weight: 500;
+}
+
 .mentionListItem {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 5px 8px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 5px;
   background: transparent;
   color: var(--vscode-foreground, var(--rs-text-primary));
+  font-size: 13px;
   cursor: pointer;
   text-align: left;
 }
@@ -36,13 +53,36 @@
   background: var(--vscode-list-hoverBackground, var(--lm-hover-overlay));
 }
 
+.mentionListItemIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex: none;
+}
+
 .mentionListItemLabel {
-  font-size: 13px;
-  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* An issue row reads identifier first, muted, then its title, exactly as in Linear. */
+.mentionListItemIdentifier {
+  flex: none;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+}
+
+.mentionListItemTitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .mentionListItemMeta {
   margin-left: auto;
+  padding-left: 8px;
   color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
   font-size: 12px;
+  white-space: nowrap;
 }

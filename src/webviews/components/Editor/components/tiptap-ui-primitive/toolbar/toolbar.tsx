@@ -17,11 +17,18 @@ const useToolbarNavigation = (toolbarRef: React.RefObject<HTMLDivElement | null>
 
   const collectItems = useCallback(() => {
     if (!toolbarRef.current) return []
-    return Array.from(
+    const items = Array.from(
       toolbarRef.current.querySelectorAll<HTMLElement>(
         'button:not([disabled]), [role="button"]:not([disabled]), [tabindex="0"]:not([disabled])',
       ),
-    )
+      // A dropdown renders its content inside the toolbar so it stays anchored to its trigger.
+      // Its entries belong to that menu's own keyboard handling: collecting them here would make
+      // the roving-tabindex effect pull focus out of the open menu and close it immediately.
+    ).filter((item) => !item.closest('[role="menu"]'))
+    items.forEach((item, index) => {
+      item.tabIndex = index === 0 ? 0 : -1
+    })
+    return items
   }, [toolbarRef])
 
   useEffect(() => {
@@ -37,12 +44,13 @@ const useToolbarNavigation = (toolbarRef: React.RefObject<HTMLDivElement | null>
     return () => observer.disconnect()
   }, [collectItems, toolbarRef])
 
-  const { selectedIndex } = useMenuNavigation<HTMLElement>({
+  const { selectedIndex, setSelectedIndex } = useMenuNavigation<HTMLElement>({
     containerRef: toolbarRef,
     items,
     orientation: "horizontal",
     onSelect: (el) => el.click(),
     autoSelectFirstItem: false,
+    handleTab: false,
   })
 
   useEffect(() => {
@@ -51,7 +59,10 @@ const useToolbarNavigation = (toolbarRef: React.RefObject<HTMLDivElement | null>
 
     const handleFocus = (e: FocusEvent) => {
       const target = e.target as HTMLElement
-      if (toolbar.contains(target)) target.setAttribute("data-focus-visible", "true")
+      if (!toolbar.contains(target)) return
+      target.setAttribute("data-focus-visible", "true")
+      const index = items.indexOf(target)
+      if (index >= 0) setSelectedIndex(index)
     }
 
     const handleBlur = (e: FocusEvent) => {
@@ -66,10 +77,17 @@ const useToolbarNavigation = (toolbarRef: React.RefObject<HTMLDivElement | null>
       toolbar.removeEventListener("focus", handleFocus, true)
       toolbar.removeEventListener("blur", handleBlur, true)
     }
-  }, [toolbarRef])
+  }, [items, setSelectedIndex, toolbarRef])
 
   useEffect(() => {
     if (selectedIndex !== undefined && items[selectedIndex]) {
+      items.forEach((item, index) => {
+        item.tabIndex = index === selectedIndex ? 0 : -1
+      })
+      // Opening a dropdown re-renders the toolbar, which rebuilds `items` and re-runs this
+      // effect. Pulling focus back to the trigger then closes the menu that just took it, so
+      // leave focus alone while an open menu owns it.
+      if (document.activeElement?.closest('[role="menu"]')) return
       items[selectedIndex].focus()
     }
   }, [selectedIndex, items])
@@ -85,7 +103,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
       <div
         ref={composedRef}
         role="toolbar"
-        aria-label="toolbar"
+        aria-label="Formatting toolbar"
         data-variant={variant}
         className={cn("tiptap-toolbar", className)}
         {...props}

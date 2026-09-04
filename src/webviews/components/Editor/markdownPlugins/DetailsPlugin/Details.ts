@@ -116,6 +116,7 @@ export const Details = Node.create({
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
       svg.setAttribute("width", "16")
       svg.setAttribute("height", "16")
+      svg.setAttribute("aria-hidden", "true")
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
       path.setAttribute(
         "d",
@@ -128,24 +129,22 @@ export const Details = Node.create({
 
       const content = document.createElement("div")
       content.className = "details-content-container"
+      content.id = `details-content-${crypto.randomUUID()}`
+      toggle.setAttribute("aria-controls", content.id)
       dom.append(content)
 
       const toggleDetailsContent = (setToValue?: boolean) => {
-        if (setToValue !== undefined) {
-          if (setToValue) {
-            if (dom.classList.contains(this.options.openClassName)) {
-              return
-            }
-            dom.classList.add(this.options.openClassName)
-          } else {
-            if (!dom.classList.contains(this.options.openClassName)) {
-              return
-            }
-            dom.classList.remove(this.options.openClassName)
-          }
-        } else {
-          dom.classList.toggle(this.options.openClassName)
+        const isOpen = dom.classList.contains(this.options.openClassName)
+        const shouldOpen = setToValue ?? !isOpen
+
+        toggle.setAttribute("aria-expanded", String(shouldOpen))
+        toggle.setAttribute("aria-label", shouldOpen ? "Collapse details" : "Expand details")
+
+        if (shouldOpen === isOpen) {
+          return
         }
+
+        dom.classList.toggle(this.options.openClassName, shouldOpen)
 
         const event = new Event("toggleDetailsContent")
         const detailsContent = content.querySelector(':scope > div[data-type="detailsContent"]')
@@ -153,16 +152,16 @@ export const Details = Node.create({
         detailsContent?.dispatchEvent(event)
       }
 
+      toggleDetailsContent(false)
+
       if (node.attrs.open) {
-        setTimeout(() => toggleDetailsContent())
+        setTimeout(() => toggleDetailsContent(true))
       }
 
       toggle.addEventListener("click", () => {
         toggleDetailsContent()
 
         if (!this.options.persist) {
-          editor.commands.focus(undefined, { scrollIntoView: false })
-
           return
         }
 
@@ -174,7 +173,7 @@ export const Details = Node.create({
             .command(({ tr }) => {
               const pos = getPos()
 
-              if (!pos) {
+              if (typeof pos !== "number") {
                 return false
               }
 
@@ -202,9 +201,14 @@ export const Details = Node.create({
       return {
         dom,
         contentDOM: content,
+        stopEvent: (event) => event.target instanceof Element && toggle.contains(event.target),
         ignoreMutation(mutation: ViewMutationRecord) {
           if (mutation.type === "selection") {
             return false
+          }
+
+          if (mutation.type === "attributes" && toggle.contains(mutation.target)) {
+            return true
           }
 
           return !dom.contains(mutation.target) || dom === mutation.target
@@ -215,7 +219,7 @@ export const Details = Node.create({
           }
 
           // Only update the open state if set
-          if (updatedNode.attrs.open !== undefined) {
+          if (this.options.persist && updatedNode.attrs.open !== undefined) {
             toggleDetailsContent(updatedNode.attrs.open)
           }
 
@@ -462,47 +466,78 @@ export const Details = Node.create({
   markdownTokenizer: {
     name: "details",
     level: "block",
-    start: (src) => src.match(/^\+\+\+ ([^\n]+)?\n/)?.index || -1,
+    start: (src) => src.match(/^(?:\+\+\+|>>>)[ \t]+[^\n]+\n/m)?.index ?? -1,
     tokenize(src, _tokens, lexer) {
-      // Rechercher le début d'un bloc details
-      const openMatch = src.match(/^\+\+\+ ([^\n]+)?\n/)
+      const openMatch = /^(\+\+\+|>>>)[ \t]+([^\n]+)\n/.exec(src)
 
       if (!openMatch) {
         return undefined
       }
 
-      const [firstLine, summary] = openMatch || []
+      const delimiters = [openMatch[1]]
+      let cursor = openMatch[0].length
+      let fence: { marker: "`" | "~"; length: number } | null = null
 
-      let openBlocks = 0
+      while (cursor <= src.length) {
+        const newline = src.indexOf("\n", cursor)
+        const lineEnd = newline === -1 ? src.length : newline
+        const line = src.slice(cursor, lineEnd)
+        const fenceMatch = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line)
 
-      let tokens = ""
-
-      const lines = src.split("\n")
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        const origLine = `${line || ""}\n`
-
-        if (line.startsWith("+++ ")) {
-          if (i === 0) {
-            continue
+        if (fence) {
+          if (
+            fenceMatch?.[1]?.startsWith(fence.marker) &&
+            fenceMatch[1].length >= fence.length &&
+            !fenceMatch[2].trim()
+          ) {
+            fence = null
           }
-          openBlocks += 1
-        } else if (line === "+++") {
-          if (openBlocks === 0) {
-            break
+        } else if (fenceMatch?.[1]) {
+          fence = {
+            marker: fenceMatch[1][0] as "`" | "~",
+            length: fenceMatch[1].length,
           }
-          openBlocks -= 1
+        } else {
+          const nestedOpen = /^(\+\+\+|>>>)[ \t]+[^\n]+$/.exec(line)
+          const close = /^(\+\+\+|>>>)$/.exec(line)
+
+          if (nestedOpen) {
+            delimiters.push(nestedOpen[1])
+          } else if (close) {
+            if (close[1] !== delimiters.at(-1)) {
+              return undefined
+            }
+
+            delimiters.pop()
+            if (delimiters.length === 0) {
+              const rawEnd = newline === -1 ? lineEnd : newline + 1
+              const content = src.slice(openMatch[0].length, cursor)
+
+              // Linear lets a summary be a heading. The marker is block syntax, so the inline
+              // lexer would leave "### " as literal text: strip it, remember the level, and put
+              // it back when serialising.
+              const summary = openMatch[2].trim()
+              const heading = /^(#{1,6})\s+(.*)$/.exec(summary)
+
+              return {
+                type: "details",
+                raw: src.slice(0, rawEnd),
+                summaryLevel: heading ? heading[1].length : null,
+                summaryTokens: lexer.inlineTokens(heading ? heading[2] : summary),
+                tokens: lexer.blockTokens(content),
+              }
+            }
+          }
         }
-        tokens += origLine
+
+        if (newline === -1) {
+          break
+        }
+
+        cursor = newline + 1
       }
 
-      return {
-        type: "details",
-        raw: `${firstLine || ""}${tokens || ""}+++\n`,
-        summary: summary?.trim() || "",
-        tokens: lexer.blockTokens(tokens?.trim() || ""),
-      }
+      return undefined
     },
   },
 
@@ -510,8 +545,8 @@ export const Details = Node.create({
     return h.createNode("details", token.attributes, [
       h.createNode(
         "detailsSummary",
-        {},
-        token.summary ? [h.createTextNode(token.summary || "")] : [],
+        { level: token.summaryLevel ?? null },
+        h.parseInline(token.summaryTokens ?? []),
       ),
       h.createNode(
         "detailsContent",
@@ -529,9 +564,11 @@ export const Details = Node.create({
   },
 
   renderMarkdown: (node, helpers) => {
-    const summaryNode = node.content?.find((child) => child.type === "detailsSummary")?.content
-
-    const summaryText = summaryNode ? helpers.renderChildren(summaryNode) : ""
+    const summary = node.content?.find((child) => child.type === "detailsSummary")
+    const summaryNode = summary?.content
+    const summaryLevel = summary?.attrs?.level
+    const summaryPrefix = typeof summaryLevel === "number" ? `${"#".repeat(summaryLevel)} ` : ""
+    const summaryText = `${summaryPrefix}${summaryNode ? helpers.renderChildren(summaryNode) : ""}`
 
     const contentNode = node.content?.find((child) => child.type === "detailsContent")
 

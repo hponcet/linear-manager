@@ -3,7 +3,7 @@ import * as assert from "assert"
 import { Issue, LinearClient } from "@linear/sdk"
 
 import { LinearCacheStore } from "../../linear/LinearCacheStore"
-import { LinearService } from "../../linear/LinearService"
+import { LinearService, MAX_LINEAR_FILE_SIZE } from "../../linear/LinearService"
 
 function createMockIssue(overrides: Partial<Issue> = {}): Issue {
   return {
@@ -69,6 +69,79 @@ suite("LinearService integration", () => {
     assert.strictEqual(searchedQuery, "test issue")
     assert.strictEqual(issues[0]?.identifier, "ENG-1")
     assert.strictEqual(issues[0]?.title, "Test issue")
+  })
+
+  test("resolveEditorReference builds an issue card once and rejects a bad request", async () => {
+    const issueId = "99999999-9999-4999-8999-999999999999"
+    let issueFetchCount = 0
+    const service = new LinearService(
+      () =>
+        createMockClient({
+          issue: createMockIssue({
+            id: issueId,
+            priorityLabel: "Urgent",
+            state: Promise.resolve({ name: "In Progress", type: "started", color: "#f2c94c" }),
+          } as Partial<Issue>),
+          onIssueFetch: () => {
+            issueFetchCount += 1
+          },
+        }),
+      new LinearCacheStore(),
+    )
+
+    const card = await service.resolveEditorReference({ kind: "issue", id: issueId })
+    await service.resolveEditorReference({ kind: "issue", id: issueId })
+
+    assert.strictEqual(issueFetchCount, 1)
+    assert.strictEqual(card?.id, issueId)
+    assert.strictEqual(card?.workflowState?.type, "started")
+    assert.strictEqual(card?.title, "ENG-1")
+    assert.strictEqual(card?.subtitle, "Test issue")
+    assert.deepStrictEqual(card?.rows, [
+      { label: "Status", value: "In Progress" },
+      { label: "Priority", value: "Urgent" },
+    ])
+
+    await assert.rejects(
+      () => service.resolveEditorReference({ kind: "team" as "issue", id: "issue-1" }),
+      /Invalid Linear reference request/,
+    )
+    await assert.rejects(
+      () => service.resolveEditorReference({ kind: "issue", id: "../escape" }),
+      /Invalid Linear reference request/,
+    )
+  })
+
+  test("resolveEditorReference looks an issue up by identifier when the reference is a URL", async () => {
+    let searchedQuery: string | undefined
+    const service = new LinearService(
+      () =>
+        createMockClient({
+          onSearchIssues: (query) => {
+            searchedQuery = query
+          },
+        }),
+      new LinearCacheStore(),
+    )
+
+    const card = await service.resolveEditorReference({ kind: "issue", id: "ENG-1" })
+
+    assert.strictEqual(searchedQuery, "ENG-1")
+    assert.strictEqual(card?.identifier, "ENG-1")
+  })
+
+  test("resolveEditorReference returns null when Linear cannot resolve the reference", async () => {
+    const service = new LinearService(
+      () =>
+        ({
+          customView: async () => {
+            throw new Error("Not found")
+          },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+
+    assert.strictEqual(await service.resolveEditorReference({ kind: "view", id: "slug" }), null)
   })
 
   test("searchIssues skips blank queries", async () => {
@@ -311,5 +384,328 @@ suite("LinearService integration", () => {
       ["history-1", "history-2", "history-3"],
     )
     assert.ok(page.nodes.every((node) => node.resolved !== undefined))
+  })
+
+  test("searchEditorMentions returns public URL-backed resources despite a partial failure", async () => {
+    let issueSearchOptions: Record<string, unknown> | undefined
+    let unsupportedCollectionCalls = 0
+    const userConnection = {
+      nodes: Array.from({ length: 10 }, (_, index) => ({
+        id: `user-${index}`,
+        displayName: `Ada ${index}`,
+        name: `Ada Lovelace ${index}`,
+        email: `ada-${index}@example.com`,
+        active: true,
+        isMentionable: true,
+        url: `https://linear.app/acme/profiles/ada-${index}`,
+      })),
+      pageInfo: { hasPreviousPage: false, hasNextPage: false },
+      fetchPrevious: async () => userConnection,
+    }
+    const service = new LinearService(
+      () =>
+        ({
+          users: async () => userConnection,
+          searchIssues: async (_query: string, options: Record<string, unknown>) => {
+            issueSearchOptions = options
+            return {
+              nodes: Array.from({ length: 10 }, (_, index) => ({
+                id: `issue-${index}`,
+                identifier: `ENG-${index}`,
+                title: `Ada support ${index}`,
+                url: `https://linear.app/acme/issue/ENG-${index}/ada-support`,
+              })),
+            }
+          },
+          searchProjects: async () => {
+            throw new Error("Projects unavailable")
+          },
+          searchDocuments: async () => ({
+            nodes: Array.from({ length: 10 }, (_, index) => ({
+              id: `document-${index}`,
+              title: `Ada notes ${index}`,
+              url: `https://linear.app/acme/document/ada-notes-document-${index}`,
+            })),
+          }),
+          cycles: async () => {
+            unsupportedCollectionCalls += 1
+          },
+          projectMilestones: async () => {
+            unsupportedCollectionCalls += 1
+          },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+
+    const mentions = await service.searchEditorMentions("Ada")
+
+    assert.strictEqual(mentions.filter(({ kind }) => kind === "user").length, 8)
+    assert.strictEqual(mentions.filter(({ kind }) => kind === "issue").length, 8)
+    assert.strictEqual(mentions.filter(({ kind }) => kind === "document").length, 8)
+    assert.strictEqual(
+      mentions.some(({ kind }) => kind === "project"),
+      false,
+    )
+    assert.strictEqual(unsupportedCollectionCalls, 2)
+    assert.deepStrictEqual(issueSearchOptions, { first: 8, includeArchived: false })
+    assert.ok(mentions.every((mention) => mention.resourceUrl.startsWith("https://linear.app/")))
+  })
+
+  test("searchEditorMentions returns cycles and project milestones with observed Linear URLs", async () => {
+    let organizationReads = 0
+    const emptyConnection = {
+      nodes: [],
+      pageInfo: { hasPreviousPage: false, hasNextPage: false },
+      fetchPrevious: async () => emptyConnection,
+    }
+    const service = new LinearService(
+      () =>
+        ({
+          users: async () => emptyConnection,
+          searchIssues: async () => emptyConnection,
+          searchProjects: async () => emptyConnection,
+          searchDocuments: async () => emptyConnection,
+          cycles: async () => ({
+            ...emptyConnection,
+            nodes: [{ id: "cycle-12", number: 12, name: null }],
+          }),
+          projectMilestones: async () => ({
+            ...emptyConnection,
+            nodes: [{ id: "milestone-1", name: "Public beta" }],
+          }),
+          get organization() {
+            organizationReads += 1
+            return Promise.resolve({ urlKey: "acme workspace" })
+          },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+
+    const mentions = await service.searchEditorMentions("12")
+
+    assert.deepStrictEqual(
+      mentions.filter(({ kind }) => kind === "cycle" || kind === "milestone"),
+      [
+        {
+          kind: "cycle",
+          id: "cycle-12",
+          label: "Cycle 12",
+          resourceUrl: "https://linear.app/acme%20workspace/cycle/cycle-12",
+        },
+        {
+          kind: "milestone",
+          id: "milestone-1",
+          label: "Public beta",
+          resourceUrl: "https://linear.app/acme%20workspace/project-milestone/milestone-1",
+        },
+      ],
+    )
+    assert.strictEqual(organizationReads, 1)
+  })
+
+  test("uploadLinearFile uses Linear's signed request without adding headers", async () => {
+    const data = Buffer.from("hello")
+    let sdkArguments: unknown[] = []
+    let fetchedUrl = ""
+    let fetchOptions: RequestInit | undefined
+    const service = new LinearService(
+      () =>
+        ({
+          fileUpload: async (...args: unknown[]) => {
+            sdkArguments = args
+            return {
+              success: true,
+              uploadFile: {
+                uploadUrl: "https://storage.googleapis.com/upload-target",
+                assetUrl: "https://uploads.linear.app/asset.txt",
+                headers: [
+                  { key: "Content-Type", value: "text/plain" },
+                  { key: "x-goog-content-length-range", value: "5,5" },
+                ],
+              },
+            }
+          },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async (url, options) => {
+      fetchedUrl = String(url)
+      fetchOptions = options
+      return { ok: true, status: 200 } as Response
+    }
+
+    try {
+      const result = await service.uploadLinearFile({
+        uploadId: "upload-1",
+        name: "asset.txt",
+        mimeType: "text/plain",
+        size: data.length,
+        base64: data.toString("base64"),
+      })
+
+      assert.deepStrictEqual(sdkArguments, ["text/plain", "asset.txt", 5])
+      assert.strictEqual(fetchedUrl, "https://storage.googleapis.com/upload-target")
+      assert.strictEqual(fetchOptions?.method, "PUT")
+      assert.deepStrictEqual(fetchOptions?.headers, [
+        ["Content-Type", "text/plain"],
+        ["x-goog-content-length-range", "5,5"],
+      ])
+      assert.strictEqual(Buffer.from(fetchOptions?.body as ArrayBuffer).toString(), "hello")
+      assert.strictEqual(fetchOptions?.redirect, "error")
+      assert.deepStrictEqual(result, { assetUrl: "https://uploads.linear.app/asset.txt" })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test("downloadLinearAsset fetches the canonical URL with the SDK authorization", async () => {
+    const service = new LinearService(
+      () =>
+        ({
+          options: { headers: { Authorization: "Bearer linear-token" } },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+    const originalFetch = globalThis.fetch
+    let fetchedUrl = ""
+    let fetchOptions: RequestInit | undefined
+    globalThis.fetch = async (url, options) => {
+      fetchedUrl = String(url)
+      fetchOptions = options
+      return new Response("audio", {
+        headers: {
+          "content-length": "5",
+          "content-type": "audio/mpeg; charset=binary",
+        },
+      })
+    }
+
+    try {
+      const result = await service.downloadLinearAsset(
+        "https://uploads.linear.app/workspace/audio?signature=expired&download=1",
+      )
+
+      assert.strictEqual(fetchedUrl, "https://uploads.linear.app/workspace/audio?download=1")
+      assert.deepStrictEqual(fetchOptions?.headers, { Authorization: "Bearer linear-token" })
+      assert.strictEqual(fetchOptions?.redirect, "error")
+      assert.deepStrictEqual(result, {
+        base64: Buffer.from("audio").toString("base64"),
+        mimeType: "audio/mpeg",
+      })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test("uploadLinearFile validates size and supports cancellation", async () => {
+    const serviceWithoutClient = new LinearService(() => null, new LinearCacheStore())
+    await assert.rejects(
+      serviceWithoutClient.uploadLinearFile({
+        uploadId: "too-large",
+        name: "asset.bin",
+        mimeType: "application/octet-stream",
+        size: MAX_LINEAR_FILE_SIZE + 1,
+        base64: "",
+      }),
+      /between 1 byte/,
+    )
+
+    let markFetchStarted: (() => void) | undefined
+    const fetchStarted = new Promise<void>((resolve) => {
+      markFetchStarted = resolve
+    })
+    const service = new LinearService(
+      () =>
+        ({
+          fileUpload: async () => ({
+            success: true,
+            uploadFile: {
+              uploadUrl: "https://storage.googleapis.com/upload-target",
+              assetUrl: "https://uploads.linear.app/asset.txt",
+              headers: [],
+            },
+          }),
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async (_url, options) => {
+      markFetchStarted?.()
+      return new Promise<Response>((_resolve, reject) => {
+        options?.signal?.addEventListener("abort", () => reject(options.signal?.reason))
+      })
+    }
+
+    try {
+      const upload = service.uploadLinearFile({
+        uploadId: "upload-cancel",
+        name: "asset.txt",
+        mimeType: "text/plain",
+        size: 1,
+        base64: "YQ==",
+      })
+      await fetchStarted
+
+      assert.strictEqual(service.cancelLinearFileUpload("upload-cancel"), true)
+      await assert.rejects(upload, /abort/i)
+      assert.strictEqual(service.cancelLinearFileUpload("upload-cancel"), false)
+    } finally {
+      service.cancelLinearFileUpload("upload-cancel")
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test("uploadLinearFile cancellation prevents the signed PUT while instructions are pending", async () => {
+    let resolveInstructions: ((value: unknown) => void) | undefined
+    let markInstructionsRequested: (() => void) | undefined
+    const instructionsRequested = new Promise<void>((resolve) => {
+      markInstructionsRequested = resolve
+    })
+    const instructions = new Promise((resolve) => {
+      resolveInstructions = resolve
+    })
+    const service = new LinearService(
+      () =>
+        ({
+          fileUpload: () => {
+            markInstructionsRequested?.()
+            return instructions
+          },
+        }) as unknown as LinearClient,
+      new LinearCacheStore(),
+    )
+    const originalFetch = globalThis.fetch
+    let fetchCalls = 0
+    globalThis.fetch = async () => {
+      fetchCalls += 1
+      return { ok: true } as Response
+    }
+
+    try {
+      const upload = service.uploadLinearFile({
+        uploadId: "upload-before-put",
+        name: "asset.txt",
+        mimeType: "text/plain",
+        size: 1,
+        base64: "YQ==",
+      })
+      await instructionsRequested
+      assert.strictEqual(service.cancelLinearFileUpload("upload-before-put"), true)
+      resolveInstructions?.({
+        success: true,
+        uploadFile: {
+          uploadUrl: "https://storage.googleapis.com/upload-target",
+          assetUrl: "https://uploads.linear.app/asset.txt",
+          headers: [],
+        },
+      })
+
+      await assert.rejects(upload, /abort/i)
+      assert.strictEqual(fetchCalls, 0)
+    } finally {
+      service.cancelLinearFileUpload("upload-before-put")
+      globalThis.fetch = originalFetch
+    }
   })
 })

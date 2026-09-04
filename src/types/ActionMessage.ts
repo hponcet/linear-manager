@@ -4,6 +4,12 @@ import {
   IssueHistoryPage,
   IssueHistoryRequest,
   IssueUpdateFields,
+  LinearAssetDownloadResult,
+  LinearEditorMention,
+  LinearFileUploadRequest,
+  LinearFileUploadResult,
+  LinearReferenceCard,
+  LinearReferenceKind,
 } from "src/linear/LinearService"
 import {
   SerializedAttachment,
@@ -87,6 +93,15 @@ export type Message<K extends keyof Props = any> =
   | Action<"closePanel">
   | Action<"openExternal", { issueIdentifier?: SerializedIssue["identifier"] }>
   | Action<"openExternalUrl", { url: string }>
+  | Action<"downloadLinearAsset", { url: string }, LinearAssetDownloadResult>
+  | Action<"uploadLinearFile", LinearFileUploadRequest, LinearFileUploadResult>
+  | Action<"cancelLinearFileUpload", { uploadId: string }, { cancelled: boolean }>
+  | Action<"searchEditorMentions", { query: string }, LinearEditorMention[]>
+  | Action<
+      "resolveEditorReference",
+      { kind: LinearReferenceKind; id: string },
+      LinearReferenceCard | null
+    >
   | Action<"updateIssue", { issueId: SerializedIssue["id"] }>
   | Action<"syncIssue", { payload: IssueSyncPayload }>
   | Action<"getIssue", { issueId: SerializedIssue["id"]; bypassCache?: boolean }, SerializedIssue>
@@ -137,6 +152,8 @@ export type Message<K extends keyof Props = any> =
   | Action<"checkout", { branch: Ref; stashChanges?: boolean }>
   | Action<"getState", { key: VscStateKeys }, { key: VscStateKeys; value: any }>
   | Action<"setState", { key: VscStateKeys; value: any; timestamp: number }>
+  | Action<"getIssueDescriptionDraft", { issueId: string }, string | undefined>
+  | Action<"setIssueDescriptionDraft", { issueId: string; value: string | null }>
   | Action<"getGitProviderStatus", void, GitProviderStatus>
   | Action<
       "getGitProviderOAuthSetup",

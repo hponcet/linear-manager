@@ -1,0 +1,62 @@
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+
+.linear-reference-card {
+  position: fixed;
+  z-index: 1200;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 10px 12px;
+  border: 1px solid var(--vscode-widget-border, var(--rs-border-primary));
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, var(--rs-bg-overlay));
+  box-shadow: 0 6px 20px rgb(0 0 0 / 45%);
+  color: var(--vscode-foreground, var(--rs-text-primary));
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.linear-reference-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.linear-reference-card-title {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.linear-reference-card-subtitle {
+  margin-top: 2px;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+}
+
+.linear-reference-card-status {
+  margin-top: 6px;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+}
+
+.linear-reference-card-rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  margin: 8px 0 0;
+  gap: 2px 10px;
+}
+
+.linear-reference-card-rows > div {
+  display: contents;
+}
+
+.linear-reference-card-rows dt {
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+}
+
+.linear-reference-card-rows dd {
+  margin: 0;
+}

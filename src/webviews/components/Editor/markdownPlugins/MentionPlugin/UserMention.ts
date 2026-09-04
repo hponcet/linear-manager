@@ -1,95 +1,69 @@
-import { Mention } from "@tiptap/extension-mention"
-import { ReactRenderer } from "@tiptap/react"
-import { MentionableUser, filterMentionableUsers } from "src/utils/linearMentions"
+import { PluginKey } from "@tiptap/pm/state"
+import { ReactNodeViewRenderer, ReactRenderer } from "@tiptap/react"
 
+import { parseLinearMentionUrl } from "./LinearMention"
+import { linearReferenceAttributes, referenceText } from "./linearReferenceAttributes"
+import { LinearReferenceMention } from "./LinearReferenceMention"
+import { LinearUserTagMention } from "./LinearUserTag"
 import { MentionList, MentionListRef } from "./MentionList"
+import {
+  getMentionSuggestionAttributes,
+  getMentionSuggestionItems,
+  MentionSuggestionItem,
+  MentionSuggestionOptions,
+} from "./mentionSuggestions"
 
 import type { Editor } from "@tiptap/core"
 import type { SuggestionProps } from "@tiptap/suggestion"
 
-export type MentionSuggestionItem = {
-  id: string
-  label: string
-  profileUrl: string
-  user: MentionableUser
-}
+export const UserMention = LinearUserTagMention
 
-function toMentionSuggestionItem(user: MentionableUser): MentionSuggestionItem {
-  return {
-    id: user.id,
-    label: user.displayName,
-    profileUrl: user.profileUrl || "",
-    user,
-  }
-}
+export function createUserMentionExtension(options: MentionSuggestionOptions) {
+  const pluginKey = new PluginKey("linearMentionSuggestion")
 
-export const UserMention = Mention.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      profileUrl: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-profile-url"),
-        renderHTML: (attributes) => {
-          if (!attributes.profileUrl) {
-            return {}
-          }
-
-          return {
-            "data-profile-url": attributes.profileUrl,
-          }
-        },
-      },
-    }
-  },
-
-  renderMarkdown(node) {
-    const profileUrl = node.attrs?.profileUrl
-    if (typeof profileUrl === "string" && profileUrl.length > 0) {
-      return profileUrl
-    }
-
-    const label = node.attrs?.label ?? node.attrs?.id
-    return `@${label ?? ""}`
-  },
-})
-
-export function createUserMentionExtension(options: {
-  getUsers: () => MentionableUser[]
-  getWorkspaceUrlKey: () => string | undefined
-}) {
-  return UserMention.configure({
+  return UserMention.extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(LinearReferenceMention, { as: "span" })
+    },
+  }).configure({
     HTMLAttributes: {
       class: "linear-user-mention",
     },
     renderText({ node }) {
-      return `@${node.attrs.label ?? node.attrs.id}`
+      return referenceText(node.attrs.kind, node.attrs.label ?? node.attrs.id)
     },
     renderHTML({ node }) {
+      const resourceUrl =
+        typeof node.attrs.resourceUrl === "string"
+          ? parseLinearMentionUrl(node.attrs.resourceUrl)?.resourceUrl
+          : undefined
+      const label = referenceText(node.attrs.kind, node.attrs.label ?? node.attrs.id)
+
       return [
-        "span",
+        resourceUrl ? "a" : "span",
         {
+          ...linearReferenceAttributes({
+            kind: node.attrs.kind,
+            id: node.attrs.id,
+            label: node.attrs.label,
+          }),
           "data-type": "mention",
-          "data-id": node.attrs.id,
-          "data-label": node.attrs.label,
-          "data-profile-url": node.attrs.profileUrl,
+          "data-resource-url": resourceUrl,
+          "data-notify": node.attrs.notify === true ? "true" : undefined,
+          href: resourceUrl,
+          rel: resourceUrl ? "noopener noreferrer nofollow" : undefined,
         },
-        `@${node.attrs.label ?? node.attrs.id}`,
+        ["span", { class: "linear-reference-icon", "aria-hidden": "true" }],
+        ["span", { class: "linear-reference-label" }, label],
       ]
     },
     suggestion: {
+      pluginKey,
       char: "@",
       allowSpaces: false,
-      items: ({ query }) =>
-        filterMentionableUsers(query, options.getUsers()).map(toMentionSuggestionItem),
+      items: ({ query }) => getMentionSuggestionItems(query, options),
       command: ({ editor, range, props }) => {
         const item = props as MentionSuggestionItem
-        const workspaceUrlKey = options.getWorkspaceUrlKey()
-        const profileUrl =
-          item.profileUrl ||
-          (workspaceUrlKey
-            ? `https://linear.app/${workspaceUrlKey}/profiles/${encodeURIComponent(item.label)}`
-            : "")
 
         editor
           .chain()
@@ -97,11 +71,7 @@ export function createUserMentionExtension(options: {
           .insertContentAt(range, [
             {
               type: "mention",
-              attrs: {
-                id: item.id,
-                label: item.label,
-                profileUrl,
-              },
+              attrs: getMentionSuggestionAttributes(item),
             },
             {
               type: "text",
@@ -112,6 +82,17 @@ export function createUserMentionExtension(options: {
       },
       render: () => {
         let component: ReactRenderer<MentionListRef> | null = null
+
+        const isCurrent = (props: SuggestionProps<MentionSuggestionItem>) => {
+          const state = pluginKey.getState(props.editor.state)
+          return (
+            !props.editor.isDestroyed &&
+            state?.active === true &&
+            state.query === props.query &&
+            state.range.from === props.range.from &&
+            state.range.to === props.range.to
+          )
+        }
 
         const updatePosition = (editor: Editor, clientRect?: (() => DOMRect | null) | null) => {
           const element = component?.element as HTMLElement | undefined
@@ -128,6 +109,7 @@ export function createUserMentionExtension(options: {
 
         return {
           onStart: (props: SuggestionProps<MentionSuggestionItem>) => {
+            if (!isCurrent(props)) return
             component = new ReactRenderer(MentionList, {
               props,
               editor: props.editor,
@@ -137,6 +119,7 @@ export function createUserMentionExtension(options: {
             updatePosition(props.editor, props.clientRect)
           },
           onUpdate: (props: SuggestionProps<MentionSuggestionItem>) => {
+            if (!isCurrent(props)) return
             component?.updateProps(props)
             updatePosition(props.editor, props.clientRect)
           },

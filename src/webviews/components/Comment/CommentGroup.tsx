@@ -25,6 +25,7 @@ export function CommentGroup(props: CommentGroupProps) {
   const { users, update } = useIssueContext()
 
   const [replyValue, setReplyValue] = useState<string | null>(null)
+  const [replyMarkdownValid, setReplyMarkdownValid] = useState(false)
   const [expanded, setExpanded] = useState(!threadResolved)
   const [resetEditor, setResetEditor] = useState(0)
 
@@ -32,10 +33,10 @@ export function CommentGroup(props: CommentGroupProps) {
     setExpanded(!isCommentThreadResolved(comment))
   }, [comment.resolvingCommentId, comment.resolvingUserId, comment.resolvedAt])
 
-  function onKeyDown(e: KeyboardEvent) {
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (childrenComments?.length) return
 
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && !e.defaultPrevented) {
       setReplyValue(null)
     }
   }
@@ -112,18 +113,17 @@ export function CommentGroup(props: CommentGroupProps) {
             expanded ? "false" : threadResolvedByUser || threadResolvedByComment ? "true" : "false"
           }
           className="issueCommentReply"
-          ref={(el) => {
-            el?.addEventListener("keydown", onKeyDown)
-          }}
+          onKeyDown={onKeyDown}
         >
           <div className="issueCommentReplyEditor">
             <Editor
               key={resetEditor}
               placeholder={`Leave a reply...`}
               editable
-              mentionable
+              ariaLabel="Reply to comment"
               value={replyValue || ""}
               onChange={setReplyValue}
+              onValidityChange={setReplyMarkdownValid}
               getEditor={(editor) => {
                 if (!childrenComments?.length) {
                   editor?.commands.focus("end")
@@ -133,9 +133,12 @@ export function CommentGroup(props: CommentGroupProps) {
           </div>
           <div className="issueCommentReplyActions">
             <Button
-              disabled={!(replyValue || "").trim()}
+              disabled={!replyMarkdownValid || !(replyValue || "").trim()}
               onClick={async () => {
-                await update.comments.sendCommentReply(id, replyValue || "")
+                const body = replyValue || ""
+                if (!replyMarkdownValid || !body.trim()) return
+
+                await update.comments.sendCommentReply(id, body)
                 setReplyValue("")
                 setResetEditor((prev) => prev + 1)
               }}

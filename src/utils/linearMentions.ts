@@ -1,8 +1,5 @@
 import { SerializedUser } from "src/types/SerializedLinear"
 
-export const LINEAR_PROFILE_URL_PATTERN =
-  /https:\/\/linear\.app\/([a-zA-Z0-9_-]+)\/profiles\/([^\s)\]>]+)/g
-
 export type MentionableUser = Pick<
   SerializedUser,
   "id" | "displayName" | "name" | "email" | "profileUrl" | "active" | "isMe" | "isMentionable"
@@ -26,78 +23,6 @@ export function buildUserProfileUrl(
   }
 
   return `https://linear.app/${workspaceUrlKey}/profiles/${encodeURIComponent(user.displayName)}`
-}
-
-export function parseLinearProfileUrl(
-  url: string,
-): { workspaceUrlKey: string; slug: string } | null {
-  const match = url.match(/^https:\/\/linear\.app\/([a-zA-Z0-9_-]+)\/profiles\/([^\s)\]>]+)$/)
-  if (!match) {
-    return null
-  }
-
-  return {
-    workspaceUrlKey: match[1],
-    slug: decodeURIComponent(match[2]),
-  }
-}
-
-function parseMentionShortcodeAttributes(attrString: string): Record<string, string> {
-  const attrs: Record<string, string> = {}
-  const regex = /(\w+)=(?:"([^"]*)"|'([^']*)')/g
-  let match = regex.exec(attrString)
-
-  while (match !== null) {
-    const [, key, doubleQuoted, singleQuoted] = match
-    attrs[key] = doubleQuoted ?? singleQuoted ?? ""
-    match = regex.exec(attrString)
-  }
-
-  return attrs
-}
-
-function findUserForProfileReference(
-  reference: { workspaceUrlKey: string; slug: string; url: string },
-  users: MentionableUser[],
-): MentionableUser | undefined {
-  return users.find((user) => {
-    if (user.profileUrl === reference.url) {
-      return true
-    }
-
-    if (user.profileUrl?.endsWith(`/profiles/${reference.slug}`)) {
-      return true
-    }
-
-    return (
-      user.displayName.toLowerCase() === reference.slug.toLowerCase() ||
-      user.name.toLowerCase() === reference.slug.toLowerCase()
-    )
-  })
-}
-
-export function linearMarkdownToEditorMarkdown(markdown: string, users: MentionableUser[]): string {
-  return markdown.replace(LINEAR_PROFILE_URL_PATTERN, (url) => {
-    const parsed = parseLinearProfileUrl(url)
-    if (!parsed) {
-      return url
-    }
-
-    const user = findUserForProfileReference({ ...parsed, url }, users)
-    if (!user) {
-      return url
-    }
-
-    const profileUrl = user.profileUrl || url
-    return `@[id="${user.id}" label="${user.displayName}" profileUrl="${profileUrl}"]`
-  })
-}
-
-export function editorMarkdownToLinearMarkdown(markdown: string): string {
-  return markdown.replace(/@\[(.*?)\]/g, (match, attrString: string) => {
-    const attrs = parseMentionShortcodeAttributes(attrString)
-    return attrs.profileUrl || match
-  })
 }
 
 export function filterMentionableUsers(

@@ -33,6 +33,9 @@ _.yml
 **/.cache
 **/.vscode-test
 dist
+dist-webviews-dev
 out
 coverage-ts
 graphify-out
+playwright-report
+test-results

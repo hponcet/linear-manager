@@ -39,6 +39,8 @@ const DropdownMenuSubContent = forwardRef<
   const content = (
     <DropdownMenuPrimitive.SubContent
       ref={ref}
+      data-linear-editor-ui=""
+      collisionPadding={8}
       className={cn("tiptap-dropdown-menu", className)}
       {...props}
     />
@@ -64,6 +66,13 @@ const DropdownMenuContent = forwardRef<
     <DropdownMenuPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
+      // Marks the portalled menu as editor chrome. Without it the editor's blur handler treats
+      // opening a menu as leaving the editor, tears down the toolbar that anchors the trigger,
+      // and Radix falls back to the top-left corner of the webview.
+      data-linear-editor-ui=""
+      // Radix already flips and shifts to stay in view; the padding keeps it off the edges of
+      // the webview, which is the whole viewport here.
+      collisionPadding={8}
       onCloseAutoFocus={(e) => e.preventDefault()}
       className={cn("tiptap-dropdown-menu", className)}
       {...props}

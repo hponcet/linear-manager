@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { LinkIcon } from "src/webviews/components/Editor/components/tiptap-icons/link-icon"
 import { useTiptapEditor } from "src/webviews/components/Editor/hooks/use-tiptap-editor"
-import {
-  isMarkInSchema,
-  isNodeTypeSelected,
-  sanitizeUrl,
-} from "src/webviews/components/Editor/lib/tiptap-utils"
+import { isMarkInSchema, isNodeTypeSelected } from "src/webviews/components/Editor/lib/tiptap-utils"
+import { isAllowedLinearLink } from "src/webviews/components/Editor/markdownEscaping"
+import { getCanonicalPrivateLinearAssetUrl } from "src/webviews/components/Editor/markdownPlugins/privateLinearImageUrl"
 
 import type { Editor } from "@tiptap/react"
 
@@ -117,17 +115,19 @@ export function useLinkHandler(props: LinkHandlerProps) {
   }, [editor])
 
   const setLink = useCallback(() => {
-    if (!url || !editor) return
+    if (!url || !editor || !isAllowedLinearLink(url)) return
 
     const { selection } = editor.state
     const isEmpty = selection.empty
+    const editsExistingLink = editor.isActive("link")
+    const href = getCanonicalPrivateLinearAssetUrl(url) ?? url
 
     let chain = editor.chain().focus()
 
-    chain = chain.extendMarkRange("link").setLink({ href: url })
+    chain = chain.extendMarkRange("link").setLink({ href })
 
-    if (isEmpty) {
-      chain = chain.insertContent({ type: "text", text: url })
+    if (isEmpty && !editsExistingLink) {
+      chain = chain.insertContent({ type: "text", text: href })
     }
 
     chain.run()
@@ -149,24 +149,12 @@ export function useLinkHandler(props: LinkHandlerProps) {
     setUrl("")
   }, [editor])
 
-  const openLink = useCallback(
-    (target: string = "_blank", features: string = "noopener,noreferrer") => {
-      if (!url) return
-
-      const safeUrl = sanitizeUrl(url, window.location.href)
-      if (safeUrl !== "#") {
-        window.open(safeUrl, target, features)
-      }
-    },
-    [url],
-  )
-
   return {
     url: url || "",
+    urlError: url && !isAllowedLinearLink(url) ? "Use an http, https, or mailto URL." : undefined,
     setUrl,
     setLink,
     removeLink,
-    openLink,
   }
 }
 

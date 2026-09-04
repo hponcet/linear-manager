@@ -1,8 +1,12 @@
 # Outputs
 out
 dist
+dist-webviews-dev
 *.vsix
 .vscode-test/
+playwright-report/
+test-results/
+e2e/dist/
 
 # Dependencies
 node_modules

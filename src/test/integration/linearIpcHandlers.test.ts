@@ -300,6 +300,138 @@ suite("linearIpcHandlers integration", () => {
     assert.strictEqual(createCommentCalled, true)
   })
 
+  test("rejects unsupported Markdown before every content mutation", async () => {
+    let mutationCalls = 0
+    const service = createMockService({
+      updateIssue: async () => {
+        mutationCalls += 1
+        return createMockSdkIssue()
+      },
+      createComment: async () => {
+        mutationCalls += 1
+      },
+      updateComment: async () => {
+        mutationCalls += 1
+      },
+      createSubIssue: async () => {
+        mutationCalls += 1
+        return createMockSdkIssue()
+      },
+    })
+    const { issueActions } = createIssueActions()
+
+    const messages = [
+      {
+        type: "linearUpdateIssue" as const,
+        issueId: "issue-1",
+        fields: { description: "<div>unsafe</div>" },
+      },
+      {
+        type: "createComment" as const,
+        issueId: "issue-1",
+        body: "<div>unsafe</div>",
+      },
+      {
+        type: "updateComment" as const,
+        commentId: "comment-1",
+        body: "<div>unsafe</div>",
+      },
+      {
+        type: "createSubIssue" as const,
+        parentId: "issue-1",
+        teamId: "team-1",
+        fields: { title: "Child", description: "<div>unsafe</div>" },
+      },
+    ]
+
+    for (const message of messages) {
+      await assert.rejects(
+        handleLinearIpcMessage(message, issueActions, service),
+        /unsupported Linear Markdown/,
+      )
+    }
+    assert.strictEqual(mutationCalls, 0)
+  })
+
+  test("searchEditorMentions delegates to LinearService", async () => {
+    const { issueActions } = createIssueActions()
+    const service = createMockService({
+      searchEditorMentions: async (query: string) => [
+        {
+          kind: "issue",
+          id: "issue-1",
+          label: query,
+          resourceUrl: "https://linear.app/acme/issue/ENG-1",
+        },
+      ],
+    })
+
+    const result = await handleLinearIpcMessage(
+      { type: "searchEditorMentions", query: "ENG-1" },
+      issueActions,
+      service,
+    )
+
+    assert.strictEqual(result.handled, true)
+    if (result.handled) {
+      assert.deepStrictEqual(result.payload, [
+        {
+          kind: "issue",
+          id: "issue-1",
+          label: "ENG-1",
+          resourceUrl: "https://linear.app/acme/issue/ENG-1",
+        },
+      ])
+    }
+  })
+
+  test("file IPC delegates authenticated downloads, uploads, and cancellation", async () => {
+    const { issueActions } = createIssueActions()
+    let uploadName = ""
+    const service = createMockService({
+      downloadLinearAsset: async () => ({ base64: "aGk=", mimeType: "text/plain" }),
+      uploadLinearFile: async (input) => {
+        uploadName = input.name
+        return { assetUrl: "https://uploads.linear.app/asset.txt" }
+      },
+      cancelLinearFileUpload: (uploadId) => uploadId === "upload-1",
+    })
+
+    const downloaded = await handleLinearIpcMessage(
+      { type: "downloadLinearAsset", url: "https://uploads.linear.app/asset.txt" },
+      issueActions,
+      service,
+    )
+    const uploaded = await handleLinearIpcMessage(
+      {
+        type: "uploadLinearFile",
+        uploadId: "upload-1",
+        name: "asset.txt",
+        mimeType: "text/plain",
+        size: 2,
+        base64: "aGk=",
+      },
+      issueActions,
+      service,
+    )
+    const cancelled = await handleLinearIpcMessage(
+      { type: "cancelLinearFileUpload", uploadId: "upload-1" },
+      issueActions,
+      service,
+    )
+
+    assert.strictEqual(uploadName, "asset.txt")
+    assert.deepStrictEqual(downloaded, {
+      handled: true,
+      payload: { base64: "aGk=", mimeType: "text/plain" },
+    })
+    assert.deepStrictEqual(uploaded, {
+      handled: true,
+      payload: { assetUrl: "https://uploads.linear.app/asset.txt" },
+    })
+    assert.deepStrictEqual(cancelled, { handled: true, payload: { cancelled: true } })
+  })
+
   test("returns handled false for unknown IPC messages", async () => {
     const { issueActions } = createIssueActions()
     const service = createMockService()

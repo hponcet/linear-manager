@@ -11,10 +11,11 @@ export function CommentInput() {
   const { update } = useIssueContext()
 
   const [value, setValue] = useState("")
+  const [markdownValid, setMarkdownValid] = useState(false)
   const [resetEditor, setResetEditor] = useState(0)
 
   async function sendComment() {
-    if (!value.trim()) {
+    if (!markdownValid || !value.trim()) {
       return
     }
     await update.comments.addComment(value)
@@ -30,12 +31,13 @@ export function CommentInput() {
         placeholder="Leave a comment..."
         value={value}
         editable
-        mentionable
+        ariaLabel="New issue comment"
         onChange={setValue}
+        onValidityChange={setMarkdownValid}
       />
       <div className="commentActions">
         <Button
-          disabled={!value.trim()}
+          disabled={!markdownValid || !value.trim()}
           onClick={sendComment}
           variant="primary"
           iconOnly

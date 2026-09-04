@@ -27,6 +27,7 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
   const { issue: parentIssue, workflowStates, update } = useIssueContext()
 
   const [issue, setIssue] = useState<Parameters<LinearClient["updateIssue"]>[1]>({})
+  const [descriptionMarkdownValid, setDescriptionMarkdownValid] = useState(false)
 
   useEffect(() => {
     setIssue({
@@ -36,7 +37,14 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
       title: "",
       description: "",
     })
-  }, [!!parentIssue, workflowStates])
+  }, [parentIssue.id])
+
+  useEffect(() => {
+    const stateId = workflowStates.find((state) => state.type === "unstarted")?.id
+    if (stateId) {
+      setIssue((current) => (current.stateId ? current : { ...current, stateId }))
+    }
+  }, [workflowStates])
 
   if (!parentIssue || !workflowStates) return null
 
@@ -59,11 +67,12 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
         />
         <Editor
           editable
-          mentionable
+          ariaLabel="Sub-issue description"
           className="createSubIssueEditor"
           value={issue.description || ""}
           placeholder="Add a description..."
           onChange={(description) => setIssue({ ...issue, description })}
+          onValidityChange={setDescriptionMarkdownValid}
         />
         <div className="createSubIssueActions">
           <PriorityPicker
@@ -95,9 +104,11 @@ export function CreateSubIssue(props: CreateSubIssueProps) {
               Cancel
             </Button>
             <Button
-              disabled={!issue.title || issue.title.trim() === ""}
+              disabled={!descriptionMarkdownValid || !issue.title || issue.title.trim() === ""}
               appearance="primary"
               onClick={async () => {
+                if (!descriptionMarkdownValid || !issue.title?.trim()) return
+
                 await update.subIssues.createSubIssue(parentIssue.id, issue)
                 onCancel()
               }}

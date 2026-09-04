@@ -2,7 +2,6 @@
 
 import { forwardRef, useCallback, useEffect, useState } from "react"
 import { CornerDownLeftIcon } from "src/webviews/components/Editor/components/tiptap-icons/corner-down-left-icon"
-import { ExternalLinkIcon } from "src/webviews/components/Editor/components/tiptap-icons/external-link-icon"
 import { LinkIcon } from "src/webviews/components/Editor/components/tiptap-icons/link-icon"
 import { TrashIcon } from "src/webviews/components/Editor/components/tiptap-icons/trash-icon"
 import { useLinkPopover } from "src/webviews/components/Editor/components/tiptap-ui/link-popover"
@@ -37,6 +36,7 @@ export interface LinkMainProps {
    * The URL to set for the link.
    */
   url: string
+  urlError?: string
   /**
    * Function to update the URL state.
    */
@@ -49,10 +49,6 @@ export interface LinkMainProps {
    * Function to remove the link from the editor.
    */
   removeLink: () => void
-  /**
-   * Function to open the link.
-   */
-  openLink: () => void
   /**
    * Whether the link is currently active in the editor.
    */
@@ -101,10 +97,10 @@ LinkButton.displayName = "LinkButton"
  */
 const LinkMain: React.FC<LinkMainProps> = ({
   url,
+  urlError,
   setUrl,
   setLink,
   removeLink,
-  openLink,
   isActive,
 }) => {
   const isMobile = useIsBreakpoint()
@@ -133,6 +129,8 @@ const LinkMain: React.FC<LinkMainProps> = ({
               type="url"
               placeholder="Paste a link..."
               value={url}
+              aria-invalid={!!urlError}
+              aria-describedby={urlError ? "linear-link-error" : undefined}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
@@ -147,26 +145,22 @@ const LinkMain: React.FC<LinkMainProps> = ({
               type="button"
               onClick={setLink}
               title="Apply link"
-              disabled={!url && !isActive}
+              disabled={(!url && !isActive) || !!urlError}
               data-style="ghost"
             >
               <CornerDownLeftIcon className="tiptap-button-icon" />
             </Button>
           </ButtonGroup>
 
+          {urlError ? (
+            <span id="linear-link-error" role="alert">
+              {urlError}
+            </span>
+          ) : null}
+
           <Separator />
 
           <ButtonGroup orientation="horizontal">
-            <Button
-              type="button"
-              onClick={openLink}
-              title="Open in new window"
-              disabled={!url && !isActive}
-              data-style="ghost"
-            >
-              <ExternalLinkIcon className="tiptap-button-icon" />
-            </Button>
-
             <Button
               type="button"
               onClick={removeLink}
@@ -218,7 +212,7 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
     const { editor } = useTiptapEditor(providedEditor)
     const [isOpen, setIsOpen] = useState(false)
 
-    const { isVisible, canSet, isActive, url, setUrl, setLink, removeLink, openLink, label, Icon } =
+    const { isVisible, canSet, isActive, url, urlError, setUrl, setLink, removeLink, label, Icon } =
       useLinkPopover({
         editor,
         hideWhenUnavailable,
@@ -268,6 +262,7 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
             aria-pressed={isActive}
             onClick={handleClick}
             {...buttonProps}
+            showTooltip={false}
             ref={ref}
           >
             {children ?? <Icon className="tiptap-button-icon" />}
@@ -277,10 +272,10 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
         <PopoverContent>
           <LinkMain
             url={url}
+            urlError={urlError}
             setUrl={setUrl}
             setLink={handleSetLink}
             removeLink={removeLink}
-            openLink={openLink}
             isActive={isActive}
           />
         </PopoverContent>

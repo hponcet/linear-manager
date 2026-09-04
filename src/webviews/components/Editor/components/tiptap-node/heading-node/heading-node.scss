@@ -1,15 +1,25 @@
 /* stylelint-disable selector-class-pattern */
 .tiptap.ProseMirror {
+  // h5 and h6 used to be left out, so they fell back to whatever the surrounding stylesheets
+  // set and rendered larger than h3 and h4. All six levels are defined here, decreasing in size,
+  // on the uniform spacing Linear uses instead of the previous 3em / 2.5em / 2em jumps.
   h1,
   h2,
   h3,
-  h4 {
+  h4,
+  h5,
+  h6 {
     position: relative;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
     color: inherit;
     font-style: inherit;
+    line-height: 1.3;
 
-    &:first-child,
-    &:first-of-type {
+    // Only the very first block drops its top margin. The previous rule also used
+    // `:first-of-type`, which matches the first heading of *each* level and so removed the
+    // spacing from nearly every heading in a document.
+    &:first-child {
       margin-top: 0;
     }
   }
@@ -17,24 +27,30 @@
   h1 {
     font-size: 1.5em;
     font-weight: 700;
-    margin-top: 3em;
   }
 
   h2 {
     font-size: 1.25em;
     font-weight: 700;
-    margin-top: 2.5em;
   }
 
   h3 {
     font-size: 1.125em;
     font-weight: 600;
-    margin-top: 2em;
   }
 
   h4 {
     font-size: 1em;
     font-weight: 600;
-    margin-top: 2em;
+  }
+
+  h5 {
+    font-size: 0.9375em;
+    font-weight: 600;
+  }
+
+  h6 {
+    font-size: 0.875em;
+    font-weight: 600;
   }
 }

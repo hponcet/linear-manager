@@ -3,10 +3,7 @@ import * as assert from "assert"
 import { SerializedUser } from "../../types/SerializedLinear"
 import {
   buildUserProfileUrl,
-  editorMarkdownToLinearMarkdown,
   filterMentionableUsers,
-  linearMarkdownToEditorMarkdown,
-  parseLinearProfileUrl,
   parseWorkspaceUrlKeyFromIssueUrl,
 } from "../../utils/linearMentions"
 
@@ -61,33 +58,6 @@ suite("linearMentions", () => {
         displayName: "julie",
       }),
       "https://linear.app/acme/profiles/julie",
-    )
-  })
-
-  test("parseLinearProfileUrl extracts workspace and slug", () => {
-    assert.deepStrictEqual(parseLinearProfileUrl("https://linear.app/acme/profiles/julie"), {
-      workspaceUrlKey: "acme",
-      slug: "julie",
-    })
-  })
-
-  test("linearMarkdownToEditorMarkdown converts profile URLs to mention shortcodes", () => {
-    const markdown = "Hey https://linear.app/acme/profiles/julie can you review this?"
-    const converted = linearMarkdownToEditorMarkdown(markdown, users)
-
-    assert.strictEqual(
-      converted,
-      'Hey @[id="user-julie" label="julie" profileUrl="https://linear.app/acme/profiles/julie"] can you review this?',
-    )
-  })
-
-  test("editorMarkdownToLinearMarkdown converts mention shortcodes back to profile URLs", () => {
-    const markdown =
-      'Hey @[id="user-julie" label="julie" profileUrl="https://linear.app/acme/profiles/julie"] please review.'
-
-    assert.strictEqual(
-      editorMarkdownToLinearMarkdown(markdown),
-      "Hey https://linear.app/acme/profiles/julie please review.",
     )
   })
 

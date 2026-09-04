@@ -2,6 +2,7 @@
 .env.*
 .vscode/**
 .vscode-test/**
+dist-webviews-dev/**
 out/**
 node_modules/**
 src/**

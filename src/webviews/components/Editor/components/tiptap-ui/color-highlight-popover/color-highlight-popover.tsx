@@ -183,6 +183,7 @@ export function ColorHighlightPopover({
           aria-label={label}
           tooltip={label}
           {...props}
+          showTooltip={false}
         >
           <Icon className="tiptap-button-icon" />
         </ColorHighlightPopoverButton>

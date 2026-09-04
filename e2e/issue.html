@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: blob: https://uploads.linear.app https://images.example.test; media-src 'self' data: blob: https://uploads.linear.app https://www.youtube.com https://www.loom.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://www.loom.com; script-src 'self' https://www.youtube.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src https://uploads.linear.app"
+    />
+    <meta id="webview" name="webview" content="issue" />
+    <link rel="stylesheet" href="/e2e/dist/issue.css" />
+    <title>Issue webview E2E</title>
+  </head>
+  <body class="vscode-dark">
+    <div id="root"></div>
+    <script src="/e2e/dist/issue.js"></script>
+  </body>
+</html>

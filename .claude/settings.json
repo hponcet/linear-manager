@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c --rawfile ctx \"$CLAUDE_PROJECT_DIR/.claude/hooks/ponytail-graphify.md\" '{suppressOutput:true,hookSpecificOutput:{hookEventName:.hook_event_name,additionalContext:$ctx}}'"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c --rawfile ctx \"$CLAUDE_PROJECT_DIR/.claude/hooks/ponytail-graphify.md\" '{suppressOutput:true,hookSpecificOutput:{hookEventName:.hook_event_name,additionalContext:$ctx}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

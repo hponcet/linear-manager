@@ -1,6 +1,6 @@
 import { Editor as EditorType } from "@tiptap/core"
 import moment from "moment"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { useDialog } from "rsuite"
 import { SerializedUser } from "src/types/SerializedLinear"
 import { UserAvatar } from "src/webviews/components/UserAvatar/UserAvatar"
@@ -36,16 +36,7 @@ export function Comment(props: CommentProps) {
   const commentEditorRef = useRef<EditorType | null>(null)
 
   const [updateValue, setUpdateValue] = useState<string | null>(null)
-
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      setUpdateValue(null)
-    }
-  }
-
-  useEffect(() => {
-    setUpdateValue(null)
-  }, [comment?.body])
+  const [updateMarkdownValid, setUpdateMarkdownValid] = useState(false)
 
   async function deleteComment() {
     const shouldDelete = await dialog.confirm("Are you sure you want to delete this comment?", {
@@ -78,7 +69,7 @@ export function Comment(props: CommentProps) {
 
         <div className="issueCommentActions">
           {startReply && (
-            <Button tooltip="Reply" onClick={startReply} appearance="subtle">
+            <Button aria-label="Reply" tooltip="Reply" onClick={startReply} appearance="subtle">
               <ReplyIcon />
             </Button>
           )}
@@ -110,10 +101,11 @@ export function Comment(props: CommentProps) {
           {me?.id === comment.userId && (
             <>
               <Button
+                aria-label="Edit"
                 tooltip="Edit"
                 appearance="subtle"
                 onClick={() => {
-                  setUpdateValue((v) => (v ? null : comment.body))
+                  setUpdateValue((value) => (value !== null ? null : comment.body))
                   setTimeout(() => {
                     commentEditorRef.current?.commands.focus("end")
                   }, 300)
@@ -121,7 +113,12 @@ export function Comment(props: CommentProps) {
               >
                 <EditIcon />
               </Button>
-              <Button tooltip="Delete" onClick={deleteComment} appearance="subtle">
+              <Button
+                aria-label="Delete"
+                tooltip="Delete"
+                onClick={deleteComment}
+                appearance="subtle"
+              >
                 <DeleteIcon />
               </Button>
             </>
@@ -131,16 +128,21 @@ export function Comment(props: CommentProps) {
       <div className="issueCommentContent" is-children={String(!!isChildren)}>
         <div
           className="issueCommentEditor"
-          ref={(el) => {
-            el?.addEventListener("keydown", onKeyDown)
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && !event.defaultPrevented) setUpdateValue(null)
           }}
         >
           <Editor
             key={typeof updateValue === "string" ? "editing" : comment.body}
-            value={updateValue || comment.body}
+            value={updateValue ?? comment.body}
             editable={typeof updateValue === "string"}
-            mentionable
+            ariaLabel={
+              typeof updateValue === "string"
+                ? "Edit comment"
+                : `Comment by ${user?.displayName || "Unknown user"}`
+            }
             onChange={setUpdateValue}
+            onValidityChange={setUpdateMarkdownValid}
             getEditor={(editor) => (commentEditorRef.current = editor)}
           />
         </div>
@@ -154,9 +156,12 @@ export function Comment(props: CommentProps) {
               Cancel
             </Button>
             <Button
-              disabled={!updateValue.trim() || updateValue === comment.body}
+              disabled={!updateMarkdownValid || !updateValue.trim() || updateValue === comment.body}
               onClick={async () => {
-                await update.comments.updateComment(comment.id, updateValue.trim())
+                if (!updateMarkdownValid || !updateValue.trim()) return
+
+                await update.comments.updateComment(comment.id, updateValue)
+                setUpdateValue(null)
               }}
               className="issueCommentUpdateButton"
             >

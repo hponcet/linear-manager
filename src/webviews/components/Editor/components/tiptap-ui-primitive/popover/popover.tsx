@@ -20,6 +20,7 @@ function PopoverContent({
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
+        data-linear-editor-ui=""
         align={align}
         sideOffset={sideOffset}
         className={cn("tiptap-popover", className)}

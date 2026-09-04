@@ -89,6 +89,7 @@ export function ListDropdownMenu({
           aria-label="List options"
           tooltip="List"
           {...props}
+          showTooltip={false}
         >
           <Icon className="tiptap-button-icon" />
           <ChevronDownIcon className="tiptap-button-dropdown-small" />

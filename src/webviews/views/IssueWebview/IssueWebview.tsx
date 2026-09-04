@@ -23,6 +23,7 @@ export default function IssueWebview() {
 
   return (
     <IssueContextProvider
+      key={issueId}
       isLoading={!loaded}
       issueId={issueId}
       linearAccessToken={linearAccessToken}

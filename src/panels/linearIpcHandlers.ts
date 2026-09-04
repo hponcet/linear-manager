@@ -1,3 +1,4 @@
+import { validateLinearFileUploadRequest } from "src/linear/LinearService"
 import {
   serializeAssignableLabel,
   serializeAttachment,
@@ -8,11 +9,26 @@ import {
   serializeTeamMetadata,
   serializeUser,
 } from "src/linear/serializeForIpc"
+import { getCanonicalLinearMarkdown } from "src/webviews/components/Editor/linearMarkdown"
 
 import type { LinearService } from "src/linear/LinearService"
 import type { Ipc } from "src/types/ActionMessage"
 import type { IssueSyncPayload } from "src/types/IssueSync"
 import type { MyIssuesView } from "src/views/myIssues"
+
+function requireCanonicalLinearMarkdown(source: string): string {
+  const markdown = getCanonicalLinearMarkdown(source)
+  if (markdown === undefined) {
+    throw new Error("Refusing to save unsupported Linear Markdown")
+  }
+  return markdown
+}
+
+function validateDescription<T extends { description?: unknown }>(fields: T): T {
+  return typeof fields.description === "string"
+    ? { ...fields, description: requireCanonicalLinearMarkdown(fields.description) }
+    : fields
+}
 
 function toSyncPayload(issue: {
   id: string
@@ -68,6 +84,15 @@ export async function handleLinearIpcMessage(
       const users = await service.getWorkspaceUsers()
       return { handled: true, payload: users.map(serializeUser) }
     }
+    case "searchEditorMentions": {
+      return { handled: true, payload: await service.searchEditorMentions(msg.query) }
+    }
+    case "resolveEditorReference": {
+      return {
+        handled: true,
+        payload: await service.resolveEditorReference({ kind: msg.kind, id: msg.id }),
+      }
+    }
     case "getPriorities": {
       return { handled: true, payload: await service.getPriorities() }
     }
@@ -89,17 +114,17 @@ export async function handleLinearIpcMessage(
       return { handled: true, payload: await service.getIssueHistory(msg) }
     }
     case "linearUpdateIssue": {
-      const updatedIssue = await service.updateIssue(msg.issueId, msg.fields)
+      const updatedIssue = await service.updateIssue(msg.issueId, validateDescription(msg.fields))
       await issueActions.syncIssue(toSyncPayload(updatedIssue))
       return { handled: true, payload: serializeIssue(updatedIssue) }
     }
     case "createComment": {
       const { type: _type, _ipcReqId, ...input } = msg
-      await service.createComment(input)
+      await service.createComment({ ...input, body: requireCanonicalLinearMarkdown(input.body) })
       return { handled: true, payload: undefined }
     }
     case "updateComment": {
-      await service.updateComment(msg.commentId, msg.body)
+      await service.updateComment(msg.commentId, requireCanonicalLinearMarkdown(msg.body))
       return { handled: true, payload: undefined }
     }
     case "deleteComment": {
@@ -132,8 +157,26 @@ export async function handleLinearIpcMessage(
       await service.createAttachment(input)
       return { handled: true, payload: undefined }
     }
+    case "downloadLinearAsset": {
+      return { handled: true, payload: await service.downloadLinearAsset(msg.url) }
+    }
+    case "uploadLinearFile": {
+      const { type: _type, _ipcReqId, ...input } = msg
+      validateLinearFileUploadRequest(input)
+      return { handled: true, payload: await service.uploadLinearFile(input) }
+    }
+    case "cancelLinearFileUpload": {
+      return {
+        handled: true,
+        payload: { cancelled: service.cancelLinearFileUpload(msg.uploadId) },
+      }
+    }
     case "createSubIssue": {
-      const createdIssue = await service.createSubIssue(msg.parentId, msg.teamId, msg.fields)
+      const createdIssue = await service.createSubIssue(
+        msg.parentId,
+        msg.teamId,
+        validateDescription(msg.fields),
+      )
       await issueActions.refreshIssues()
       return { handled: true, payload: serializeIssue(createdIssue) }
     }

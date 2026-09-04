@@ -71,7 +71,7 @@ function snapshotCycle(cycle: Cycle | undefined): CycleSnapshot | undefined {
   }
 }
 
-function snapshotWorkflowState(
+export function snapshotWorkflowState(
   state: WorkflowStateWithStateProgress | WorkflowState | undefined,
 ): WorkflowStateSnapshot | undefined {
   if (!state) {

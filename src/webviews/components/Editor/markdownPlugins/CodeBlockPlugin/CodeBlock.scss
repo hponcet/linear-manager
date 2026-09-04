@@ -1,0 +1,54 @@
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+
+.linear-code-block {
+  // The block margin lives on the NodeView wrapper, not the inner `pre`: `pre` is pinned to
+  // `margin: 0` so a mermaid diagram and its source stay glued together, and the wrapper is
+  // what the `.tiptap > :first-child/:last-child` doc-edge trimming already targets.
+  position: relative;
+  margin: 1.5em 0;
+
+  .linear-mermaid-preview {
+    overflow: auto;
+    padding: 1rem;
+    border: 1px solid var(--vscode-widget-border);
+    border-radius: 0.375rem;
+    background: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
+    text-align: center;
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  .linear-mermaid-error {
+    color: var(--vscode-errorForeground);
+  }
+
+  // The switch sits in the top-right corner of the block, over the diagram or its source.
+  .linear-mermaid-toggle {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 1;
+    padding: 2px 8px;
+    border: 1px solid var(--vscode-widget-border, transparent);
+    border-radius: 4px;
+    background: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+    color: var(--vscode-foreground);
+    font-size: 11px;
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  &:hover .linear-mermaid-toggle,
+  .linear-mermaid-toggle:focus-visible,
+  .linear-mermaid-toggle[aria-pressed="true"] {
+    opacity: 1;
+  }
+
+  [hidden] {
+    display: none;
+  }
+}

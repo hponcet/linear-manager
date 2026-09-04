@@ -1,5 +1,6 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable selector-class-pattern */
+/* stylelint-disable custom-property-pattern */
 .tiptap.ProseMirror {
   --tt-collaboration-carets-label: var(--tt-gray-dark-100);
   --link-text-color: var(--tt-brand-color-400);
@@ -70,7 +71,9 @@
      TEXT DECORATION
      ===================== */
 .tiptap.ProseMirror {
-  a span {
+  // A file attachment and a Linear reference are cards, not text links: neither inherits
+  // link colour or underline.
+  a:not(.linear-file-card, .linear-reference) span {
     text-decoration: underline;
   }
 
@@ -133,19 +136,9 @@
      LINKS
      ===================== */
 .tiptap.ProseMirror {
-  a {
+  a:not(.linear-file-card, .linear-reference) {
     color: var(--link-text-color);
     text-decoration: underline;
-  }
-}
-
-/* =====================
-     MENTION
-     ===================== */
-.tiptap.ProseMirror {
-  [data-type="mention"] {
-    display: inline-block;
-    color: var(--tt-brand-color-500);
   }
 }
 

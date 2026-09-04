@@ -1,4 +1,4 @@
-import Picker, { Theme } from "emoji-picker-react"
+import Picker, { EmojiStyle, Theme } from "emoji-picker-react"
 import { useMemo } from "react"
 import { Popover, Whisper, type WhisperProps } from "rsuite"
 import { SerializedReaction } from "src/types/SerializedLinear"
@@ -17,10 +17,12 @@ type EmojiPickerProps = {
   size?: number
   reactions?: SerializedReaction[]
   placement?: WhisperProps["placement"]
+  editorSurface?: boolean
 }
 
 export function EmojiPicker(props: EmojiPickerProps) {
-  const { onSelect, onUnselect, size, reactions, placement = "bottomEnd" } = props
+  const { onSelect, onUnselect, size, reactions, placement = "bottomEnd", editorSurface } = props
+  const actionLabel = editorSurface ? "Insert emoji" : "Add reaction"
   const vsCodeTheme = useVsCodeTheme()
   const emojiTheme = vsCodeTheme === "light" ? Theme.LIGHT : Theme.DARK
   const groupedReactions = useMemo(
@@ -41,6 +43,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
   const renderSpeaker = ({ onClose, ...rest }: any, ref: any) => {
     return (
       <Popover
+        data-linear-editor-ui={editorSurface ? "" : undefined}
         ref={ref}
         full
         arrow={false}
@@ -54,12 +57,13 @@ export function EmojiPicker(props: EmojiPickerProps) {
       >
         <Picker
           onEmojiClick={(emoji) => {
-            onSelect?.(emoji.unified)
+            onSelect?.(editorSurface ? emoji.emoji : emoji.unified)
             onClose()
           }}
           width={230}
           height={270}
           theme={emojiTheme}
+          emojiStyle={EmojiStyle.NATIVE}
           previewConfig={{ showPreview: false }}
           skinTonesDisabled
           autoFocusSearch={false}
@@ -92,7 +96,7 @@ export function EmojiPicker(props: EmojiPickerProps) {
         preventOverflow
       >
         <span>
-          <Button appearance="subtle">
+          <Button appearance="subtle" aria-label={actionLabel} tooltip={actionLabel}>
             <EmojiIcon size={size} />
           </Button>
         </span>

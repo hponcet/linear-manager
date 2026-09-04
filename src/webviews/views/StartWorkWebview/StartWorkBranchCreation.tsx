@@ -270,7 +270,9 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
             size={16}
           />
         }
-        onProcess={() => update.issue(issue.id, { stateId: stateId })}
+        onProcess={async () => {
+          await update.issue(issue.id, { stateId: stateId })
+        }}
       />
       {!!updateCycle ? (
         <FormQueueField
@@ -285,7 +287,9 @@ export function StartWorkBranchCreation(props: StartWorkContentProps) {
               size={16}
             />
           }
-          onProcess={() => update.issue(issue.id, { cycleId })}
+          onProcess={async () => {
+            await update.issue(issue.id, { cycleId })
+          }}
         />
       ) : null}
     </FormQueueAsync>

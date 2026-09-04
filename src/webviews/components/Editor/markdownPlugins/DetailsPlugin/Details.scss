@@ -83,3 +83,31 @@
 .details-content-container {
   flex: 1;
 }
+
+// Linear allows a heading as a collapsible section's summary and renders it as one. A summary
+// holds inline content only, so the level rides along as an attribute and drives the styling.
+[data-type="detailsSummary"][data-heading-level] {
+  font-weight: 600;
+}
+
+[data-type="detailsSummary"][data-heading-level="1"] {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+[data-type="detailsSummary"][data-heading-level="2"] {
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+[data-type="detailsSummary"][data-heading-level="3"] {
+  font-size: 1.125em;
+}
+
+[data-type="detailsSummary"][data-heading-level="5"] {
+  font-size: 0.9375em;
+}
+
+[data-type="detailsSummary"][data-heading-level="6"] {
+  font-size: 0.875em;
+}

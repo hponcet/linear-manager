@@ -3,6 +3,7 @@ import {
   CreateReactionInput,
   IssueHistoryRequest,
   IssueUpdateFields,
+  LinearFileUploadRequest,
 } from "src/linear/LinearService"
 import { GlobalListenerMessage, Ipc, IpcType, VsCodeApi } from "src/types/ActionMessage"
 import { Ref } from "src/types/GitAPI"
@@ -31,6 +32,7 @@ const MUTATION_OPERATIONS = new Set<IpcType<"req">>([
   "deleteAttachment",
   "createSubIssue",
   "deleteSubIssue",
+  "uploadLinearFile",
 ])
 
 const LINEAR_API_OPERATIONS = new Set<IpcType<"req">>([
@@ -46,6 +48,8 @@ const LINEAR_API_OPERATIONS = new Set<IpcType<"req">>([
   "getSubIssues",
   "getAttachments",
   "getIssueHistory",
+  "searchEditorMentions",
+  "cancelLinearFileUpload",
   ...MUTATION_OPERATIONS,
 ])
 
@@ -95,14 +99,14 @@ const vscApi = {
 
         if (type === `${msg.type}_response` && e.data._ipcReqId === _ipcReqId) {
           settled = true
-          clearTimeout(timeout)
+          if (timeout) clearTimeout(timeout)
           window.removeEventListener("message", handleMessage)
           resolve((e.data as unknown as Ipc<"res", T>).payload)
         }
 
         if (type === `${msg.type}_error` && e.data._ipcReqId === _ipcReqId) {
           settled = true
-          clearTimeout(timeout)
+          if (timeout) clearTimeout(timeout)
           window.removeEventListener("message", handleMessage)
           const error = new Error((e.data as unknown as Ipc<"err", T>).error)
           reportError(error)
@@ -110,16 +114,19 @@ const vscApi = {
         }
       }
 
-      const timeout = setTimeout(() => {
-        if (settled) {
-          return
-        }
-        settled = true
-        window.removeEventListener("message", handleMessage)
-        const error = new Error("Timeout waiting for response")
-        reportError(error)
-        reject(error)
-      }, 30000)
+      const timeout =
+        msg.type === "uploadLinearFile"
+          ? undefined
+          : window.setTimeout(() => {
+              if (settled) {
+                return
+              }
+              settled = true
+              window.removeEventListener("message", handleMessage)
+              const error = new Error("Timeout waiting for response")
+              reportError(error)
+              reject(error)
+            }, 30000)
 
       window.addEventListener("message", handleMessage)
     })
@@ -177,6 +184,12 @@ export function useRequestDataUpdate(params?: Partial<RequestDataUpdateParams>) 
         vscApi.postMessage({ type: "getAttachments", issueId, bypassCache: options?.bypassCache }),
       getIssueHistory: (request: IssueHistoryRequest) =>
         vscApi.postMessage({ type: "getIssueHistory", ...request }),
+      searchEditorMentions: (query: string) =>
+        vscApi.postMessage({ type: "searchEditorMentions", query }),
+      uploadLinearFile: (request: LinearFileUploadRequest) =>
+        vscApi.postMessage({ type: "uploadLinearFile", ...request }),
+      cancelLinearFileUpload: (uploadId: string) =>
+        vscApi.postMessage({ type: "cancelLinearFileUpload", uploadId }),
       linearUpdateIssue: (issueId: SerializedIssue["id"], fields: IssueUpdateFields) =>
         vscApi.postMessage({ type: "linearUpdateIssue", issueId, fields }),
       createComment: (input: { issueId: string; body: string; parentId?: string }) =>

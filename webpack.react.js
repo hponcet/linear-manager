@@ -22,9 +22,12 @@ module.exports = {
   devtool: isProduction ? undefined : "eval-source-map",
 
   output: {
-    publicPath: "",
+    clean: {
+      keep: /^(?:extension|linearToCodeMcpServer)\.js(?:\.map)?$/,
+    },
+    publicPath: "auto",
     pathinfo: true,
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, process.env.WEBVIEW_OUTPUT_PATH || "dist"),
     chunkFilename: "[name].chunk.js",
     filename: "[name].js",
     devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",

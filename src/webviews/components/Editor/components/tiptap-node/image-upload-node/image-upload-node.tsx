@@ -1,7 +1,7 @@
 "use client"
 
 import { NodeViewWrapper } from "@tiptap/react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CloseIcon } from "src/webviews/components/Editor/components/tiptap-icons/close-icon"
 import { Button } from "src/webviews/components/Editor/components/tiptap-ui-primitive/button"
 import { focusNextNode, isValidPosition } from "src/webviews/components/Editor/lib/tiptap-utils"
@@ -86,8 +86,22 @@ export interface UploadOptions {
  */
 function useFileUpload(options: UploadOptions) {
   const [fileItems, setFileItems] = useState<FileItem[]>([])
+  const controllersRef = useRef(new Set<AbortController>())
+
+  useEffect(
+    () => () => {
+      controllersRef.current.forEach((controller) => controller.abort())
+      controllersRef.current.clear()
+    },
+    [],
+  )
 
   const uploadFile = async (file: File): Promise<string | null> => {
+    if (options.accept === "image/*" && !file.type.startsWith("image/")) {
+      options.onError?.(new Error("Only image files can be uploaded here"))
+      return null
+    }
+
     if (file.size > options.maxSize) {
       const error = new Error(
         `File size exceeds maximum allowed (${options.maxSize / 1024 / 1024}MB)`,
@@ -97,6 +111,7 @@ function useFileUpload(options: UploadOptions) {
     }
 
     const abortController = new AbortController()
+    controllersRef.current.add(abortController)
     const fileId = crypto.randomUUID()
 
     const newFileItem: FileItem = {
@@ -147,6 +162,8 @@ function useFileUpload(options: UploadOptions) {
         options.onError?.(error instanceof Error ? error : new Error("Upload failed"))
       }
       return null
+    } finally {
+      controllersRef.current.delete(abortController)
     }
   }
 
@@ -337,12 +354,13 @@ interface ImageUploadPreviewProps {
    * Callback to remove this file from upload queue
    */
   onRemove: () => void
+  onRetry: () => void
 }
 
 /**
  * Component that displays a preview of an uploading file with progress
  */
-const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({ fileItem, onRemove }) => {
+const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({ fileItem, onRemove, onRetry }) => {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
@@ -373,9 +391,22 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({ fileItem, onRem
           {fileItem.status === "uploading" && (
             <span className="tiptap-image-upload-progress-text">{fileItem.progress}%</span>
           )}
+          {fileItem.status === "error" && (
+            <Button
+              type="button"
+              data-style="ghost"
+              onClick={(event) => {
+                event.stopPropagation()
+                onRetry()
+              }}
+            >
+              Retry
+            </Button>
+          )}
           <Button
             type="button"
             data-style="ghost"
+            aria-label={fileItem.status === "uploading" ? "Cancel image upload" : "Remove image"}
             onClick={(e) => {
               e.stopPropagation()
               onRemove()
@@ -426,36 +457,41 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
   const { fileItems, uploadFiles, removeFileItem, clearAllFiles } = useFileUpload(uploadOptions)
 
+  const removeUploadNode = () => {
+    const pos = props.getPos()
+    if (isValidPosition(pos)) {
+      props.editor.commands.deleteRange({ from: pos, to: pos + props.node.nodeSize })
+    }
+  }
+
   const handleUpload = async (files: File[]) => {
     const urls = await uploadFiles(files)
+    const pos = props.getPos()
 
-    if (urls.length > 0) {
-      const pos = props.getPos()
+    if (!isValidPosition(pos)) return
 
-      if (isValidPosition(pos)) {
-        const imageNodes = urls.map((url, index) => {
-          const filename = files[index]?.name.replace(/\.[^/.]+$/, "") || "unknown"
-          return {
-            type: extension.options.type,
-            attrs: {
-              ...extension.options,
-              src: url,
-              alt: filename,
-              title: filename,
-            },
-          }
-        })
+    if (urls.length === 0) return
 
-        props.editor
-          .chain()
-          .focus()
-          .deleteRange({ from: pos, to: pos + props.node.nodeSize })
-          .insertContentAt(pos, imageNodes)
-          .run()
-
-        focusNextNode(props.editor)
+    const imageNodes = urls.map((url, index) => {
+      const filename = files[index]?.name.replace(/\.[^/.]+$/, "") || "unknown"
+      return {
+        type: extension.options.type,
+        attrs: {
+          ...extension.options,
+          src: url,
+          alt: filename,
+        },
       }
-    }
+    })
+
+    props.editor
+      .chain()
+      .focus()
+      .deleteRange({ from: pos, to: pos + props.node.nodeSize })
+      .insertContentAt(pos, imageNodes)
+      .run()
+
+    focusNextNode(props.editor)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,15 +505,36 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
   const handleClick = () => {
     if (inputRef.current && fileItems.length === 0) {
-      inputRef.current.value = ""
-      inputRef.current.click()
+      const input = inputRef.current
+      input.value = ""
+      window.addEventListener(
+        "focus",
+        () => {
+          window.setTimeout(() => {
+            if (!input.files?.length) removeUploadNode()
+          })
+        },
+        { once: true },
+      )
+      input.click()
     }
   }
 
   const hasFiles = fileItems.length > 0
 
   return (
-    <NodeViewWrapper className="tiptap-image-upload" tabIndex={0} onClick={handleClick}>
+    <NodeViewWrapper
+      className="tiptap-image-upload"
+      tabIndex={hasFiles ? -1 : 0}
+      role={hasFiles ? undefined : "button"}
+      aria-label={hasFiles ? undefined : "Upload image"}
+      onClick={handleClick}
+      onKeyDown={(event: React.KeyboardEvent) => {
+        if (event.key !== "Enter" && event.key !== " ") return
+        event.preventDefault()
+        handleClick()
+      }}
+    >
       {!hasFiles && (
         <ImageUploadDragArea onFile={handleUpload}>
           <DropZoneContent maxSize={maxSize} limit={limit} />
@@ -506,6 +563,10 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
               key={fileItem.id}
               fileItem={fileItem}
               onRemove={() => removeFileItem(fileItem.id)}
+              onRetry={() => {
+                removeFileItem(fileItem.id)
+                void handleUpload([fileItem.file])
+              }}
             />
           ))}
         </div>

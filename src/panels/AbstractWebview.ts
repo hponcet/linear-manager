@@ -1,14 +1,19 @@
-import { IS_PRODUCTION } from "src/constants"
 import { Controller } from "src/controller"
 import { Props, Ipc, IpcResponse, GlobalListenerMessage } from "src/types/ActionMessage"
 import { makeid } from "src/utils/makeid"
-import { VscStateKeys } from "src/vscStates"
+import { parseAllowedExternalUrl } from "src/utils/parseAllowedExternalUrl"
+import {
+  IssueDescriptionDraftsVscState,
+  updateIssueDescriptionDrafts,
+  VscStateKeys,
+} from "src/vscStates"
 import {
   Disposable,
   env,
   Event,
   EventEmitter,
   ExtensionContext,
+  ExtensionMode,
   Memento,
   Uri,
   ViewColumn,
@@ -20,6 +25,23 @@ import {
 export type ContextMenuCommandData = {
   action: string
   data: Record<string, string | boolean>
+}
+
+const stateWriteQueues = new Map<string, Promise<void>>()
+const stateWriteTimestamps = new Map<string, number>()
+
+export function getWebviewScriptPolicy(
+  cspSource: string,
+  nonce: string,
+  extensionMode: ExtensionMode,
+): string {
+  return extensionMode === ExtensionMode.Production
+    ? `${cspSource} 'nonce-${nonce}'`
+    : `${cspSource} 'unsafe-eval'`
+}
+
+export function getWebviewAssetDirectory(extensionMode: ExtensionMode): string {
+  return extensionMode === ExtensionMode.Production ? "dist" : "dist-webviews-dev"
 }
 
 export interface ReactWebview<K extends keyof Props> extends Disposable {
@@ -70,7 +92,10 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
         enableScripts: true,
         retainContextWhenHidden: true,
         localResourceRoots: [
-          Uri.joinPath(this._context.extensionUri, "dist"),
+          Uri.joinPath(
+            this._context.extensionUri,
+            getWebviewAssetDirectory(this._context.extensionMode),
+          ),
           Uri.joinPath(this._context.extensionUri, "resources"),
         ],
       },
@@ -101,17 +126,13 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
   }
 
   private getWebviewContent(panel: WebviewPanel) {
-    const distBaseUri = panel.webview
-      .asWebviewUri(Uri.joinPath(this._context.extensionUri, "dist"))
-      .toString()
-      .replace(/\/?$/, "/")
-
+    const assetDirectory = getWebviewAssetDirectory(this._context.extensionMode)
     const scriptSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", `${this.viewId}.js`),
+      Uri.joinPath(this._context.extensionUri, assetDirectory, `${this.viewId}.js`),
     )
 
     const styleSrc = panel.webview.asWebviewUri(
-      Uri.joinPath(this._context.extensionUri, "dist", `${this.viewId}.css`),
+      Uri.joinPath(this._context.extensionUri, assetDirectory, `${this.viewId}.css`),
     )
 
     const font = panel.webview.asWebviewUri(
@@ -123,6 +144,10 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
     )
 
     const nonce = makeid(16)
+    const styleLink =
+      this._context.extensionMode === ExtensionMode.Production
+        ? `<link rel="stylesheet" type="text/css" href="${styleSrc}" nonce="${nonce}" />`
+        : ""
 
     panel.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -131,21 +156,25 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
           http-equiv="Content-Security-Policy"
           content="default-src 'self' ${
             panel.webview.cspSource
-          } https://*.linear.app; img-src 'self' https: data:; script-src ${
-            IS_PRODUCTION
-              ? `${panel.webview.cspSource} 'nonce-${nonce}'`
-              : `${panel.webview.cspSource} 'unsafe-eval'`
-          }; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${
+          } https://*.linear.app; img-src 'self' https: blob: data:; media-src 'self' ${
+            panel.webview.cspSource
+          } https://linear.app https://*.linear.app https://storage.googleapis.com https://www.youtube.com https://www.loom.com blob: data:; frame-src ${
+            panel.webview.cspSource
+          } https://www.youtube.com https://www.youtube-nocookie.com https://www.loom.com; script-src ${getWebviewScriptPolicy(
+            panel.webview.cspSource,
+            nonce,
+            this._context.extensionMode,
+          )} https://www.youtube.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src ${
             panel.webview.cspSource
           } data: https:; style-src-elem 'self' 'unsafe-inline' ${
             panel.webview.cspSource
           }; connect-src ${
             panel.webview.cspSource
-          } https://*.linear.app ws://*.linear.app https://storage.googleapis.com https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/data.json https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/messages.json"
+          } https://linear.app https://*.linear.app ws://*.linear.app https://storage.googleapis.com https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/data.json https://cdn.jsdelivr.net/npm/emojibase-data@latest/en/messages.json"
         />
        
         <meta id="webview" name="webview" content="${this.viewId}" />
-        <link rel="stylesheet" type="text/css" href="${styleSrc}" nonce="${nonce}" />
+        ${styleLink}
         <style nonce="${nonce}">
           @font-face {
             font-family: "Inter Variable";
@@ -168,9 +197,6 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
       <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
-        <script nonce="${nonce}">
-          __webpack_public_path__ = "${distBaseUri}";
-        </script>
         <script src="${scriptSrc}" nonce="${nonce}"></script>
       </body>
     </html>
@@ -272,7 +298,7 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
         }
         case "openExternalUrl": {
           const url = (msg as Ipc<"req", "openExternalUrl">).url
-          await env.openExternal(Uri.parse(url))
+          await env.openExternal(Uri.parse(parseAllowedExternalUrl(url).toString()))
           return this.postMessage(msg.type, undefined, msg)
         }
         case "getState": {
@@ -280,15 +306,60 @@ export abstract class AbstractWebview<K extends keyof Props> implements ReactWeb
           const value = this._context.globalState.get(key)
           return this.postMessage(msg.type, { key, value }, msg)
         }
+        case "getIssueDescriptionDraft": {
+          const drafts = this._context.globalState.get<IssueDescriptionDraftsVscState>(
+            VscStateKeys.issueDescriptionDrafts,
+            {},
+          )
+          return this.postMessage(msg.type, drafts[msg.issueId], msg)
+        }
+        case "setIssueDescriptionDraft": {
+          const key = VscStateKeys.issueDescriptionDrafts
+          const previousWrite = stateWriteQueues.get(key) ?? Promise.resolve()
+          const write = previousWrite
+            .catch(() => undefined)
+            .then(async () => {
+              const drafts = this._context.globalState.get<IssueDescriptionDraftsVscState>(key, {})
+              await this._context.globalState.update(
+                key,
+                updateIssueDescriptionDrafts(drafts, msg.issueId, msg.value),
+              )
+            })
+          stateWriteQueues.set(key, write)
+          try {
+            await write
+          } finally {
+            if (stateWriteQueues.get(key) === write) stateWriteQueues.delete(key)
+          }
+          return this.postMessage(msg.type, undefined, msg)
+        }
         case "setState": {
           const { key, value, timestamp } = msg
-          await this._context.globalState.update(key, value)
+          const writeTimestamp = Math.max(
+            Date.now(),
+            (stateWriteTimestamps.get(key) ?? 0) + 1,
+            Number.isFinite(timestamp) ? timestamp : 0,
+          )
+          stateWriteTimestamps.set(key, writeTimestamp)
 
-          if (key === VscStateKeys.branchesSettings) {
-            await Controller.gitProviderService?.refreshAuthContext()
+          const previousWrite = stateWriteQueues.get(key) ?? Promise.resolve()
+          const write = previousWrite
+            .catch(() => undefined)
+            .then(async () => {
+              await this._context.globalState.update(key, value)
+
+              if (key === VscStateKeys.branchesSettings) {
+                await Controller.gitProviderService?.refreshAuthContext()
+              }
+
+              this.postListenerMessage("stateUpdate", { value, timestamp: writeTimestamp, key })
+            })
+          stateWriteQueues.set(key, write)
+          try {
+            await write
+          } finally {
+            if (stateWriteQueues.get(key) === write) stateWriteQueues.delete(key)
           }
-
-          this.postListenerMessage("stateUpdate", { value, timestamp, key })
           return this.postMessage(msg.type, undefined, msg)
         }
         default:

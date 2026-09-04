@@ -1,0 +1,116 @@
+/* stylelint-disable custom-property-pattern */
+/* stylelint-disable selector-class-pattern */
+
+/* Every Linear reference shares one chip: entity mentions, which are nodes, and bare
+   @handles, which are decorations over plain text. Geometry and colour follow Linear:
+   a barely-tinted rounded box, body-coloured text, and only the identifier muted. */
+.linear-reference {
+  /* Linear lets a reference flow with the text: the chip wraps mid-phrase and every line
+     fragment keeps its own rounded background. An inline-flex box cannot do that. */
+  display: inline;
+  box-decoration-break: clone;
+  padding: 0.05em 0.4em 0.05em 0.3em;
+  border: 1px solid color-mix(in srgb, var(--vscode-foreground, currentcolor) 14%, transparent);
+  border-radius: 0.28em;
+  background: color-mix(in srgb, var(--vscode-foreground, currentcolor) 7%, transparent);
+  color: var(--vscode-foreground, var(--rs-text-primary));
+  font-weight: 400;
+  line-height: 1.35;
+  text-decoration: none;
+  vertical-align: baseline;
+  cursor: pointer;
+}
+
+.linear-reference:hover {
+  background: color-mix(in srgb, var(--vscode-foreground, currentcolor) 14%, transparent);
+}
+
+.linear-reference-identifier {
+  margin-right: 0.3em;
+  white-space: nowrap;
+  color: var(--vscode-descriptionForeground, var(--rs-text-secondary));
+}
+
+.linear-reference-icon {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 0.3em;
+  vertical-align: -0.15em;
+  background-color: currentcolor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.linear-reference-icon--svg,
+.linear-reference-icon--emoji {
+  width: auto;
+  height: auto;
+  background: none;
+  mask-image: none;
+}
+
+.linear-reference-icon--svg svg {
+  display: block;
+}
+
+.linear-reference-icon--emoji {
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+/* The shared cycle glyph carries a fixed stroke meant for the pickers; inside a chip it has
+   to follow the text colour to stay visible on both themes. */
+.linear-reference-icon--cycle svg circle {
+  stroke: currentcolor;
+}
+
+/* A user reference is coloured text without a chip, the way Linear renders it. */
+.linear-reference[data-kind="user"] {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--vscode-textLink-foreground, var(--rs-text-link));
+  font-weight: 500;
+}
+
+.linear-reference[data-kind="user"]:hover {
+  background: none;
+  text-decoration: underline;
+}
+
+.linear-reference[data-kind="project"] .linear-reference-icon,
+.linear-reference-icon[data-kind="project"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Crect x="2.5" y="2.5" width="11" height="11" rx="2.5" fill="none" stroke="black" stroke-width="1.6"/%3E%3C/svg%3E');
+}
+
+.linear-reference[data-kind="document"] .linear-reference-icon,
+.linear-reference-icon[data-kind="document"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Cpath d="M4 2h5l3 3v9H4z" fill="none" stroke="black" stroke-width="1.6" stroke-linejoin="round"/%3E%3C/svg%3E');
+}
+
+.linear-reference[data-kind="cycle"] .linear-reference-icon,
+.linear-reference-icon[data-kind="cycle"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="5.5" fill="none" stroke="black" stroke-width="1.6" stroke-dasharray="4 2.5"/%3E%3C/svg%3E');
+}
+
+.linear-reference[data-kind="milestone"] .linear-reference-icon,
+.linear-reference-icon[data-kind="milestone"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Cpath d="M8 2l6 6-6 6-6-6z" fill="none" stroke="black" stroke-width="1.6" stroke-linejoin="round"/%3E%3C/svg%3E');
+}
+
+.linear-reference[data-kind="view"] .linear-reference-icon,
+.linear-reference-icon[data-kind="view"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Cg stroke="black" stroke-width="1.6" stroke-linecap="round"%3E%3Cpath d="M3 4.5h10M3 8h10M3 11.5h6"/%3E%3C/g%3E%3C/svg%3E');
+}
+
+.linear-reference[data-kind="initiative"] .linear-reference-icon,
+.linear-reference-icon[data-kind="initiative"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Cpath d="M4 14V3h8l-2 3 2 3H4" fill="none" stroke="black" stroke-width="1.6" stroke-linejoin="round"/%3E%3C/svg%3E');
+}
+
+.linear-reference-icon[data-kind="user"],
+.linear-reference-icon[data-kind="issue"] {
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="5.5" fill="none" stroke="black" stroke-width="1.6"/%3E%3C/svg%3E');
+}

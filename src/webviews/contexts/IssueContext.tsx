@@ -11,6 +11,7 @@ import {
 } from "src/types/SerializedLinear"
 
 import { Container } from "../components/Container/Container"
+import { getCanonicalLinearMarkdown } from "../components/Editor/linearMarkdown"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useAsyncMemo } from "../hooks/useAsyncMemo"
 import { useIssueHistory } from "../hooks/useIssueHistory"
@@ -59,7 +60,10 @@ export type IssueContextValueData = {
   issue: SerializedIssue
   linearAccessToken: string
   update: {
-    issue: (issueId: string, issue: Parameters<LinearClient["updateIssue"]>[1]) => Promise<void>
+    issue: (
+      issueId: string,
+      issue: Parameters<LinearClient["updateIssue"]>[1],
+    ) => Promise<SerializedIssue | undefined>
     comments: {
       addComment: (body: string) => Promise<void>
       updateComment: (commentId: string, body: string) => Promise<void>
@@ -148,6 +152,9 @@ const IssueContextReact = createContext<IssueContextValueData>({
       getSubIssues: () => Promise.reject(),
       getAttachments: () => Promise.reject(),
       getIssueHistory: () => Promise.reject(),
+      searchEditorMentions: () => Promise.reject(),
+      uploadLinearFile: () => Promise.reject(),
+      cancelLinearFileUpload: () => Promise.reject(),
       linearUpdateIssue: () => Promise.reject(),
       createComment: () => Promise.reject(),
       updateComment: () => Promise.reject(),
@@ -300,36 +307,52 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   async function updateIssue(
     id: string,
     updatedFields: Parameters<LinearClient["updateIssue"]>[1],
-  ) {
+  ): Promise<SerializedIssue | undefined> {
+    const fields = { ...updatedFields }
+    if (typeof fields.description === "string") {
+      const description = getCanonicalLinearMarkdown(fields.description)
+      if (description === undefined) return undefined
+      fields.description = description
+    }
+
     try {
       const updatedIssue = (await panelActions.linearUpdateIssue(
         id,
-        updatedFields,
+        fields,
       )) as SerializedIssue | void
 
       if (updatedIssue) {
         if (id === issueId) {
-          setIssue(updatedIssue)
+          setIssue((current) =>
+            !current || updatedIssue.updatedAt >= current.updatedAt ? updatedIssue : current,
+          )
         } else {
           setSubIssuesRefetch((r) => r + 1)
           setIssueResourcesRefetch((r) => r + 1)
         }
       }
+
+      return updatedIssue || undefined
     } catch (error) {
       console.error("Failed to update issue:", error)
+      return undefined
     }
   }
 
   async function addComment(body: string) {
+    const markdown = getCanonicalLinearMarkdown(body)
+    if (markdown === undefined) throw new Error("Refusing to save unsupported Linear Markdown")
     await panelActions.createComment({
       issueId: issueId,
-      body,
+      body: markdown,
     })
     setCommentRefetch((r) => r + 1)
   }
 
   async function updateComment(commentId: string, body: string) {
-    await panelActions.updateComment(commentId, body)
+    const markdown = getCanonicalLinearMarkdown(body)
+    if (markdown === undefined) throw new Error("Refusing to save unsupported Linear Markdown")
+    await panelActions.updateComment(commentId, markdown)
     setCommentRefetch((r) => r + 1)
   }
 
@@ -339,10 +362,12 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
   }
 
   async function sendCommentReply(commentId: string, body: string) {
+    const markdown = getCanonicalLinearMarkdown(body)
+    if (markdown === undefined) throw new Error("Refusing to save unsupported Linear Markdown")
     await panelActions.createComment({
       parentId: commentId,
       issueId: issueId,
-      body,
+      body: markdown,
     })
     setCommentRefetch((r) => r + 1)
   }
@@ -448,7 +473,16 @@ export function IssueContextProvider(props: IssueContextProviderProps) {
     parentId: SerializedIssue["id"],
     fields: Parameters<LinearClient["updateIssue"]>[1],
   ) {
-    await panelActions.createSubIssue(parentId, issue!.teamId!, fields)
+    const canonicalFields = { ...fields }
+    if (typeof canonicalFields.description === "string") {
+      const description = getCanonicalLinearMarkdown(canonicalFields.description)
+      if (description === undefined) {
+        throw new Error("Refusing to save unsupported Linear Markdown")
+      }
+      canonicalFields.description = description
+    }
+
+    await panelActions.createSubIssue(parentId, issue!.teamId!, canonicalFields)
     setSubIssuesRefetch((r) => r + 1)
   }
 

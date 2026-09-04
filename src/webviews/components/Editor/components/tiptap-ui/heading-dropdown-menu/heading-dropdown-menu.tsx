@@ -70,7 +70,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
     }
 
     return (
-      <DropdownMenu modal open={isOpen} onOpenChange={handleOpenChange}>
+      <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
@@ -84,6 +84,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
             aria-pressed={isActive}
             tooltip="Heading"
             {...buttonProps}
+            showTooltip={false}
             ref={ref}
           >
             <Icon className="tiptap-button-icon" />
@@ -91,7 +92,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" portal={portal}>
+        <DropdownMenuContent align="start" portal={portal}>
           <Card>
             <CardBody>
               <ButtonGroup>

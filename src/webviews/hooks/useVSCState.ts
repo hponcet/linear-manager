@@ -42,7 +42,8 @@ export function useVSCState<T>(
   }, [key])
 
   const updateState = (value: SetStateAction<T>) => {
-    timestamp.current = Date.now()
+    const updateTimestamp = Math.max(Date.now(), timestamp.current + 1)
+    timestamp.current = updateTimestamp
     setState((oldState) => {
       const newValue = (value instanceof Function ? value(oldState) : value) || defaultValue
 
@@ -50,7 +51,7 @@ export function useVSCState<T>(
         type: "setState",
         key,
         value: newValue,
-        timestamp: timestamp.current,
+        timestamp: updateTimestamp,
       })
       return newValue
     })
